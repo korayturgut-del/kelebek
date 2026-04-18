@@ -2382,13 +2382,18 @@ input, textarea, select, [contenteditable] {
             <th style="width:40px"><input type="checkbox" id="perfSelectAll" onchange="perfToggleSelectAll()"></th>
             <th style="width:40px">No</th>
             <th style="width:180px">Öğrenci Bilgileri</th>
-            <th style="width:80px">Derse<br>Hazırlık<br>(DH)</th>
-            <th style="width:80px">Aktif<br>Katılım<br>(AK)</th>
-            <th style="width:80px">Görevleri<br>Yapma<br>(GY)</th>
-            <th style="width:80px">Örnek<br>Davranışlar<br>(ÖD)</th>
-            <th style="width:80px">Devam<br>Durumu<br>(DD)</th>
-            <th style="width:80px">TOPLAM<br>PUAN</th>
-            <th style="width:100px">İşlem</th>
+            <th style="width:40px">Materyal<br>Uyumu<br>(MK)</th>
+            <th style="width:40px">Ön<br>Araştırma<br>(ÖA)</th>
+            <th style="width:40px">Kitap<br>Etkinlik<br>(KE)</th>
+            <th style="width:40px">Bilimsel<br>Sorgulama<br>(BS)</th>
+            <th style="width:40px">Tasarım<br>Uygulama<br>(TU)</th>
+            <th style="width:40px">Veri<br>Analizi<br>(VA)</th>
+            <th style="width:40px">Rapor<br>lama<br>(RP)</th>
+            <th style="width:40px">Öz-<br>Eleştiri<br>(ÖE)</th>
+            <th style="width:40px">Akran<br>Değerl.<br>(AD)</th>
+            <th style="width:40px">Lab<br>Etiği<br>(LE)</th>
+            <th style="width:60px">TOPLAM<br>PUAN</th>
+            <th style="width:80px">İşlem</th>
           </tr>
         </thead>
         <tbody id="perfTableBody"></tbody>
@@ -8701,11 +8706,16 @@ let perfCurrentNoteContext = null;
 let perfSelectedNoteValue = null;
 let perfLastResetBackup = null;
 let perfColumnNames = {
-  col1: 'Derse Hazırlık',
-  col2: 'Aktif Katılım',
-  col3: 'Görevleri Yapma',
-  col4: 'Örnek Davranışlar',
-  col5: 'Devam Durumu'
+  col1: 'Materyal Uyumu',
+  col2: 'Ön Araştırma',
+  col3: 'Kitap Etkinlik',
+  col4: 'Bil. Sorgulama',
+  col5: 'Tasarım/Uyg.',
+  col6: 'Veri Analizi',
+  col7: 'Raporlama',
+  col8: 'Öz-Eleştiri',
+  col9: 'Akran Değ.',
+  col10: 'Lab Etiği'
 };
 
 // Performans sistemi başlatma
@@ -8978,11 +8988,16 @@ function perfUpdateTableHeaders(){
     <th style="width:40px"><input type="checkbox" id="perfSelectAll" onchange="perfToggleSelectAll()"></th>
     <th style="width:40px">No</th>
     <th style="width:180px">Öğrenci Bilgileri</th>
-    <th style="width:80px">${perfColumnNames.col1}<br>(DH)</th>
-    <th style="width:80px">${perfColumnNames.col2}<br>(AK)</th>
-    <th style="width:80px">${perfColumnNames.col3}<br>(GY)</th>
-    <th style="width:80px">${perfColumnNames.col4}<br>(ÖD)</th>
-    <th style="width:80px">${perfColumnNames.col5}<br>(DD)</th>
+    <th style="width:80px">${perfColumnNames.col1}<br>(MK)</th>
+    <th style="width:80px">${perfColumnNames.col2}<br>(ÖA)</th>
+    <th style="width:80px">${perfColumnNames.col3}<br>(KE)</th>
+    <th style="width:80px">${perfColumnNames.col4}<br>(BS)</th>
+    <th style="width:80px">${perfColumnNames.col5}<br>(TU)</th>
+    <th style="width:80px">${perfColumnNames.col6}<br>(VA)</th>
+    <th style="width:80px">${perfColumnNames.col7}<br>(RP)</th>
+    <th style="width:80px">${perfColumnNames.col8}<br>(ÖE)</th>
+    <th style="width:80px">${perfColumnNames.col9}<br>(AD)</th>
+    <th style="width:80px">${perfColumnNames.col10}<br>(LE)</th>
     <th style="width:80px">TOPLAM<br>PUAN</th>
     <th style="width:100px">İşlem</th>
   `;
@@ -9001,7 +9016,7 @@ function perfRenderTable(){
   if(classStudents.length === 0){
     tbody.innerHTML = `
       <tr>
-        <td colspan="10" style="padding:35px;text-align:center;color:#6c757d">
+        <td colspan="15" style="padding:35px;text-align:center;color:#6c757d">
           <div style="font-size:42px;margin-bottom:12px">📋</div>
           <div style="font-size:15px;font-weight:600;margin-bottom:8px">Henüz öğrenci eklenmemiş</div>
           <div style="font-size:13px">Ana menüdeki "Öğrenciler" sayfasından öğrenci ekleyin veya "Kelebek'ten Senkronla" butonunu kullanın.</div>
@@ -9011,62 +9026,112 @@ function perfRenderTable(){
     return;
   }
   
+  const maarifKeys = ['materyal','on_arastirma','kitap_etkinlik','bilimsel_sorgulama','tasarim','veri_analiz','raporlama','oz_elestiri','akran_deg','lab_etik'];
+  
   tbody.innerHTML = '';
   classStudents.forEach((student, index) => {
-    const scores = perfCalculateScores(student);
+    // Maarif verisini db.classes'dan oku
+    const dbStudent = perfFindDbStudent(student);
+    const m = (dbStudent && dbStudent.maarif) ? dbStudent.maarif : {};
+    
+    let total = 0;
+    maarifKeys.forEach(k => { total += (m[k] || 0); });
+    
     const row = document.createElement('tr');
-    row.innerHTML = `
+    let cellsHtml = `
       <td><input type="checkbox" class="perf-student-checkbox" onchange="perfUpdateDeleteButton()"></td>
       <td>${index + 1}</td>
       <td class="perf-student-info">
         <div class="perf-student-name">${student.name}</div>
         <div class="perf-student-number">No: ${student.schoolNumber}</div>
-      </td>
-      <td class="perf-score-cell" onclick="perfOpenNoteModal(${index}, 'preparation')">
-        <span class="perf-score-display ${scores.preparation > 0 ? 'positive' : scores.preparation < 0 ? 'negative' : 'zero'}">${scores.preparation > 0 ? '+' : ''}${scores.preparation}</span>
-        ${student.notes?.preparation?.length ? '<span class="perf-note-count">' + student.notes.preparation.length + '</span>' : ''}
-      </td>
-      <td class="perf-score-cell" onclick="perfOpenNoteModal(${index}, 'participation')">
-        <span class="perf-score-display ${scores.participation > 0 ? 'positive' : scores.participation < 0 ? 'negative' : 'zero'}">${scores.participation > 0 ? '+' : ''}${scores.participation}</span>
-        ${student.notes?.participation?.length ? '<span class="perf-note-count">' + student.notes.participation.length + '</span>' : ''}
-      </td>
-      <td class="perf-score-cell" onclick="perfOpenNoteModal(${index}, 'tasks')">
-        <span class="perf-score-display ${scores.tasks > 0 ? 'positive' : scores.tasks < 0 ? 'negative' : 'zero'}">${scores.tasks > 0 ? '+' : ''}${scores.tasks}</span>
-        ${student.notes?.tasks?.length ? '<span class="perf-note-count">' + student.notes.tasks.length + '</span>' : ''}
-      </td>
-      <td class="perf-score-cell" onclick="perfOpenNoteModal(${index}, 'behavior')">
-        <span class="perf-score-display ${scores.behavior > 0 ? 'positive' : scores.behavior < 0 ? 'negative' : 'zero'}">${scores.behavior > 0 ? '+' : ''}${scores.behavior}</span>
-        ${student.notes?.behavior?.length ? '<span class="perf-note-count">' + student.notes.behavior.length + '</span>' : ''}
-      </td>
-      <td class="perf-score-cell" onclick="perfOpenNoteModal(${index}, 'attendance')">
-        <span class="perf-score-display ${scores.attendance > 0 ? 'positive' : scores.attendance < 0 ? 'negative' : 'zero'}">${scores.attendance > 0 ? '+' : ''}${scores.attendance}</span>
-        ${student.notes?.attendance?.length ? '<span class="perf-note-count">' + student.notes.attendance.length + '</span>' : ''}
-      </td>
-      <td><span class="perf-total-score">${scores.total}</span></td>
+      </td>`;
+    
+    maarifKeys.forEach(key => {
+      const val = m[key] || 0;
+      const cls = val > 0 ? 'positive' : val < 0 ? 'negative' : 'zero';
+      cellsHtml += `
+        <td class="perf-score-cell" onclick="perfMaarifAdjust(${index}, '${key}')">
+          <span class="perf-score-display ${cls}">${val > 0 ? '+' : ''}${val}</span>
+        </td>`;
+    });
+    
+    cellsHtml += `
+      <td><span class="perf-total-score">${total}</span></td>
       <td>
         <button class="perf-view-btn" onclick="perfShowStudentDetail(${index})">👁️</button>
         <button class="perf-btn" onclick="perfResetStudentScores(${index})" style="background:#f59e0b;color:white;padding:4px 8px;font-size:11px;margin:2px">🔄</button>
         <button class="perf-delete-btn" onclick="perfDeleteStudent(${index})">🗑️</button>
-      </td>
-    `;
+      </td>`;
+    
+    row.innerHTML = cellsHtml;
     tbody.appendChild(row);
   });
 }
 
-// Puan hesapla
-function perfCalculateScores(student){
-  if(!student.notes){
-    student.notes = {preparation:[],participation:[],tasks:[],behavior:[],attendance:[]};
-  }
-  const scores = {};
-  ['preparation','participation','tasks','behavior','attendance'].forEach(field => {
-    let sum = 0;
-    if(student.notes[field]){
-      student.notes[field].forEach(note => { sum += Number(note.value); });
+// db.classes'daki öğrenciyi bul
+function perfFindDbStudent(perfStudent){
+  if(!db || !db.classes) return null;
+  const classes = Object.keys(db.classes);
+  for(let i = 0; i < classes.length; i++){
+    const students = db.classes[classes[i]];
+    for(let j = 0; j < students.length; j++){
+      const s = students[j];
+      const sName = s.ad || s.name || '';
+      const sNo = s.no || s.schoolNumber || '';
+      if(sName === perfStudent.name || sNo === perfStudent.schoolNumber){
+        return s;
+      }
     }
-    scores[field] = sum;
+  }
+  return null;
+}
+
+// Bilgisayardan puan ayarla
+function perfMaarifAdjust(studentIdx, key){
+  const classStudents = perfStudents[perfCurrentClass] || [];
+  const student = classStudents[studentIdx];
+  if(!student) return;
+  
+  const dbStudent = perfFindDbStudent(student);
+  if(!dbStudent){
+    alert('Öğrenci ana veritabanında bulunamadı. Kelebek\'ten Senkronla kullanın.');
+    return;
+  }
+  
+  if(!dbStudent.maarif) dbStudent.maarif = {};
+  const current = dbStudent.maarif[key] || 0;
+  
+  const val = prompt(key.replace(/_/g, ' ') + ' puanı (şu an: ' + current + '):', current);
+  if(val === null) return;
+  
+  dbStudent.maarif[key] = parseInt(val) || 0;
+  save();
+  perfRenderTable();
+  perfUpdateStats();
+}
+
+// Puan hesapla (Maarif uyumlu)
+function perfCalculateScores(student){
+  const dbStudent = perfFindDbStudent(student);
+  const m = (dbStudent && dbStudent.maarif) ? dbStudent.maarif : {};
+  
+  const maarifKeys = ['materyal','on_arastirma','kitap_etkinlik','bilimsel_sorgulama','tasarim','veri_analiz','raporlama','oz_elestiri','akran_deg','lab_etik'];
+  
+  const scores = {};
+  let total = 0;
+  maarifKeys.forEach(k => {
+    scores[k] = m[k] || 0;
+    total += scores[k];
   });
-  scores.total = scores.preparation + scores.participation + scores.tasks + scores.behavior + scores.attendance;
+  scores.total = total;
+  
+  // Eski uyumluluk
+  scores.preparation = (m.materyal||0) + (m.on_arastirma||0);
+  scores.participation = (m.kitap_etkinlik||0) + (m.bilimsel_sorgulama||0);
+  scores.tasks = (m.tasarim||0) + (m.veri_analiz||0) + (m.raporlama||0);
+  scores.behavior = (m.oz_elestiri||0) + (m.akran_deg||0);
+  scores.attendance = m.lab_etik||0;
+  
   return scores;
 }
 
