@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
 <title>🦋 Koray Kelebek Sınav Editörü</title>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://accounts.google.com/gsi/client" async defer onerror="window._gsiLoadFailed=true"></script>
 <script src="https://apis.google.com/js/api.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
@@ -1575,117 +1575,43 @@ input, textarea, select, [contenteditable] {
 
 /* ===== MOBİL GİRİŞ EKRANI DÜZELTMELERİ ===== */
 @media (max-width:768px){
-  #login-screen{
-    overflow:hidden;
-  }
   .login-box{
     padding:38vh 20px 20px;
-    width:92%;
-    max-width:360px;
+    width:92%;max-width:360px;
   }
-  /* Kelebekler mobilde biraz küçülsün ve taşmasın */
-  .butterfly{
-    width:min(180px,40vw);
-  }
-  .butterfly-female{
-    width:min(160px,36vw);
-  }
-  /* Gezegenler mobilde küçülsün ve taşmasın */
-  .space-planet-1{
-    width:90px;height:90px;top:8%;right:4%;
-  }
-  .space-planet-1::after{
-    inset:-14px -22px;
-  }
-  .space-planet-2{
-    width:55px;height:55px;bottom:22%;left:5%;
-  }
-  .space-planet-3{
-    width:35px;height:35px;top:65%;right:10%;
-  }
-  /* Meteorlar taşmasın */
-  .space-shoot{
-    width:80px;
-  }
-  .login-brand{
-    font-size:1.3rem;
-  }
-  .login-brand-sub{
-    font-size:.55rem;
-  }
+  .butterfly{width:min(180px,40vw)}
+  .butterfly-female{width:min(160px,36vw)}
+  .space-planet-1{width:90px;height:90px;top:8%;right:4%}
+  .space-planet-1::after{inset:-14px -22px}
+  .space-planet-2{width:55px;height:55px;bottom:22%;left:5%}
+  .space-planet-3{width:35px;height:35px;top:65%;right:10%}
+  .space-shoot{width:80px}
+  .login-brand{font-size:1.3rem}
+  .login-brand-sub{font-size:.55rem}
 }
-
 @media (max-width:420px){
-  .login-box{
-    padding:32vh 16px 16px;
-    width:95%;
-  }
-  .butterfly{
-    width:min(140px,38vw);
-  }
-  .butterfly-female{
-    width:min(120px,34vw);
-  }
-  /* Çok dar ekranlarda kelebeklerin uçuş alanını daralt */
-  .butterfly-male{
-    top:18%;
-  }
-  .butterfly-female{
-    top:18%;
-  }
-  .space-planet-1{
-    width:70px;height:70px;top:6%;right:2%;
-  }
-  .space-planet-1::after{
-    inset:-10px -16px;
-  }
-  .space-planet-2{
-    width:40px;height:40px;
-  }
-  .space-planet-3{
-    width:28px;height:28px;
-  }
-  .login-brand{
-    font-size:1.15rem;
-  }
-  .login-divider{
-    margin:20px 0 16px;
-  }
-  .login-box .login-sub{
-    font-size:.8rem;
-    margin:0 0 16px;
-  }
+  .login-box{padding:30vh 16px 16px;width:95%}
+  .butterfly{width:min(140px,38vw)}
+  .butterfly-female{width:min(120px,34vw)}
+  .butterfly-male,.butterfly-female{top:18%}
+  .space-planet-1{width:70px;height:70px;top:6%;right:2%}
+  .space-planet-1::after{inset:-10px -16px}
+  .space-planet-2{width:40px;height:40px}
+  .space-planet-3{width:28px;height:28px}
+  .login-brand{font-size:1.15rem}
+  .login-divider{margin:20px 0 16px}
+  .login-box .login-sub{font-size:.8rem;margin:0 0 16px}
 }
-
-/* Kısa ekranlar (landscape mobil veya düşük yükseklik) */
 @media (max-height:600px){
-  .login-box{
-    padding:22vh 20px 12px;
-  }
-  .butterfly{
-    width:min(120px,30vw);
-  }
-  .butterfly-female{
-    width:min(100px,26vw);
-  }
-  .butterfly-male, .butterfly-female{
-    top:12%;
-  }
-  .space-planet-1{
-    width:60px;height:60px;
-  }
-  .space-planet-2{
-    width:35px;height:35px;
-  }
-  .space-planet-3{
-    width:22px;height:22px;
-  }
-  .login-divider{
-    margin:14px 0 12px;
-  }
-  .login-box .login-ver{
-    margin-top:14px;padding-top:10px;
-  }
+  .login-box{padding:18vh 20px 12px}
+  .butterfly{width:min(120px,30vw)}
+  .butterfly-female{width:min(100px,26vw)}
+  .butterfly-male,.butterfly-female{top:12%}
+  .space-planet-1{width:60px;height:60px}
+  .space-planet-2{width:35px;height:35px}
+  .space-planet-3{width:22px;height:22px}
+  .login-divider{margin:14px 0 12px}
+  .login-box .login-ver{margin-top:14px;padding-top:10px}
 }
 
 #main-app-content{display:none}
@@ -11725,8 +11651,28 @@ function doLogout(){
 }
 
 // Google Auth başlat
+let _authRetryCount = 0;
+const _AUTH_MAX_RETRIES = 50; // 50 × 200ms = 10sn
+function _showAuthError(msg){
+  var errBox = document.getElementById('login-error');
+  if(errBox){
+    errBox.style.display='block';
+    errBox.innerHTML='⚠️ '+msg+'<br><button onclick="location.reload()" style="margin-top:10px;padding:8px 20px;border:1px solid rgba(255,255,255,.2);background:rgba(99,102,241,.3);color:#fff;border-radius:8px;cursor:pointer;font-size:.85rem">🔄 Tekrar Dene</button>';
+  }
+}
 function initGoogleAuth(){
+  // Script yüklenme hatası kontrolü
+  if(window._gsiLoadFailed){
+    _showAuthError('Google servisleri yüklenemedi.<br><small>İnternet bağlantınızı kontrol edin.</small>');
+    return;
+  }
   if(typeof google === 'undefined' || !google.accounts){
+    _authRetryCount++;
+    if(_authRetryCount > _AUTH_MAX_RETRIES){
+      console.error('Google API 10sn içinde yüklenemedi');
+      _showAuthError('Google bağlantısı kurulamadı.<br><small>İnternet bağlantınızı kontrol edip sayfayı yenileyin.</small>');
+      return;
+    }
     setTimeout(initGoogleAuth, 200);
     return;
   }
@@ -12182,9 +12128,15 @@ function syncSchedulePush(){
 })();
 
 // Login sonrası Drive için sessiz token iste ve ilk pull'u yap
+let _syncBootRetry = 0;
 function syncBootstrap(){
   if(!currentUser){ return; }
   if(typeof tokenClient === 'undefined' || !tokenClient){
+    if(++_syncBootRetry > 40){ // 12sn sonra vazgeç
+      console.warn('syncBootstrap: tokenClient bulunamadı, senkron devre dışı');
+      try{ syncSetStatus('off','Senkron kapalı'); }catch(e){}
+      return;
+    }
     setTimeout(syncBootstrap, 300);
     return;
   }
@@ -12234,15 +12186,20 @@ document.addEventListener('visibilitychange', function(){
 
 // unlockApp bittikten sonra senkronu başlat
 (function hookUnlock(){
-  if(typeof window.unlockApp !== 'function'){
-    setTimeout(hookUnlock, 100);
-    return;
+  var _hookRetry = 0;
+  function _tryHook(){
+    if(typeof window.unlockApp !== 'function'){
+      if(++_hookRetry > 100) return; // 10sn sonra vazgeç
+      setTimeout(_tryHook, 100);
+      return;
+    }
+    const _originalUnlock = window.unlockApp;
+    window.unlockApp = function(user){
+      _originalUnlock.apply(this, arguments);
+      setTimeout(syncBootstrap, 600);
+    };
   }
-  const _originalUnlock = window.unlockApp;
-  window.unlockApp = function(user){
-    _originalUnlock.apply(this, arguments);
-    setTimeout(syncBootstrap, 600);
-  };
+  _tryHook();
 })();
 
 // Sayfa yüklenince auth başlat
