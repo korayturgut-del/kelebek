@@ -10136,32 +10136,35 @@ function mobileRenderPerformance(className){
     if(!student.maarif.rehberlik_notu) student.maarif.rehberlik_notu = '';
     
     var genelOptions = [
-      {key:'cok_iyi', label:'Çok İyi', icon:'🌟', color:'#10b981'},
-      {key:'iyi', label:'İyi', icon:'✅', color:'#22c55e'},
-      {key:'orta', label:'Orta', icon:'➖', color:'#f59e0b'},
-      {key:'gelistirilmeli', label:'Geliştirilmeli', icon:'⚠️', color:'#ef4444'},
-      {key:'yetersiz', label:'Yetersiz', icon:'❌', color:'#dc2626'},
-      {key:'rehberlik', label:'Rehberlik İlgilenmeli', icon:'🆘', color:'#a855f7'}
+      {key:'yetkin', label:'💎 Yetkin Uygulayıcı', desc:'Konuyu kavramış, hatasız uygular', color:'#10b981'},
+      {key:'aktif', label:'⚡ Aktif Katılımcı', desc:'Süreçte aktif, küçük rehberliğe ihtiyacı var', color:'#22c55e'},
+      {key:'gelisim', label:'🔍 Gelişim Yolunda', desc:'Kavramlar üzerinde çalışıyor', color:'#f59e0b'},
+      {key:'rehberlik_gerek', label:'🛠️ Rehberlik Gerekli', desc:'Temel kavramlarda ciddi desteğe muhtaç', color:'#ef4444'},
+      {key:'odaklanma', label:'📉 Odaklanma Sorunu', desc:'Derse ilgisiz veya başlangıç düzeyi', color:'#dc2626'},
+      {key:'sosyal_takip', label:'🧩 Sosyal-Akademik Takip', desc:'Motivasyon ve rehberlik müdahalesi şart', color:'#a855f7'}
     ];
     
     genelOptions.forEach(function(opt){
       var isSelected = student.maarif.genel_durum === opt.key;
       var selectedStyle = isSelected ? 'background:' + opt.color + '22;border-color:' + opt.color : '';
       html += '<div class="maarif-sub-item" onclick=\'maarifGenelSec("' + className + '",' + sIdx + ',"' + opt.key + '")\' ';
-      html += 'style="cursor:pointer;border-radius:10px;margin:4px 16px;border:1px solid rgba(255,255,255,0.06);' + selectedStyle + '">';
-      html += '<span style="font-size:1.2rem;margin-right:10px">' + opt.icon + '</span>';
-      html += '<span class="maarif-sub-label" style="color:' + (isSelected ? '#fff' : 'var(--text2)') + ';font-weight:' + (isSelected ? '700' : '500') + '">' + opt.label + '</span>';
-      if(isSelected) html += '<span style="color:' + opt.color + ';font-size:1.2rem">●</span>';
+      html += 'style="cursor:pointer;border-radius:10px;margin:4px 16px;padding:14px 16px;border:1px solid rgba(255,255,255,0.06);' + selectedStyle + '">';
+      html += '<div style="flex:1">';
+      html += '<div style="color:' + (isSelected ? '#fff' : 'var(--text)') + ';font-weight:' + (isSelected ? '700' : '600') + ';font-size:0.9rem;margin-bottom:3px">' + opt.label + '</div>';
+      html += '<div style="color:' + (isSelected ? 'var(--text2)' : 'var(--text3)') + ';font-size:0.75rem;line-height:1.3">' + opt.desc + '</div>';
+      html += '</div>';
+      if(isSelected) html += '<span style="color:' + opt.color + ';font-size:1.5rem;margin-left:8px">●</span>';
       html += '</div>';
     });
     
-    // Rehberlik notu (sadece rehberlik seçiliyse göster)
-    if(student.maarif.genel_durum === 'rehberlik'){
+    // Rehberlik notu (sadece sosyal_takip seçiliyse göster)
+    if(student.maarif.genel_durum === 'sosyal_takip'){
       html += '<div style="padding:12px 16px">';
-      html += '<div style="font-size:0.8rem;color:var(--amber);font-weight:600;margin-bottom:8px">Rehberlik Notu:</div>';
+      html += '<div style="font-size:0.85rem;color:var(--purple);font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px">';
+      html += '<span>🧩</span><span>Rehberlik Takip Notu</span></div>';
       html += '<div onclick=\'maarifRehberlikNot("' + className + '",' + sIdx + ')\' ';
-      html += 'style="background:#0d1117;border:1px solid rgba(168,85,247,0.3);border-radius:12px;padding:12px;color:#fff;font-size:0.85rem;min-height:40px;cursor:pointer">';
-      html += (student.maarif.rehberlik_notu || '<span style="color:var(--text3)">Not eklemek için tıklayın...</span>');
+      html += 'style="background:#0d1117;border:1px solid rgba(168,85,247,0.3);border-radius:12px;padding:14px;color:#fff;font-size:0.85rem;min-height:50px;cursor:pointer;line-height:1.5">';
+      html += (student.maarif.rehberlik_notu || '<span style="color:var(--text3)">Motivasyon veya sosyal destek notunu eklemek için tıklayın...</span>');
       html += '</div></div>';
     }
     
@@ -10245,7 +10248,7 @@ function maarifGenelSec(className, sIdx, optKey){
   if(!student) return;
   if(!student.maarif) student.maarif = {};
   student.maarif.genel_durum = optKey;
-  if(optKey !== 'rehberlik') student.maarif.rehberlik_notu = '';
+  if(optKey !== 'sosyal_takip') student.maarif.rehberlik_notu = '';
   save();
   mobileRenderPerformance(className);
   setTimeout(function(){
