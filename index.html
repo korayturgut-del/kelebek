@@ -9051,7 +9051,7 @@ function perfRenderTable(){
       const val = m[key] || 0;
       const cls = val > 0 ? 'positive' : val < 0 ? 'negative' : 'zero';
       cellsHtml += `
-        <td class="perf-score-cell" onclick="perfMaarifAdjust(${index}, '${key}')">
+        <td class="perf-score-cell" onclick="perfMaarifAdjust(${index}, '${key}', event)" oncontextmenu="event.preventDefault();perfMaarifAdjust(${index}, '${key}', {shiftKey:true})">
           <span class="perf-score-display ${cls}">${val > 0 ? '+' : ''}${val}</span>
         </td>`;
     });
@@ -9072,14 +9072,33 @@ function perfRenderTable(){
 // db.classes'daki öğrenciyi bul
 function perfFindDbStudent(perfStudent){
   if(!db || !db.classes) return null;
-  const classes = Object.keys(db.classes);
-  for(let i = 0; i < classes.length; i++){
-    const students = db.classes[classes[i]];
-    for(let j = 0; j < students.length; j++){
-      const s = students[j];
-      const sName = s.ad || s.name || '';
-      const sNo = s.no || s.schoolNumber || '';
-      if(sName === perfStudent.name || sNo === perfStudent.schoolNumber){
+  
+  // Önce perfCurrentClass ile eşleştir
+  if(perfCurrentClass && db.classes[perfCurrentClass]){
+    var students = db.classes[perfCurrentClass];
+    for(var j = 0; j < students.length; j++){
+      var s = students[j];
+      var sName = s.ad || s.name || '';
+      var sNo = s.no || s.schoolNumber || '';
+      var pName = perfStudent.name || '';
+      var pNo = perfStudent.schoolNumber || '';
+      if((pNo && sNo && sNo === pNo) || (pName && sName && sName === pName)){
+        return s;
+      }
+    }
+  }
+  
+  // Tüm sınıflarda ara
+  var classes = Object.keys(db.classes);
+  for(var i = 0; i < classes.length; i++){
+    var students = db.classes[classes[i]];
+    for(var j = 0; j < students.length; j++){
+      var s = students[j];
+      var sName = s.ad || s.name || '';
+      var sNo = s.no || s.schoolNumber || '';
+      var pName = perfStudent.name || '';
+      var pNo = perfStudent.schoolNumber || '';
+      if((pNo && sNo && sNo === pNo) || (pName && sName && sName === pName)){
         return s;
       }
     }
@@ -9087,25 +9106,40 @@ function perfFindDbStudent(perfStudent){
   return null;
 }
 
-// Bilgisayardan puan ayarla
-function perfMaarifAdjust(studentIdx, key){
-  const classStudents = perfStudents[perfCurrentClass] || [];
-  const student = classStudents[studentIdx];
+// Bilgisayardan puan ayarla - tıkla = +1, shift+tıkla = -1
+function perfMaarifAdjust(studentIdx, key, event){
+  var classStudents = perfStudents[perfCurrentClass] || [];
+  var student = classStudents[studentIdx];
   if(!student) return;
   
-  const dbStudent = perfFindDbStudent(student);
+  var dbStudent = perfFindDbStudent(student);
   if(!dbStudent){
-    alert('Öğrenci ana veritabanında bulunamadı. Kelebek\'ten Senkronla kullanın.');
-    return;
+    // db.classes'da yoksa otomatik oluştur
+    if(perfCurrentClass && db.classes[perfCurrentClass]){
+      var found = false;
+      db.classes[perfCurrentClass].forEach(function(s){
+        if((s.ad || s.name) === student.name) found = true;
+      });
+      if(!found){
+        db.classes[perfCurrentClass].push({
+          ad: student.name,
+          no: student.schoolNumber,
+          sinif: perfCurrentClass,
+          maarif: {}
+        });
+        save();
+        dbStudent = db.classes[perfCurrentClass][db.classes[perfCurrentClass].length - 1];
+      }
+    }
+    if(!dbStudent) return;
   }
   
   if(!dbStudent.maarif) dbStudent.maarif = {};
-  const current = dbStudent.maarif[key] || 0;
+  var current = dbStudent.maarif[key] || 0;
   
-  const val = prompt(key.replace(/_/g, ' ') + ' puanı (şu an: ' + current + '):', current);
-  if(val === null) return;
-  
-  dbStudent.maarif[key] = parseInt(val) || 0;
+  // Sol tık = +1, Sağ tık veya shift = -1
+  var delta = (event && event.shiftKey) ? -1 : 1;
+  dbStudent.maarif[key] = current + delta;
   save();
   perfRenderTable();
   perfUpdateStats();
@@ -10377,15 +10411,22 @@ function mobileRenderStudents(className){
   if(!list) return;
 
   const students = db.classes[className] || [];
+  const maarifKeys = ['materyal','on_arastirma','kitap_etkinlik','bilimsel_sorgulama','tasarim','veri_analiz','raporlama','oz_elestiri','akran_deg','lab_etik'];
   let html = '';
 
   students.forEach((student, idx) => {
+    var total = 0;
+    if(student.maarif){
+      maarifKeys.forEach(function(k){ total += (student.maarif[k] || 0); });
+    }
+    
     html += `
       <div class="mobile-list-item" onclick='mobileEditStudent("${className}", ${idx})'>
         <div class="mobile-list-item-content">
           <div class="mobile-list-item-title">${student.ad || student.name || ''}</div>
           <div class="mobile-list-item-subtitle">No: ${student.no || student.schoolNumber || ''}</div>
         </div>
+        <span class="mobile-list-item-badge">${total}</span>
         <span class="mobile-list-item-arrow">›</span>
       </div>
     `;
