@@ -679,30 +679,31 @@ select.sel{background:var(--bg2);border:1px solid var(--border);color:var(--text
   overflow-x:auto;
   margin-bottom:16px;
 }
-.perf-table{width:100%;border-collapse:collapse;font-size:13px}
+.perf-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
 .perf-table thead{background:rgba(99,102,241,0.1);position:sticky;top:0;z-index:10}
 .perf-table th{
-  padding:14px 8px;text-align:center;font-weight:600;
+  padding:10px 4px;text-align:center;font-weight:600;
   color:var(--text);border-bottom:2px solid var(--border);
-  font-size:12px;line-height:1.4;
+  font-size:10px;line-height:1.3;word-wrap:break-word;
 }
-.perf-table td{padding:12px 8px;text-align:center;border-bottom:1px solid var(--border)}
+.perf-table td{padding:8px 4px;text-align:center;border-bottom:1px solid var(--border)}
 .perf-table tbody tr{transition:all .2s}
 .perf-table tbody tr:hover{background:var(--glass2)}
 .perf-student-info{text-align:left!important}
-.perf-student-name{font-weight:600;color:var(--text);font-size:13px}
-.perf-student-number{font-size:11px;color:var(--text2)}
-.perf-score-cell{cursor:pointer;padding:8px!important;transition:all .2s;border-radius:var(--r)}
+.perf-student-name{font-weight:600;color:var(--text);font-size:12px}
+.perf-student-number{font-size:10px;color:var(--text2)}
+.perf-score-cell{cursor:pointer;padding:4px 2px!important;transition:all .2s;border-radius:var(--r)}
 .perf-score-cell:hover{background:var(--accent-glow)}
-.perf-score-display{font-weight:700;font-size:14px;padding:6px 10px;border-radius:6px}
+.perf-score-display{font-weight:700;font-size:13px;padding:4px 6px;border-radius:6px}
 .perf-score-display.positive{color:var(--green);background:var(--green-glow)}
 .perf-score-display.negative{color:var(--red);background:rgba(239,68,68,0.1)}
 .perf-score-display.zero{color:var(--text3);background:var(--glass)}
 .perf-total-score{
   background:linear-gradient(135deg,var(--accent) 0%,#4f46e5 100%);
-  color:white;font-weight:800;padding:8px 14px;border-radius:8px;font-size:15px;
+  color:white;font-weight:800;padding:6px 10px;border-radius:8px;font-size:13px;
   box-shadow:0 4px 12px rgba(99,102,241,0.3);
 }
+.perf-table-container{overflow-x:auto}
 .perf-note-count{font-size:9px;background:var(--accent);color:white;padding:2px 6px;border-radius:10px;margin-left:4px}
 .perf-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;padding:0;margin-bottom:20px}
 .perf-stat-card{
@@ -2490,8 +2491,8 @@ input, textarea, select, [contenteditable] {
   <div class="perf-modal-content" style="max-width:600px">
     <h2>💯 Toplu Puan Dağıtımı</h2>
     <div style="background:#e7f3ff;padding:12px;border-radius:8px;margin-bottom:15px;font-size:13px">
-      Seçili öğrencilere toplam puanı 5 kategoriye eşit dağıtır.<br>
-      <strong>Örnek:</strong> 100 puan → Her kategoriye 20 puan
+      Seçili öğrencilere toplam puanı 10 kritere eşit dağıtır.<br>
+      <strong>Örnek:</strong> 100 puan → Her kritere 10 puan
     </div>
     <div style="margin:20px 0">
       <label style="display:block;font-weight:600;margin-bottom:8px">📊 Toplam Puan:</label>
@@ -9057,10 +9058,10 @@ function perfRenderTable(){
     
     cellsHtml += `
       <td><span class="perf-total-score">${total}</span></td>
-      <td>
-        <button class="perf-view-btn" onclick="perfShowStudentDetail(${index})">👁️</button>
-        <button class="perf-btn" onclick="perfResetStudentScores(${index})" style="background:#f59e0b;color:white;padding:4px 8px;font-size:11px;margin:2px">🔄</button>
-        <button class="perf-delete-btn" onclick="perfDeleteStudent(${index})">🗑️</button>
+      <td style="white-space:nowrap">
+        <button class="perf-view-btn" onclick="perfShowStudentDetail(${index})" style="padding:4px 6px;font-size:11px;margin:1px">👁️</button>
+        <button class="perf-btn" onclick="perfResetStudentScores(${index})" style="background:#f59e0b;color:white;padding:4px 6px;font-size:11px;margin:1px;border:none;border-radius:4px;cursor:pointer">🔄</button>
+        <button class="perf-delete-btn" onclick="perfDeleteStudent(${index})" style="padding:4px 6px;font-size:11px;margin:1px">🗑️</button>
       </td>`;
     
     row.innerHTML = cellsHtml;
@@ -9655,18 +9656,17 @@ function perfCloseBulkScoreModal(){
 
 function perfUpdateDistributionPreview(){
   const total = parseFloat(H('perfTotalScoreInput').value) || 0;
-  const perCategory = (total / 5).toFixed(1);
-  H('perfDistributionPreview').textContent = 'Her kategoriye: ' + (perCategory > 0 ? '+' : '') + perCategory + ' puan';
+  const perCategory = (total / 10).toFixed(1);
+  H('perfDistributionPreview').textContent = 'Her kategoriye (10 kriter): ' + (perCategory > 0 ? '+' : '') + perCategory + ' puan';
 }
 
 function perfApplyBulkScore(){
   const checkboxes = document.querySelectorAll('.perf-student-checkbox:checked');
-  if(checkboxes.length === 0){ alert('⚠️ Lütfen önce öğrenci seçin!'); return; }
+  if(checkboxes.length === 0){ alert('Lütfen önce öğrenci seçin!'); return; }
 
   const totalScore = parseFloat(H('perfTotalScoreInput').value) || 0;
-  const scorePerCategory = parseFloat((totalScore / 5).toFixed(1));
-  const reason = H('perfBulkScoreReason').value.trim() || 'Toplu puan dağıtımı';
-  const date = new Date().toLocaleDateString('tr-TR');
+  const scorePerCategory = parseFloat((totalScore / 10).toFixed(1));
+  const maarifKeys = ['materyal','on_arastirma','kitap_etkinlik','bilimsel_sorgulama','tasarim','veri_analiz','raporlama','oz_elestiri','akran_deg','lab_etik'];
 
   const indices = Array.from(checkboxes).map((cb, idx) => 
     Array.from(document.querySelectorAll('.perf-student-checkbox')).indexOf(cb)
@@ -9674,16 +9674,21 @@ function perfApplyBulkScore(){
 
   indices.forEach(index => {
     const student = perfStudents[perfCurrentClass][index];
-    ['preparation','participation','tasks','behavior','attendance'].forEach(field => {
-      student.notes[field].push({ value: scorePerCategory, date: date, reason: reason });
+    const dbStudent = perfFindDbStudent(student);
+    if(!dbStudent) return;
+    if(!dbStudent.maarif) dbStudent.maarif = {};
+    
+    maarifKeys.forEach(key => {
+      dbStudent.maarif[key] = (dbStudent.maarif[key] || 0) + scorePerCategory;
     });
   });
 
+  save();
   perfCloseBulkScoreModal();
   perfRenderTable();
   perfUpdateStats();
   perfSaveData();
-  alert(`✅ ${indices.length} öğrenciye toplam ${totalScore} puan (her kategoriye ${scorePerCategory > 0 ? '+' : ''}${scorePerCategory}) dağıtıldı!`);
+  alert(indices.length + ' öğrenciye toplam ' + totalScore + ' puan dağıtıldı!');
 }
 
 // Tek sayfa özet rapor
