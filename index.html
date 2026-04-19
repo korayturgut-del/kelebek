@@ -11307,5 +11307,122 @@ if(document.readyState === 'loading'){
 
 </script>
 </div><!-- /main-app-content -->
+  <!-- ===== Z-KITAP FEATURE ===== -->
+<!-- Nav Tab -->
+<div class="nav-tab" onclick="showPage('zkitap')" data-tip="📖 Z-Kitap Öğretim Aracı">
+  📖 <span class="desktop-only">Z-Kitap</span>
+</div>
+
+<!-- Page -->
+<div id="page-zkitap" class="page">
+  <div class="section-title">📖 Z-Kitap - İnteraktif Öğretim Yardımcısı</div>
+  
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📤 Dosya Yükle & Sınıf Seç</div>
+    </div>
+    <div class="fg fg-3">
+      <div>
+        <label class="lbl">📁 KLB/KDB/PDF/JSON</label>
+        <input type="file" id="zkUploadFile" class="inp" accept=".klb,.kdb,.pdf,.json,.db" />
+      </div>
+      <div>
+        <label class="lbl">🏫 Sınıf Seçin</label>
+        <select id="zkClassSelect" class="inp" onchange="zk.switchClass()">
+          <option value="">-- Sınıf Seçin --</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:8px">
+        <button class="btn btn-primary btn-sm" onclick="zk.newClass()">➕ Yeni Sınıf</button>
+        <button class="btn btn-ghost btn-sm" onclick="zk.exportClass()">📥 Arşiv</button>
+        <button class="btn btn-ghost btn-sm" onclick="zk.clearAllData()">🗑️ Sil</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="zkQuestionGrid" class="qlist-wrap"></div>
+
+  <div id="zkViewer" style="display:none;position:fixed;inset:0;z-index:5000;background:var(--bg0);flex-direction:row">
+    <div style="flex:1;overflow-y:auto;padding:20px;background:white;color:#000" id="zkQuestionPanel"></div>
+    
+    <div id="zkToolPanel" style="width:0;background:var(--bg1);border-left:1px solid var(--border);display:flex;flex-direction:column;transition:width 0.3s;overflow:hidden">
+      <div style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:12px">
+        <div>
+          <label class="lbl">🖍️ Kalem</label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="color" id="zkPenColor" value="#000000" style="width:40px;height:40px;border-radius:var(--r);cursor:pointer;border:1px solid var(--border)">
+            <input type="range" id="zkPenSize" min="1" max="50" value="3" style="flex:1">
+            <span id="zkSizeLabel" style="color:var(--text2);font-size:0.75rem;min-width:30px">3px</span>
+          </div>
+        </div>
+
+        <div style="background:var(--bg2);padding:8px;border-radius:var(--r);text-align:center">
+          <small style="color:var(--text2)">Basınç: <strong style="color:var(--accent)" id="zkPressure">0%</strong></small>
+        </div>
+
+        <div>
+          <label class="lbl">🌈 Renkler</label>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+            <button class="col-btn" style="background:#000000;width:100%" onclick="zk.setColor('#000000')" title="Siyah"></button>
+            <button class="col-btn" style="background:#FF0000;width:100%" onclick="zk.setColor('#FF0000')" title="Kırmızı"></button>
+            <button class="col-btn" style="background:#00AA00;width:100%" onclick="zk.setColor('#00AA00')" title="Yeşil"></button>
+            <button class="col-btn" style="background:#0000FF;width:100%" onclick="zk.setColor('#0000FF')" title="Mavi"></button>
+            <button class="col-btn" style="background:#FFAA00;width:100%" onclick="zk.setColor('#FFAA00')" title="Turuncu"></button>
+            <button class="col-btn" style="background:#FF00FF;width:100%" onclick="zk.setColor('#FF00FF')" title="Pembe"></button>
+          </div>
+        </div>
+
+        <div>
+          <label class="lbl">🛠️ Araçlar</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <button class="btn btn-sm btn-primary" onclick="zk.setTool('pen')" id="zkToolPen">🖍️ Kalem</button>
+            <button class="btn btn-sm btn-ghost" onclick="zk.setTool('eraser')" id="zkToolEraser">🧹 Silgi</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="lbl">📋 İşlemler</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <button class="btn btn-sm btn-ghost" onclick="zk.clearCanvas()">🗑️ Temizle</button>
+            <button class="btn btn-sm btn-ghost" onclick="zk.undoDrawing()">↶ Geri Al</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:1;padding:8px;background:var(--bg0);border-top:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column">
+        <canvas id="zkCanvas" style="border:1px solid var(--border);flex:1;display:block;cursor:crosshair;background:white"></canvas>
+      </div>
+
+      <div style="padding:12px;border-top:1px solid var(--border);display:flex;gap:8px;flex-direction:column">
+        <button class="btn btn-success btn-sm" onclick="zk.saveDrawing()" style="width:100%">💾 Kaydet</button>
+        <button class="btn btn-primary btn-sm" onclick="zk.exportPDF()" style="width:100%">📄 PDF Export</button>
+      </div>
+    </div>
+
+    <div style="position:fixed;bottom:0;left:0;right:0;background:var(--bg1);border-top:1px solid var(--border);padding:12px;display:flex;gap:8px;justify-content:center;align-items:center;z-index:5001">
+      <button class="btn btn-sm btn-ghost" onclick="zk.prevQuestion()">⬅️ Önceki</button>
+      <span style="color:var(--text);font-weight:600"><span id="zkQNum">1</span>/<span id="zkQTotal">1</span></span>
+      <button class="btn btn-sm btn-ghost" onclick="zk.nextQuestion()">Sonraki ➡️</button>
+      <button class="btn btn-sm btn-ghost" style="margin-left:auto" onclick="zk.toggleToolPanel()">🛠️</button>
+      <button class="btn btn-sm btn-danger" onclick="zk.closeViewer()">✕ Kapat</button>
+    </div>
+  </div>
+</div>
+
+<style>
+#zkQuestionGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:16px}
+.zk-card{background:var(--glass);border:1px solid var(--border);border-radius:var(--r2);padding:12px;cursor:pointer;transition:all 0.25s;text-align:center}
+.zk-card:hover{border-color:var(--accent);transform:translateY(-2px);background:var(--glass2)}
+.zk-card-num{font-weight:800;font-size:1.1rem;color:var(--accent);margin-bottom:8px}
+.zk-card-text{font-size:0.78rem;color:var(--text2);line-height:1.4;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.zk-card-meta{font-size:0.7rem;color:var(--text3);display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid var(--border)}
+#zkCanvas{touch-action:none;-webkit-touch-callout:none}
+#zkViewer{display:flex!important}
+@media(max-width:768px){#zkToolPanel{width:0!important;position:absolute;right:0;top:0;bottom:60px;height:calc(100%-60px);max-width:280px;z-index:100}#zkQuestionPanel{font-size:0.9rem!important;padding:12px!important}#zkQuestionGrid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}}
+</style>
+
+<script>
+class ZKitap{constructor(){this.canvas=null;this.fabricCanvas=null;this.currentQuestion=0;this.questions=[];this.classes={};this.currentClass=null;this.tool='pen';this.color='#000000';this.size=3;this.lastPressure=0;this.init()}init(){this.loadFromStorage();document.getElementById('zkUploadFile')?.addEventListener('change',(e)=>this.handleFileUpload(e));this.initCanvas();this.setupEventListeners()}initCanvas(){this.canvas=document.getElementById('zkCanvas');if(!this.canvas)return;this.fabricCanvas=new fabric.Canvas('zkCanvas',{isDrawingMode:true,renderOnAddRemove:false,backgroundColor:'#ffffff'});this.fabricCanvas.freeDrawingBrush=new fabric.PencilBrush(this.fabricCanvas);this.fabricCanvas.freeDrawingBrush.color=this.color;this.fabricCanvas.freeDrawingBrush.width=this.size;this.canvas.addEventListener('pointerdown',(e)=>this.onPointerDown(e));this.canvas.addEventListener('pointermove',(e)=>this.onPointerMove(e));this.canvas.addEventListener('pointerup',(e)=>this.onPointerUp(e))}onPointerDown(e){if(!this.fabricCanvas.isDrawingMode)return;const pressure=e.pressure||0.5;this.lastPressure=pressure;const size=Math.max(1,this.size*pressure);this.fabricCanvas.freeDrawingBrush.width=size;document.getElementById('zkPressure').textContent=Math.round(pressure*100)+'%'}onPointerMove(e){const pressure=e.pressure||0.5;if(Math.abs(pressure-this.lastPressure)>0.05){this.lastPressure=pressure;const size=Math.max(1,this.size*pressure);this.fabricCanvas.freeDrawingBrush.width=size;document.getElementById('zkPressure').textContent=Math.round(pressure*100)+'%'}}onPointerUp(e){document.getElementById('zkPressure').textContent='0%'}setupEventListeners(){const penColorInput=document.getElementById('zkPenColor');const penSizeInput=document.getElementById('zkPenSize');if(penColorInput){penColorInput.addEventListener('change',(e)=>this.setColor(e.target.value))}if(penSizeInput){penSizeInput.addEventListener('input',(e)=>{this.size=parseInt(e.target.value);this.fabricCanvas.freeDrawingBrush.width=this.size;document.getElementById('zkSizeLabel').textContent=this.size+'px'})}}handleFileUpload(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=(e)=>{try{let data;const content=e.target.result;try{data=JSON.parse(content)}catch{data={questions:[{text:content.substring(0,200),type:'text'}]}}const className=file.name.split('.')[0];this.classes[className]={name:className,questions:data.questions||data.sorular||[],drawings:{},created:new Date().toISOString()};this.updateClassSelect();this.switchClass(className);alert(`✅ "${className}" başarıyla yüklendi! ${this.classes[className].questions.length} soru bulundu.`)}catch(err){alert('❌ Dosya okunamadı: '+err.message)}};reader.readAsText(file)}updateClassSelect(){const select=document.getElementById('zkClassSelect');if(!select)return;const currentValue=select.value;select.innerHTML='<option value="">-- Sınıf Seçin --</option>';Object.keys(this.classes).forEach(className=>{const opt=document.createElement('option');opt.value=className;opt.textContent=`🏫 ${className} (${this.classes[className].questions.length} soru)`;select.appendChild(opt)});if(currentValue&&this.classes[currentValue]){select.value=currentValue}}switchClass(className=null){if(!className){className=document.getElementById('zkClassSelect')?.value}if(!className||!this.classes[className])return;this.currentClass=className;this.questions=this.classes[className].questions||[];this.currentQuestion=0;this.renderQuestionGrid()}renderQuestionGrid(){const grid=document.getElementById('zkQuestionGrid');if(!grid)return;grid.innerHTML='';if(this.questions.length===0){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--text2);padding:20px">Henüz soru yüklenmedi</div>';return}this.questions.forEach((q,idx)=>{const card=document.createElement('div');card.className='zk-card';const hasDrawing=this.classes[this.currentClass]?.drawings[`q${idx}`];card.innerHTML=`<div class="zk-card-num">S${idx+1}</div><div class="zk-card-text">${(q.text||q.soru||'').substring(0,80)}...</div><div class="zk-card-meta"><span>${q.type||q.tür||'MC'}</span><span>${hasDrawing?'✏️':''}</span></div>`;card.onclick=()=>this.openQuestion(idx);grid.appendChild(card)})}openQuestion(idx){this.currentQuestion=idx;const viewer=document.getElementById('zkViewer');if(viewer){viewer.style.display='flex';this.loadQuestionView();this.loadQuestionDrawing();this.updateNavigation()}}loadQuestionView(){const q=this.questions[this.currentQuestion];const panel=document.getElementById('zkQuestionPanel');if(!panel)return;let html=`<div style="font-size:1.1rem;font-weight:bold;margin-bottom:16px;color:#000">Soru ${this.currentQuestion+1} / ${this.questions.length}</div><div style="margin-bottom:16px;line-height:1.8;font-size:1rem;color:#333">${q.text||q.soru||'Metin bulunamadı'}</div>`;if(q.image||q.görsel){html+=`<img src="${q.image||q.görsel}" style="max-width:100%;border:1px solid #ccc;margin:12px 0;border-radius:4px">`}if(q.options||q.seçenekler){const opts=q.options||q.seçenekler;html+='<div style="margin-top:12px">';opts.forEach((o,i)=>{html+=`<div style="margin:8px 0;padding:12px;border:1px solid #ccc;border-radius:4px;background:#f9f9f9">${String.fromCharCode(65+i)}) ${o}</div>`});html+='</div>'}panel.innerHTML=html}loadQuestionDrawing(){if(!this.fabricCanvas)return;const drawings=this.classes[this.currentClass]?.drawings;const qId=`q${this.currentQuestion}`;if(drawings&&drawings[qId]){this.fabricCanvas.loadFromJSON(drawings[qId],()=>{this.fabricCanvas.renderAll()})}else{this.fabricCanvas.clear()}}saveDrawing(){if(!this.currentClass||!this.fabricCanvas)return;const drawings=this.classes[this.currentClass].drawings;const qId=`q${this.currentQuestion}`;drawings[qId]=this.fabricCanvas.toJSON();this.saveToStorage();alert('✅ Çizim kaydedildi!')}setTool(tool){this.tool=tool;document.getElementById('zkToolPen')?.classList.remove('btn-primary');document.getElementById('zkToolEraser')?.classList.remove('btn-primary');document.getElementById('zkToolPen')?.classList.add('btn-ghost');document.getElementById('zkToolEraser')?.classList.add('btn-ghost');if(tool==='pen'){this.fabricCanvas.freeDrawingBrush=new fabric.PencilBrush(this.fabricCanvas);this.fabricCanvas.freeDrawingBrush.color=this.color;this.fabricCanvas.freeDrawingBrush.width=this.size;document.getElementById('zkToolPen')?.classList.remove('btn-ghost');document.getElementById('zkToolPen')?.classList.add('btn-primary')}else if(tool==='eraser'){this.fabricCanvas.freeDrawingBrush=new fabric.PencilBrush(this.fabricCanvas);this.fabricCanvas.freeDrawingBrush.color='#ffffff';this.fabricCanvas.freeDrawingBrush.width=this.size*2;document.getElementById('zkToolEraser')?.classList.remove('btn-ghost');document.getElementById('zkToolEraser')?.classList.add('btn-primary')}}setColor(color){this.color=color;if(this.tool==='pen'&&this.fabricCanvas){this.fabricCanvas.freeDrawingBrush.color=color}document.getElementById('zkPenColor').value=color}clearCanvas(){if(confirm('⚠️ Bu sorunun tüm çizimlerini silmek istediğinize emin misiniz?')){this.fabricCanvas.clear();this.fabricCanvas.renderAll()}}undoDrawing(){if(this.fabricCanvas.getObjects().length>0){this.fabricCanvas.remove(this.fabricCanvas.getObjects()[this.fabricCanvas.getObjects().length-1]);this.fabricCanvas.renderAll()}}nextQuestion(){this.saveDrawing();if(this.currentQuestion<this.questions.length-1){this.currentQuestion++;this.loadQuestionView();this.loadQuestionDrawing();this.updateNavigation()}}prevQuestion(){this.saveDrawing();if(this.currentQuestion>0){this.currentQuestion--;this.loadQuestionView();this.loadQuestionDrawing();this.updateNavigation()}}updateNavigation(){document.getElementById('zkQNum').textContent=this.currentQuestion+1;document.getElementById('zkQTotal').textContent=this.questions.length}toggleToolPanel(){const panel=document.getElementById('zkToolPanel');if(panel){const isOpen=panel.style.width!=='0px'&&panel.style.width!=='';panel.style.width=isOpen?'0px':'280px'}}closeViewer(){this.saveDrawing();const viewer=document.getElementById('zkViewer');if(viewer){viewer.style.display='none'}}newClass(){const name=prompt('📚 Yeni sınıf adı (örn: 6B, 7A, vb):');if(name&&name.trim()){const trimmed=name.trim();if(this.classes[trimmed]){alert('⚠️ Bu sınıf zaten var!');return}this.classes[trimmed]={name:trimmed,questions:[],drawings:{},created:new Date().toISOString()};this.updateClassSelect();this.saveToStorage();alert(`✅ "${trimmed}" sınıfı oluşturuldu!`)}}exportClass(){if(!this.currentClass){alert('⚠️ Lütfen bir sınıf seçin');return}const data=JSON.stringify(this.classes[this.currentClass],null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`${this.currentClass}-zkitap-arşiv.json`;a.click();URL.revokeObjectURL(url)}exportPDF(){alert('📄 PDF export özelliği yakında eklenecek!')}clearAllData(){if(confirm('⚠️ TÜM VERİLER SİLİNECEK! Emin misiniz?')){this.classes={};this.currentClass=null;this.questions=[];this.updateClassSelect();document.getElementById('zkQuestionGrid').innerHTML='';this.saveToStorage();alert('✅ Tüm veriler silindi!')}}saveToStorage(){try{localStorage.setItem('zkitapData',JSON.stringify(this.classes))}catch(e){console.error('Storage error:',e)}}loadFromStorage(){try{const data=localStorage.getItem('zkitapData');if(data){this.classes=JSON.parse(data);this.updateClassSelect()}}catch(e){console.error('Storage error:',e)}}}const zk=new ZKitap();
+</script>
 </body>
 </html>
