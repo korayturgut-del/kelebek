@@ -2309,18 +2309,19 @@ input, textarea, select, [contenteditable] {
       <span id="zkitap-meta" style="color:var(--text3);font-size:.72rem"></span>
       <div style="flex:1"></div>
       
-      <!-- Yükleme Butonları -->
-      <button class="btn btn-primary btn-sm" onclick="zkLoadFile()">📂 KLB Yükle</button>
-      <button class="btn btn-success btn-sm" onclick="zkLoadPDF()">📄 PDF Yükle</button>
-      <div class="we-div" style="height:24px"></div>
+      <!-- Yükleme Butonları (sadece ana görünümde) -->
+      <div id="zk-main-actions">
+        <button class="btn btn-primary btn-sm" onclick="zkLoadFile()">📂 KLB Yükle</button>
+        <button class="btn btn-success btn-sm" onclick="zkLoadPDF()">📄 PDF Yükle</button>
+        <button class="btn btn-ghost btn-sm" onclick="zkPrintFromMain()">🖨️ Yazdır</button>
+        <button class="btn btn-ghost btn-sm" onclick="zkClearAll()" style="color:var(--red)">🗑️</button>
+      </div>
       
-      <!-- Çalışma Kağıdı Butonları -->
-      <button class="btn btn-ghost btn-sm" onclick="zkToggleWorksheet()" id="zk-worksheet-toggle">
-        <span id="zk-ws-icon">📝</span> Çalışma Kağıdı
+      <!-- Çalışma Kağıdı Butonu (hep görünür) -->
+      <div class="we-div" style="height:24px"></div>
+      <button class="btn btn-ghost btn-sm" onclick="zkShowWorksheet()" id="zk-worksheet-btn">
+        📝 Çalışma Kağıdı
       </button>
-      <button class="btn btn-ghost btn-sm" onclick="zkdPreview()" id="zk-preview-btn" style="display:none">👁️ Önizle</button>
-      <button class="btn btn-ghost btn-sm" onclick="zkPrintFromMain()">🖨️ Yazdır</button>
-      <button class="btn btn-ghost btn-sm" onclick="zkClearAll()" style="color:var(--red)">🗑️</button>
     </div>
   </div>
 
@@ -2338,6 +2339,18 @@ input, textarea, select, [contenteditable] {
 
     <!-- Çalışma Kağıdı Düzenleme Paneli (Başlangıçta Gizli) -->
     <div id="zk-worksheet-panel" style="display:none">
+      <!-- Worksheet Toolbar -->
+      <div class="card" style="margin-bottom:12px;padding:10px 14px;background:rgba(99,102,241,0.05)">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="zkBackToMain()" style="border-color:var(--accent);color:var(--accent)">
+            ← Z-Kitap
+          </button>
+          <div style="flex:1"></div>
+          <button class="btn btn-ghost btn-sm" onclick="zkdPreview()">👁️ Önizle</button>
+          <button class="btn btn-primary btn-sm" onclick="zkdPrint()">🖨️ Yazdır / PDF</button>
+        </div>
+      </div>
+      
       <div class="card" style="margin-bottom:12px;padding:10px 14px">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <span style="font-size:.78rem;font-weight:700;color:var(--text2)">Soru Ekle:</span>
@@ -11781,34 +11794,36 @@ function zkLoadPDF(){
   input.click();
 }
 
-// ==== ÇALIŞMA KAĞIDI PANEL GEÇİŞİ ====
-function zkToggleWorksheet(){
+// ==== ÇALIŞMA KAĞIDI GÖSTERİMİ ====
+function zkShowWorksheet(){
   const panel = H('zk-worksheet-panel');
   const viewArea = H('zk-view-area');
-  const toggle = H('zk-worksheet-toggle');
-  const previewBtn = H('zk-preview-btn');
-  const icon = H('zk-ws-icon');
+  const mainActions = H('zk-main-actions');
+  const wsBtn = H('zk-worksheet-btn');
   
-  if(panel.style.display === 'none' || !panel.style.display){
-    // Çalışma Kağıdı modunu aç
-    panel.style.display = 'block';
-    viewArea.style.display = 'none';
-    toggle.classList.add('btn-primary');
-    toggle.classList.remove('btn-ghost');
-    previewBtn.style.display = 'inline-flex';
-    icon.textContent = '📖';
-    toggle.innerHTML = '<span>📖</span> Soru Görünümü';
-    zkdRender();
-  } else {
-    // Soru görünümüne dön
-    panel.style.display = 'none';
-    viewArea.style.display = 'block';
-    toggle.classList.remove('btn-primary');
-    toggle.classList.add('btn-ghost');
-    previewBtn.style.display = 'none';
-    icon.textContent = '📝';
-    toggle.innerHTML = '<span id="zk-ws-icon">📝</span> Çalışma Kağıdı';
-  }
+  // Çalışma Kağıdı modunu aç
+  panel.style.display = 'block';
+  viewArea.style.display = 'none';
+  mainActions.style.display = 'none';
+  wsBtn.style.display = 'none';
+  
+  H('zkitap-title').textContent = 'Çalışma Kağıdı Düzenle';
+  zkdRender();
+}
+
+function zkBackToMain(){
+  const panel = H('zk-worksheet-panel');
+  const viewArea = H('zk-view-area');
+  const mainActions = H('zk-main-actions');
+  const wsBtn = H('zk-worksheet-btn');
+  
+  // Ana Z-Kitap görünümüne dön
+  panel.style.display = 'none';
+  viewArea.style.display = 'block';
+  mainActions.style.display = 'flex';
+  wsBtn.style.display = 'inline-flex';
+  
+  H('zkitap-title').textContent = 'Z-Kitap';
 }
 
 
