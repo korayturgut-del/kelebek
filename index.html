@@ -2310,9 +2310,12 @@ input, textarea, select, [contenteditable] {
       <div style="flex:1"></div>
       
       <!-- Yükleme Butonları (sadece ana görünümde) -->
-      <div id="zk-main-actions">
+      <div id="zk-main-actions" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
         <button class="btn btn-primary btn-sm" onclick="zkLoadFile()">📂 KLB Yükle</button>
-        <button class="btn btn-success btn-sm" onclick="zkLoadPDF()">📄 PDF Yükle</button>
+        <button class="btn btn-success btn-sm" onclick="zkLoadPDF()" id="zk-pdf-load-btn">📄 PDF Yükle</button>
+        <button class="btn btn-ghost btn-sm" onclick="zkReopenPDFs()" id="zk-pdf-reopen-btn" style="display:none;border-color:var(--green);color:var(--green)">
+          📄 PDF'leri Tekrar Aç
+        </button>
         <button class="btn btn-ghost btn-sm" onclick="zkPrintFromMain()">🖨️ Yazdır</button>
         <button class="btn btn-ghost btn-sm" onclick="zkClearAll()" style="color:var(--red)">🗑️</button>
       </div>
@@ -11760,7 +11763,9 @@ function zkClearAll(){
   if(!zkQuestions.length) return;
   if(!confirm('Tüm Z-Kitap soruları silinsin mi?')) return;
   zkQuestions = [];
+  zkPdfDocs = []; // PDF'leri de temizle
   zkRenderCards();
+  zkUpdatePDFButtons(); // Butonları güncelle
   H('zkitap-title').textContent = 'Z-Kitap';
   H('zkitap-meta').textContent = 'Dosya yükleyerek başlayın';
 }
@@ -11790,6 +11795,7 @@ function zkLoadPDF(){
     zkPdfRenderTabs();
     zkPdfRenderAllDocs();
     zkPdfUpdateInfo();
+    zkUpdatePDFButtons(); // Butonları güncelle
   };
   input.click();
 }
@@ -11824,6 +11830,32 @@ function zkBackToMain(){
   wsBtn.style.display = 'inline-flex';
   
   H('zkitap-title').textContent = 'Z-Kitap';
+}
+
+// ==== PDF'LERİ TEKRAR AÇMA ====
+function zkReopenPDFs(){
+  if(!zkPdfDocs.length){
+    klbToast('⚠️ Yüklü PDF yok!','error');
+    return;
+  }
+  H('zk-pdf-crop').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  zkPdfRenderTabs();
+  zkPdfRenderAllDocs();
+  zkPdfUpdateInfo();
+  klbToast('📄 '+zkPdfDocs.length+' PDF tekrar açıldı','success');
+}
+
+function zkUpdatePDFButtons(){
+  const reopenBtn = H('zk-pdf-reopen-btn');
+  const loadBtn = H('zk-pdf-load-btn');
+  if(zkPdfDocs.length > 0){
+    reopenBtn.style.display = 'inline-flex';
+    loadBtn.textContent = '📄 Yeni PDF Ekle';
+  } else {
+    reopenBtn.style.display = 'none';
+    loadBtn.textContent = '📄 PDF Yükle';
+  }
 }
 
 
@@ -12010,13 +12042,15 @@ function zkPdfCropDone(){
   zkRenderCards();
   H('zkitap-meta').textContent=zkQuestions.length+' soru';
   zkPdfCropClose();
+  zkUpdatePDFButtons(); // Butonları güncelle
   klbToast('✅ '+newQs.length+' soru Z-Kitap\'a eklendi!','success');
 }
 
 function zkPdfCropClose(){
   H('zk-pdf-crop').style.display='none';
   document.body.style.overflow='';
-  zkPdfDocs=[]; zkPdfActiveDoc=0;
+  // PDFs'leri sakla - tekrar kullanılabilir olması için temizleme
+  // zkPdfDocs=[]; zkPdfActiveDoc=0; // KALDIRILDI - PDF'ler artık saklanıyor
 }
 
 function zkPdfPreviewClose(){ H('zk-pdf-preview').style.display='none'; }
