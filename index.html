@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>MPTS Mobil</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -27,20 +29,21 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: var(--bg);
   color: var(--text);
-  max-width: 480px;
+  max-width: 768px;
   margin: 0 auto;
   padding-bottom: 80px;
   user-select: none;
+  overflow-x: hidden;
 }
 
 /* Header */
 .header {
   background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
   color: white;
-  padding: 16px;
+  padding: max(env(safe-area-inset-top), 16px) 16px 16px 16px;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -48,13 +51,13 @@ body {
 }
 
 .header h1 {
-  font-size: 1.2rem;
+  font-size: clamp(1rem, 4vw, 1.2rem);
   font-weight: 800;
   margin-bottom: 4px;
 }
 
 .header p {
-  font-size: 0.75rem;
+  font-size: clamp(0.7rem, 3vw, 0.85rem);
   opacity: 0.8;
 }
 
@@ -71,8 +74,8 @@ body {
 }
 
 .avatar {
-  width: 48px;
-  height: 48px;
+  width: clamp(40px, 12vw, 56px);
+  height: clamp(40px, 12vw, 56px);
   border-radius: 50%;
   background: linear-gradient(135deg, var(--p1-color), var(--p2-color));
   display: flex;
@@ -80,42 +83,62 @@ body {
   justify-content: center;
   color: white;
   font-weight: 800;
-  font-size: 1.2rem;
+  font-size: clamp(1rem, 4vw, 1.4rem);
+  flex-shrink: 0;
+}
+
+.student-info {
+  flex: 1;
+  min-width: 0;
 }
 
 .student-info h2 {
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 4vw, 1.1rem);
   font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .student-info p {
-  font-size: 0.8rem;
+  font-size: clamp(0.75rem, 3vw, 0.85rem);
   color: var(--text2);
+}
+
+.student-select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-top: 8px;
 }
 
 /* Segmented Control */
 .segmented-control {
   display: flex;
-  background: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.95);
   backdrop-filter: blur(10px);
   border-radius: 12px;
   padding: 4px;
   margin: 16px;
   gap: 4px;
   position: sticky;
-  top: 90px;
+  top: calc(max(env(safe-area-inset-top), 16px) + 70px);
   z-index: 90;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 
 .segment {
   flex: 1;
-  padding: 10px;
+  padding: clamp(8px, 2vw, 10px);
   text-align: center;
   border-radius: 8px;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: clamp(0.7rem, 3vw, 0.85rem);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
 }
 
 .segment.active {
@@ -146,17 +169,17 @@ body {
 
 /* Glass Card */
 .glass-card {
-  background: rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.95);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255,255,255,0.3);
   border-radius: 20px;
-  padding: 20px;
+  padding: clamp(16px, 4vw, 20px);
   margin-bottom: 16px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.08);
 }
 
 .card-title {
-  font-size: 0.9rem;
+  font-size: clamp(0.85rem, 3.5vw, 1rem);
   font-weight: 700;
   margin-bottom: 16px;
   display: flex;
@@ -166,7 +189,7 @@ body {
 
 /* Criterion Item */
 .criterion {
-  margin-bottom: 24px;
+  margin-bottom: clamp(20px, 5vw, 24px);
 }
 
 .criterion-header {
@@ -174,26 +197,30 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
+  gap: 8px;
 }
 
 .criterion-label {
-  font-size: 0.85rem;
+  font-size: clamp(0.8rem, 3vw, 0.9rem);
   font-weight: 600;
   color: var(--text);
+  flex: 1;
+  min-width: 0;
 }
 
 .criterion-value {
-  font-size: 1.5rem;
+  font-size: clamp(1.3rem, 5vw, 1.6rem);
   font-weight: 800;
-  min-width: 60px;
+  min-width: clamp(50px, 15vw, 70px);
   text-align: right;
+  flex-shrink: 0;
 }
 
 .criterion-value.p1 { color: var(--p1-color); }
 .criterion-value.p2 { color: var(--p2-color); }
 
 .criterion-max {
-  font-size: 0.75rem;
+  font-size: clamp(0.7rem, 2.5vw, 0.85rem);
   color: var(--text2);
   margin-left: 4px;
 }
@@ -201,16 +228,17 @@ body {
 /* Slider */
 .slider-container {
   position: relative;
-  height: 8px;
+  height: clamp(6px, 2vw, 8px);
   background: #e2e8f0;
   border-radius: 4px;
   overflow: hidden;
+  touch-action: none;
 }
 
 .slider-track {
   height: 100%;
   border-radius: 4px;
-  transition: width 0.3s;
+  transition: width 0.2s ease-out;
 }
 
 .slider-track.p1 { background: var(--p1-color); }
@@ -218,12 +246,13 @@ body {
 
 input[type="range"] {
   width: 100%;
-  height: 8px;
+  height: clamp(6px, 2vw, 8px);
   position: absolute;
   top: 0;
   left: 0;
   opacity: 0;
   cursor: pointer;
+  -webkit-appearance: none;
 }
 
 .stepper {
@@ -234,19 +263,56 @@ input[type="range"] {
 
 .stepper-btn {
   flex: 1;
-  padding: 8px;
+  padding: clamp(6px, 2vw, 10px);
   border: none;
   border-radius: 8px;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 3.5vw, 1.1rem);
   cursor: pointer;
   transition: all 0.2s;
   background: var(--bg);
   color: var(--text);
+  touch-action: manipulation;
 }
 
 .stepper-btn:active {
   transform: scale(0.95);
+}
+
+/* Instant Score Buttons */
+.instant-scores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.instant-btn {
+  padding: clamp(6px, 2vw, 8px);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: white;
+  font-weight: 700;
+  font-size: clamp(0.8rem, 3vw, 0.9rem);
+  cursor: pointer;
+  transition: all 0.2s;
+  touch-action: manipulation;
+}
+
+.instant-btn:active {
+  transform: scale(0.95);
+}
+
+.instant-btn.p1 { border-color: var(--p1-color); color: var(--p1-color); }
+.instant-btn.p2 { border-color: var(--p2-color); color: var(--p2-color); }
+
+.instant-btn.active {
+  background: var(--p1-color);
+  color: white;
+}
+
+.instant-btn.p2.active {
+  background: var(--p2-color);
 }
 
 /* Total Card */
@@ -254,13 +320,13 @@ input[type="range"] {
   background: linear-gradient(135deg, #1e293b, #334155);
   color: white;
   border-radius: 20px;
-  padding: 24px;
+  padding: clamp(20px, 5vw, 24px);
   text-align: center;
   margin-bottom: 16px;
 }
 
 .total-label {
-  font-size: 0.8rem;
+  font-size: clamp(0.75rem, 3vw, 0.85rem);
   opacity: 0.8;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -268,8 +334,9 @@ input[type="range"] {
 }
 
 .total-value {
-  font-size: 3rem;
+  font-size: clamp(2.5rem, 10vw, 3.5rem);
   font-weight: 800;
+  line-height: 1;
 }
 
 /* Alert */
@@ -277,7 +344,7 @@ input[type="range"] {
   padding: 12px 16px;
   border-radius: 12px;
   margin-bottom: 16px;
-  font-size: 0.85rem;
+  font-size: clamp(0.8rem, 3vw, 0.9rem);
   display: flex;
   align-items: start;
   gap: 8px;
@@ -285,21 +352,74 @@ input[type="range"] {
 
 .alert-info { background: rgba(59,130,246,0.1); color: var(--p1-color); }
 .alert-warning { background: rgba(245,158,11,0.1); color: var(--amber); }
+.alert-danger { background: rgba(239,68,68,0.1); color: var(--red); }
 
-/* Incident Item */
+/* Photo Evidence */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.photo-item {
+  aspect-ratio: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  background: var(--bg);
+  border: 2px dashed var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.photo-item:active {
+  transform: scale(0.95);
+}
+
+.photo-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-delete {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  cursor: pointer;
+  display: none;
+}
+
+.photo-item:hover .photo-delete {
+  display: block;
+}
+
+/* Incident */
 .incident-item {
   background: white;
   border-left: 4px solid var(--red);
   border-radius: 12px;
   padding: 12px;
   margin-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
 }
 
 .incident-badge {
   display: inline-block;
   padding: 4px 8px;
   border-radius: 6px;
-  font-size: 0.7rem;
+  font-size: clamp(0.65rem, 2.5vw, 0.75rem);
   font-weight: 700;
   background: var(--red);
   color: white;
@@ -307,52 +427,88 @@ input[type="range"] {
 }
 
 .incident-detail {
-  font-size: 0.85rem;
+  font-size: clamp(0.8rem, 3vw, 0.9rem);
   margin-bottom: 8px;
   line-height: 1.5;
 }
 
 .incident-time {
-  font-size: 0.7rem;
+  font-size: clamp(0.65rem, 2.5vw, 0.75rem);
   color: var(--text2);
 }
 
-/* Photo Upload */
-.photo-upload {
-  border: 2px dashed var(--border);
-  border-radius: 12px;
-  padding: 32px 16px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s;
+/* Report */
+.report-header {
+  background: linear-gradient(135deg, var(--p1-color), var(--p2-color));
+  color: white;
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 16px;
 }
 
-.photo-upload:active {
-  transform: scale(0.98);
-}
-
-.photo-upload i {
-  font-size: 2rem;
-  color: var(--text2);
+.report-title {
+  font-size: clamp(1.1rem, 4vw, 1.3rem);
+  font-weight: 800;
   margin-bottom: 8px;
 }
 
-/* Floating Action Button */
+.report-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 12px;
+  font-size: clamp(0.75rem, 3vw, 0.85rem);
+}
+
+.report-table {
+  width: 100%;
+  font-size: clamp(0.75rem, 2.5vw, 0.85rem);
+  border-collapse: collapse;
+  overflow-x: auto;
+  display: block;
+}
+
+.report-table thead {
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+}
+
+.report-table th,
+.report-table td {
+  padding: clamp(8px, 2vw, 12px);
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.report-table th {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.report-table tbody {
+  display: table;
+  width: 100%;
+}
+
+/* FAB */
 .fab {
   position: fixed;
-  right: 20px;
-  bottom: 20px;
-  width: 60px;
-  height: 60px;
+  right: clamp(16px, 5vw, 20px);
+  bottom: clamp(80px, 20vw, 100px);
+  width: clamp(54px, 15vw, 60px);
+  height: clamp(54px, 15vw, 60px);
   border-radius: 50%;
   background: linear-gradient(135deg, var(--p1-color), var(--p2-color));
   color: white;
   border: none;
-  font-size: 1.5rem;
+  font-size: clamp(1.2rem, 5vw, 1.5rem);
   box-shadow: 0 8px 24px rgba(0,0,0,0.2);
   cursor: pointer;
   transition: all 0.3s;
   z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .fab:active {
@@ -362,19 +518,20 @@ input[type="range"] {
 /* Toast */
 .toast {
   position: fixed;
-  bottom: 100px;
+  bottom: clamp(100px, 25vw, 120px);
   left: 50%;
   transform: translateX(-50%);
   background: rgba(30, 41, 59, 0.95);
   color: white;
   padding: 12px 24px;
   border-radius: 24px;
-  font-size: 0.85rem;
+  font-size: clamp(0.8rem, 3vw, 0.9rem);
   font-weight: 600;
   opacity: 0;
   transition: opacity 0.3s;
   z-index: 10000;
   backdrop-filter: blur(10px);
+  white-space: nowrap;
 }
 
 .toast.show {
@@ -387,10 +544,12 @@ input[type="range"] {
   bottom: 0;
   left: 0;
   right: 0;
-  max-width: 480px;
+  max-width: 768px;
   margin: 0 auto;
-  background: white;
-  padding: 12px 24px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  padding: clamp(10px, 3vw, 12px) clamp(20px, 5vw, 24px);
+  padding-bottom: max(env(safe-area-inset-bottom), clamp(10px, 3vw, 12px));
   display: flex;
   justify-content: space-around;
   box-shadow: 0 -2px 16px rgba(0,0,0,0.08);
@@ -404,9 +563,10 @@ input[type="range"] {
   gap: 4px;
   cursor: pointer;
   color: var(--text2);
-  font-size: 0.7rem;
+  font-size: clamp(0.65rem, 2.5vw, 0.75rem);
   font-weight: 600;
   transition: all 0.2s;
+  touch-action: manipulation;
 }
 
 .nav-item.active {
@@ -414,11 +574,22 @@ input[type="range"] {
 }
 
 .nav-item i {
-  font-size: 1.4rem;
+  font-size: clamp(1.2rem, 5vw, 1.4rem);
 }
 
 .nav-item:active {
   transform: scale(0.9);
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .glass-card {
+    padding: 24px;
+  }
+  
+  .photo-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
 }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -430,25 +601,34 @@ input[type="range"] {
   <p>Maarif Performans Takip Sistemi</p>
 </div>
 
-<!-- Student Card -->
+<!-- Student Selection -->
 <div class="student-card">
-  <div class="avatar">DA</div>
+  <div class="avatar" id="student-avatar">—</div>
   <div class="student-info">
-    <h2>Deniz Aksoy</h2>
-    <p>251 • 9/B</p>
+    <h2 id="student-name">Öğrenci Seçin</h2>
+    <p id="student-info">—</p>
+    <select class="student-select" id="student-select" onchange="loadStudent()">
+      <option value="">Öğrenci seçin...</option>
+      <option value="1">Deniz Aksoy - 251 - 9/B</option>
+      <option value="2">Aras Bulut - 252 - 9/B</option>
+      <option value="3">Engin Öztürk - 253 - 9/B</option>
+    </select>
   </div>
 </div>
 
 <!-- Segmented Control -->
 <div class="segmented-control">
   <div class="segment p1 active" onclick="switchTab('p1')">
-    📘 P1 Süreç
+    📘 P1
   </div>
   <div class="segment p2" onclick="switchTab('p2')">
-    📗 P2 Ürün
+    📗 P2
   </div>
   <div class="segment" onclick="switchTab('incidents')">
     ⚠️ Olay
+  </div>
+  <div class="segment" onclick="switchTab('report')">
+    📊 Rapor
   </div>
 </div>
 
@@ -457,7 +637,7 @@ input[type="range"] {
   <div class="alert alert-info">
     <span>ℹ️</span>
     <div>
-      <b>Süreç & Katılım:</b> Dönem boyunca gözlem. Olay Günlüğü ile desteklenir.
+      <b>Süreç & Katılım:</b> Dönem boyunca gözlem ile ölçülür.
     </div>
   </div>
 
@@ -465,71 +645,109 @@ input[type="range"] {
     <!-- MK -->
     <div class="criterion">
       <div class="criterion-header">
-        <span class="criterion-label" style="color: #dc2626;">🇹🇷 Milli/Kültürel Değerler</span>
+        <span class="criterion-label">🇹🇷 Milli/Kültürel Değerler</span>
         <span class="criterion-value p1" id="p1-mk-display">0<span class="criterion-max">/20</span></span>
       </div>
       <div class="slider-container">
         <div class="slider-track p1" id="p1-mk-track" style="width: 0%"></div>
         <input type="range" min="0" max="20" value="0" id="p1-mk" oninput="updateP1('mk')">
       </div>
-      <div class="stepper">
-        <button class="stepper-btn" onclick="changeValue('p1-mk', -1)">−</button>
-        <button class="stepper-btn" onclick="changeValue('p1-mk', 1)">+</button>
+      <div class="instant-scores">
+        <button class="instant-btn p1" onclick="setInstant('p1-mk', 0)">0</button>
+        <button class="instant-btn p1" onclick="setInstant('p1-mk', 5)">5</button>
+        <button class="instant-btn p1" onclick="setInstant('p1-mk', 10)">10</button>
+        <button class="instant-btn p1" onclick="setInstant('p1-mk', 15)">15</button>
+        <button class="instant-btn p1" onclick="setInstant('p1-mk', 20)">20</button>
       </div>
     </div>
 
     <!-- LE -->
     <div class="criterion">
       <div class="criterion-header">
-        <span class="criterion-label" style="color: #f59e0b;">⭐ Liderlik & Eğilim</span>
+        <span class="criterion-label">⭐ Liderlik & Eğilim</span>
         <span class="criterion-value p1" id="p1-le-display">0<span class="criterion-max">/20</span></span>
       </div>
       <div class="slider-container">
         <div class="slider-track p1" id="p1-le-track" style="width: 0%"></div>
         <input type="range" min="0" max="20" value="0" id="p1-le" oninput="updateP1('le')">
       </div>
-      <div class="stepper">
-        <button class="stepper-btn" onclick="changeValue('p1-le', -1)">−</button>
-        <button class="stepper-btn" onclick="changeValue('p1-le', 1)">+</button>
+      <div class="instant-scores">
+        <button class="instant-btn p1" onclick="setInstant('p1-le', 0)">0</button>
+        <button class="instant-btn p1" onclick="setInstant('p1-le', 5)">5</button>
+        <button class="instant-btn p1" onclick="setInstant('p1-le', 10)">10</button>
+        <button class="instant-btn p1" onclick="setInstant('p1-le', 15)">15</button>
+        <button class="instant-btn p1" onclick="setInstant('p1-le', 20)">20</button>
       </div>
     </div>
 
     <!-- AD -->
     <div class="criterion">
       <div class="criterion-header">
-        <span class="criterion-label" style="color: #10b981;">🤝 Adab-ı Muaşeret</span>
+        <span class="criterion-label">🤝 Adab-ı Muaşeret</span>
         <span class="criterion-value p1" id="p1-ad-display">0<span class="criterion-max">/30</span></span>
       </div>
       <div class="slider-container">
         <div class="slider-track p1" id="p1-ad-track" style="width: 0%"></div>
         <input type="range" min="0" max="30" value="0" id="p1-ad" oninput="updateP1('ad')">
       </div>
-      <div class="stepper">
-        <button class="stepper-btn" onclick="changeValue('p1-ad', -1)">−</button>
-        <button class="stepper-btn" onclick="changeValue('p1-ad', 1)">+</button>
+      <div class="instant-scores">
+        <button class="instant-btn p1" onclick="setInstant('p1-ad', 0)">0</button>
+        <button class="instant-btn p1" onclick="setInstant('p1-ad', 10)">10</button>
+        <button class="instant-btn p1" onclick="setInstant('p1-ad', 20)">20</button>
+        <button class="instant-btn p1" onclick="setInstant('p1-ad', 30)">30</button>
       </div>
     </div>
 
     <!-- DK -->
     <div class="criterion">
       <div class="criterion-header">
-        <span class="criterion-label" style="color: #3b82f6;">📚 Ders Katılımı</span>
+        <span class="criterion-label">📚 Ders Katılımı</span>
         <span class="criterion-value p1" id="p1-dk-display">0<span class="criterion-max">/30</span></span>
       </div>
       <div class="slider-container">
         <div class="slider-track p1" id="p1-dk-track" style="width: 0%"></div>
         <input type="range" min="0" max="30" value="0" id="p1-dk" oninput="updateP1('dk')">
       </div>
-      <div class="stepper">
-        <button class="stepper-btn" onclick="changeValue('p1-dk', -1)">−</button>
-        <button class="stepper-btn" onclick="changeValue('p1-dk', 1)">+</button>
+      <div class="instant-scores">
+        <button class="instant-btn p1" onclick="setInstant('p1-dk', 0)">0</button>
+        <button class="instant-btn p1" onclick="setInstant('p1-dk', 10)">10</button>
+        <button class="instant-btn p1" onclick="setInstant('p1-dk', 20)">20</button>
+        <button class="instant-btn p1" onclick="setInstant('p1-dk', 30)">30</button>
       </div>
     </div>
   </div>
 
   <div class="total-card">
     <div class="total-label">P1 Toplam Puan</div>
-    <div class="total-value" id="p1-total">0<span style="font-size:1.5rem;opacity:0.6">/100</span></div>
+    <div class="total-value" id="p1-total">0<span style="font-size:clamp(1.2rem, 4vw, 1.5rem);opacity:0.6">/100</span></div>
+  </div>
+
+  <!-- Hızlı Ceza Butonları -->
+  <div class="glass-card" style="background: rgba(239, 68, 68, 0.05); border: 2px solid var(--red);">
+    <div class="card-title" style="color: var(--red);">⚡ Hızlı Olay Kaydı (Otomatik Puan Düşer)</div>
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+      <button class="instant-btn" style="background: var(--red); color: white; border: none; padding: 12px; font-size: 0.8rem;" onclick="quickPenalty('konusma')">
+        🗣️ Konuştu<br><small>DK -5</small>
+      </button>
+      <button class="instant-btn" style="background: var(--red); color: white; border: none; padding: 12px; font-size: 0.8rem;" onclick="quickPenalty('materyal')">
+        📚 Materyal Yok<br><small>MK -5</small>
+      </button>
+      <button class="instant-btn" style="background: var(--red); color: white; border: none; padding: 12px; font-size: 0.8rem;" onclick="quickPenalty('uyku')">
+        💤 Uyudu<br><small>DK -10</small>
+      </button>
+      <button class="instant-btn" style="background: var(--red); color: white; border: none; padding: 12px; font-size: 0.8rem;" onclick="quickPenalty('oturma')">
+        🪑 Düzen Bozma<br><small>DK -5</small>
+      </button>
+      <button class="instant-btn" style="background: #991b1b; color: white; border: none; padding: 12px; font-size: 0.8rem;" onclick="quickPenalty('saygi')">
+        😡 Saygısızlık<br><small>AD -10</small>
+      </button>
+      <button class="instant-btn" style="background: #991b1b; color: white; border: none; padding: 12px; font-size: 0.8rem;" onclick="quickPenalty('telefon')">
+        📱 Telefon<br><small>DK -5</small>
+      </button>
+    </div>
+    <div style="margin-top: 12px; padding: 10px; background: white; border-radius: 8px; font-size: 0.75rem; color: var(--text2);">
+      💡 Bu butonlar hem olay kaydı oluşturur hem otomatik puan düşer
+    </div>
   </div>
 </div>
 
@@ -553,9 +771,11 @@ input[type="range"] {
         <div class="slider-track p2" id="p2-tu-track" style="width: 0%"></div>
         <input type="range" min="0" max="30" value="0" id="p2-tu" oninput="updateP2('tu')">
       </div>
-      <div class="stepper">
-        <button class="stepper-btn" onclick="changeValue('p2-tu', -1)">−</button>
-        <button class="stepper-btn" onclick="changeValue('p2-tu', 1)">+</button>
+      <div class="instant-scores">
+        <button class="instant-btn p2" onclick="setInstant('p2-tu', 0)">0</button>
+        <button class="instant-btn p2" onclick="setInstant('p2-tu', 10)">10</button>
+        <button class="instant-btn p2" onclick="setInstant('p2-tu', 20)">20</button>
+        <button class="instant-btn p2" onclick="setInstant('p2-tu', 30)">30</button>
       </div>
     </div>
 
@@ -569,9 +789,11 @@ input[type="range"] {
         <div class="slider-track p2" id="p2-va-track" style="width: 0%"></div>
         <input type="range" min="0" max="30" value="0" id="p2-va" oninput="updateP2('va')">
       </div>
-      <div class="stepper">
-        <button class="stepper-btn" onclick="changeValue('p2-va', -1)">−</button>
-        <button class="stepper-btn" onclick="changeValue('p2-va', 1)">+</button>
+      <div class="instant-scores">
+        <button class="instant-btn p2" onclick="setInstant('p2-va', 0)">0</button>
+        <button class="instant-btn p2" onclick="setInstant('p2-va', 10)">10</button>
+        <button class="instant-btn p2" onclick="setInstant('p2-va', 20)">20</button>
+        <button class="instant-btn p2" onclick="setInstant('p2-va', 30)">30</button>
       </div>
     </div>
 
@@ -585,60 +807,117 @@ input[type="range"] {
         <div class="slider-track p2" id="p2-rp-track" style="width: 0%"></div>
         <input type="range" min="0" max="40" value="0" id="p2-rp" oninput="updateP2('rp')">
       </div>
-      <div class="stepper">
-        <button class="stepper-btn" onclick="changeValue('p2-rp', -1)">−</button>
-        <button class="stepper-btn" onclick="changeValue('p2-rp', 1)">+</button>
+      <div class="instant-scores">
+        <button class="instant-btn p2" onclick="setInstant('p2-rp', 0)">0</button>
+        <button class="instant-btn p2" onclick="setInstant('p2-rp', 10)">10</button>
+        <button class="instant-btn p2" onclick="setInstant('p2-rp', 20)">20</button>
+        <button class="instant-btn p2" onclick="setInstant('p2-rp', 30)">30</button>
+        <button class="instant-btn p2" onclick="setInstant('p2-rp', 40)">40</button>
       </div>
     </div>
   </div>
 
   <div class="total-card">
     <div class="total-label">P2 Toplam Puan</div>
-    <div class="total-value" id="p2-total">0<span style="font-size:1.5rem;opacity:0.6">/100</span></div>
+    <div class="total-value" id="p2-total">0<span style="font-size:clamp(1.2rem, 4vw, 1.5rem);opacity:0.6">/100</span></div>
   </div>
 
   <!-- Fotoğraf Kanıt -->
   <div class="glass-card">
-    <div class="card-title">📸 Ürün Kanıtı (Fotoğraf)</div>
-    <div class="photo-upload" onclick="document.getElementById('photo-input').click()">
-      <i class="fas fa-camera"></i>
-      <div style="margin-top:8px;font-size:0.85rem;color:var(--text2);">Fotoğraf Çek veya Yükle</div>
+    <div class="card-title">📸 Ürün Kanıtları</div>
+    <div class="photo-grid" id="photo-grid">
+      <div class="photo-item" onclick="document.getElementById('photo-input').click()">
+        <i class="fas fa-camera" style="font-size:2rem;color:var(--text2)"></i>
+      </div>
     </div>
-    <input type="file" id="photo-input" accept="image/*" capture="camera" style="display:none" onchange="handlePhoto(event)">
+    <input type="file" id="photo-input" accept="image/*" capture="camera" style="display:none" multiple onchange="handlePhotos(event)">
   </div>
 </div>
 
 <!-- Incidents Page -->
 <div class="page" id="page-incidents">
-  <div class="alert alert-info">
+  <div class="alert alert-danger">
     <span>📋</span>
     <div>
-      <b>Hukuki Dayanak:</b> P1 notunun belgesi. Tarih-saat kaydıyla.
+      <b>Hukuki Dayanak:</b> Tarih-saat ile kayıtlı olay günlüğü.
     </div>
   </div>
 
   <div class="glass-card">
-    <div class="card-title">➕ Yeni Olay</div>
+    <div class="card-title">➕ Yeni Olay Ekle</div>
     <select id="incident-type" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:0.9rem">
       <option>🗣️ Derste Konuşma</option>
       <option>😡 Saygısızlık</option>
       <option>📚 Materyal Yok</option>
+      <option>💤 Uyku (Derste Uyudu)</option>
+      <option>🪑 Oturma Düzeni Bozma</option>
       <option>👊 Kavga</option>
+      <option>📱 Telefon Kullanımı</option>
+      <option>🚪 İzinsiz Çıkma</option>
+      <option>⚠️ Diğer</option>
     </select>
     <textarea id="incident-detail" rows="3" placeholder="Detaylı açıklama..." 
       style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;resize:none;font-size:0.85rem;margin-bottom:12px"></textarea>
-    <button class="stepper-btn" style="width:100%;background:var(--red);color:white;padding:12px" onclick="addIncident()">
-      📝 Olay Ekle
+    <button style="width:100%;padding:12px;border:none;border-radius:8px;background:var(--red);color:white;font-weight:700;font-size:0.9rem" onclick="addIncident()">
+      📝 Kaydet
     </button>
   </div>
 
   <div id="incident-list">
-    <!-- Demo Incident -->
     <div class="incident-item">
       <div class="incident-badge">🗣️ Konuşma</div>
       <div class="incident-detail">Dersin 15. dakikasında uyarıya rağmen sohbet devam etti.</div>
       <div class="incident-time">📅 20.04.2026 14:15</div>
     </div>
+  </div>
+</div>
+
+<!-- Report Page -->
+<div class="page" id="page-report">
+  <div class="report-header">
+    <div class="report-title">9/B Sınıf Raporu</div>
+    <div class="report-stats">
+      <div>👥 <b>32</b> öğrenci</div>
+      <div>📘 P1 Ort: <b>68</b></div>
+      <div>📗 P2 Ort: <b>72</b></div>
+    </div>
+  </div>
+
+  <div class="glass-card" style="overflow-x: auto;">
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Ad Soyad</th>
+          <th>P1</th>
+          <th>P2</th>
+          <th>Olay</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>251</td>
+          <td>Deniz Aksoy</td>
+          <td style="color:var(--p1-color);font-weight:700">50</td>
+          <td style="color:var(--p2-color);font-weight:700">60</td>
+          <td>⚠️ 3</td>
+        </tr>
+        <tr>
+          <td>252</td>
+          <td>Aras Bulut</td>
+          <td style="color:var(--p1-color);font-weight:700">85</td>
+          <td style="color:var(--p2-color);font-weight:700">90</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>253</td>
+          <td>Engin Öztürk</td>
+          <td style="color:var(--p1-color);font-weight:700">75</td>
+          <td style="color:var(--p2-color);font-weight:700">70</td>
+          <td>⚠️ 1</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
 
@@ -667,6 +946,40 @@ input[type="range"] {
 <div class="toast" id="toast"></div>
 
 <script>
+let currentStudent = null;
+let photoCount = 0;
+
+function loadStudent() {
+  const select = document.getElementById('student-select');
+  const val = select.value;
+  
+  if (val === '1') {
+    document.getElementById('student-avatar').textContent = 'DA';
+    document.getElementById('student-name').textContent = 'Deniz Aksoy';
+    document.getElementById('student-info').textContent = '251 • 9/B';
+    currentStudent = {name: 'Deniz Aksoy', no: '251', class: '9/B'};
+  } else if (val === '2') {
+    document.getElementById('student-avatar').textContent = 'AB';
+    document.getElementById('student-name').textContent = 'Aras Bulut';
+    document.getElementById('student-info').textContent = '252 • 9/B';
+    currentStudent = {name: 'Aras Bulut', no: '252', class: '9/B'};
+  } else if (val === '3') {
+    document.getElementById('student-avatar').textContent = 'EÖ';
+    document.getElementById('student-name').textContent = 'Engin Öztürk';
+    document.getElementById('student-info').textContent = '253 • 9/B';
+    currentStudent = {name: 'Engin Öztürk', no: '253', class: '9/B'};
+  }
+  
+  if (currentStudent) {
+    // Load saved data if exists
+    loadSavedData();
+  }
+}
+
+function loadSavedData() {
+  // Would load from localStorage
+}
+
 function switchTab(tab) {
   document.querySelectorAll('.segment').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -680,6 +993,9 @@ function switchTab(tab) {
   } else if (tab === 'incidents') {
     document.querySelectorAll('.segment')[2].classList.add('active');
     document.getElementById('page-incidents').classList.add('active');
+  } else if (tab === 'report') {
+    document.querySelectorAll('.segment')[3].classList.add('active');
+    document.getElementById('page-report').classList.add('active');
   }
 }
 
@@ -701,16 +1017,22 @@ function updateP2(key) {
   haptic();
 }
 
-function changeValue(id, delta) {
-  const input = document.getElementById(id);
-  const newVal = Math.max(0, Math.min(parseInt(input.max), parseInt(input.value) + delta));
-  input.value = newVal;
-  
+function setInstant(id, value) {
+  document.getElementById(id).value = value;
   if (id.startsWith('p1')) {
     updateP1(id.split('-')[1]);
   } else {
     updateP2(id.split('-')[1]);
   }
+  
+  // Update button states
+  const parent = document.getElementById(id).parentElement.nextElementSibling;
+  parent.querySelectorAll('.instant-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (parseInt(btn.textContent) === value) {
+      btn.classList.add('active');
+    }
+  });
 }
 
 function calculateP1Total() {
@@ -718,14 +1040,16 @@ function calculateP1Total() {
   const le = parseInt(document.getElementById('p1-le').value) || 0;
   const ad = parseInt(document.getElementById('p1-ad').value) || 0;
   const dk = parseInt(document.getElementById('p1-dk').value) || 0;
-  document.getElementById('p1-total').innerHTML = (mk + le + ad + dk) + '<span style="font-size:1.5rem;opacity:0.6">/100</span>';
+  const total = mk + le + ad + dk;
+  document.getElementById('p1-total').innerHTML = total + '<span style="font-size:clamp(1.2rem, 4vw, 1.5rem);opacity:0.6">/100</span>';
 }
 
 function calculateP2Total() {
   const tu = parseInt(document.getElementById('p2-tu').value) || 0;
   const va = parseInt(document.getElementById('p2-va').value) || 0;
   const rp = parseInt(document.getElementById('p2-rp').value) || 0;
-  document.getElementById('p2-total').innerHTML = (tu + va + rp) + '<span style="font-size:1.5rem;opacity:0.6">/100</span>';
+  const total = tu + va + rp;
+  document.getElementById('p2-total').innerHTML = total + '<span style="font-size:clamp(1.2rem, 4vw, 1.5rem);opacity:0.6">/100</span>';
 }
 
 function haptic() {
@@ -742,11 +1066,64 @@ function showToast(msg) {
 }
 
 function saveAll() {
+  if (!currentStudent) {
+    showToast('❌ Önce öğrenci seçin!');
+    return;
+  }
+  
   haptic();
-  showToast('✅ Veriler kaydedildi!');
+  
+  // Save to localStorage
+  const data = {
+    student: currentStudent,
+    p1: {
+      mk: document.getElementById('p1-mk').value,
+      le: document.getElementById('p1-le').value,
+      ad: document.getElementById('p1-ad').value,
+      dk: document.getElementById('p1-dk').value
+    },
+    p2: {
+      tu: document.getElementById('p2-tu').value,
+      va: document.getElementById('p2-va').value,
+      rp: document.getElementById('p2-rp').value
+    },
+    photos: photoCount,
+    timestamp: new Date().toISOString()
+  };
+  
+  localStorage.setItem('mpts_' + currentStudent.no, JSON.stringify(data));
+  
+  showToast('✅ ' + currentStudent.name + ' kaydedildi!');
+}
+
+function handlePhotos(event) {
+  const files = event.target.files;
+  const grid = document.getElementById('photo-grid');
+  
+  for (let file of files) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      photoCount++;
+      const div = document.createElement('div');
+      div.className = 'photo-item';
+      div.innerHTML = `
+        <img src="${e.target.result}" alt="Kanıt">
+        <button class="photo-delete" onclick="this.parentElement.remove(); photoCount--;">×</button>
+      `;
+      grid.insertBefore(div, grid.firstChild);
+    };
+    reader.readAsDataURL(file);
+  }
+  
+  showToast('📸 Fotoğraf eklendi!');
 }
 
 function addIncident() {
+  if (!currentStudent) {
+    showToast('❌ Önce öğrenci seçin!');
+    return;
+  }
+  
   const detail = document.getElementById('incident-detail').value.trim();
   if (!detail) {
     showToast('❌ Detay yazın!');
@@ -769,11 +1146,79 @@ function addIncident() {
   showToast('⚠️ Olay kaydedildi!');
 }
 
-function handlePhoto(event) {
-  const file = event.target.files[0];
-  if (file) {
-    showToast('📸 Fotoğraf eklendi!');
+function quickPenalty(type) {
+  if (!currentStudent) {
+    showToast('❌ Önce öğrenci seçin!');
+    return;
   }
+  
+  let criterion = '';
+  let deduction = 0;
+  let description = '';
+  let emoji = '';
+  
+  switch(type) {
+    case 'konusma':
+      criterion = 'dk';
+      deduction = 5;
+      description = 'Derste konuşma/sohbet';
+      emoji = '🗣️';
+      break;
+    case 'materyal':
+      criterion = 'mk';
+      deduction = 5;
+      description = 'Materyal/kitap getirmedi';
+      emoji = '📚';
+      break;
+    case 'uyku':
+      criterion = 'dk';
+      deduction = 10;
+      description = 'Derste uyudu';
+      emoji = '💤';
+      break;
+    case 'oturma':
+      criterion = 'dk';
+      deduction = 5;
+      description = 'Sınıf oturma düzenini bozdu';
+      emoji = '🪑';
+      break;
+    case 'saygi':
+      criterion = 'ad';
+      deduction = 10;
+      description = 'Saygısız davranış/konuşma';
+      emoji = '😡';
+      break;
+    case 'telefon':
+      criterion = 'dk';
+      deduction = 5;
+      description = 'İzinsiz telefon kullanımı';
+      emoji = '📱';
+      break;
+  }
+  
+  // P1 puanını düşür
+  const input = document.getElementById('p1-' + criterion);
+  const currentValue = parseInt(input.value) || 0;
+  const newValue = Math.max(0, currentValue - deduction);
+  input.value = newValue;
+  
+  // UI güncelle
+  updateP1(criterion);
+  
+  // Olay kaydı oluştur
+  const now = new Date();
+  const html = `
+    <div class="incident-item">
+      <div class="incident-badge">${emoji} Hızlı Kayıt</div>
+      <div class="incident-detail">${description} (Otomatik ${criterion.toUpperCase()} -${deduction})</div>
+      <div class="incident-time">📅 ${now.toLocaleDateString('tr-TR')} ${now.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'})}</div>
+    </div>
+  `;
+  
+  document.getElementById('incident-list').insertAdjacentHTML('afterbegin', html);
+  
+  haptic();
+  showToast(`⚠️ ${description} → ${criterion.toUpperCase()} -${deduction} puan`);
 }
 </script>
 </body>
