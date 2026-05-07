@@ -1167,6 +1167,10 @@ input, textarea, select, [contenteditable] {
     z-index: 10000;
   }
   .desktop-tablet-content { display: none !important; }
+  body.mai-mobile-perf .mobile-only-app { display: none !important; }
+  body.mai-mobile-perf .desktop-tablet-content { display: block !important; }
+  body.mai-mobile-perf .topbar { display: flex !important; }
+  body.mai-mobile-perf #page-performans { display: block !important; padding: 12px !important; min-height: 100vh; }
 
   /* Navigation Stack */
   #mobile-nav-stack {
@@ -1986,7 +1990,7 @@ setInterval(() => {
         </div>
         <div class="mobile-card-arrow">›</div>
       </div>
-      <div class="mobile-card" onclick="mobileGoTo('performance')">
+      <div class="mobile-card" onclick="mobileOpenMaarifAiPage()">
         <div class="mobile-card-icon">📊</div>
         <div class="mobile-card-content">
           <div class="mobile-card-title">Performans</div>
@@ -3973,6 +3977,9 @@ function showPage(id){
   document.querySelectorAll('.nav-tab').forEach(n=>n.classList.remove('active'));
   const pg=H('page-'+id);if(pg)pg.classList.add('active');
   const nv=H('nav-'+id);if(nv)nv.classList.add('active');
+  if(document.body){
+    document.body.classList.toggle('mai-mobile-perf', id==='performans');
+  }
 
   if(id==='anasayfa'){renderStats();}
   if(id==='kelebek'){
@@ -11258,6 +11265,34 @@ function initMobileApp(){
   }
 }
 
+function mobileOpenMaarifAiPage(className, studentId){
+  document.body.classList.add('mai-mobile-perf');
+  const mobileApp = document.getElementById('mobile-app');
+  if(mobileApp) mobileApp.style.display = 'none';
+  showPage('performans');
+  setTimeout(function(){
+    if(className){
+      const sinifSel = document.getElementById('mai-sinif');
+      if(sinifSel){
+        sinifSel.value = className;
+        if(typeof maarifLoadStudents === 'function') maarifLoadStudents();
+      }
+    }
+    if(studentId){
+      const ogrenciSel = document.getElementById('mai-ogrenci');
+      if(ogrenciSel){
+        ogrenciSel.value = studentId;
+        if(typeof maarifLoadHistory === 'function') maarifLoadHistory();
+      }
+      const obs = document.getElementById('mai-observation');
+      if(obs){
+        obs.focus();
+        obs.scrollIntoView({behavior:'smooth', block:'center'});
+      }
+    }
+  }, 120);
+}
+
 function handleTouchStart(e){
   touchStartX = e.changedTouches[0].screenX;
   touchStartY = e.changedTouches[0].screenY;
@@ -11480,7 +11515,7 @@ function mobileOpenPerfDetail(className, sIdx){
   if(!student) return;
   
   // Maarif AI sayfasına yönlendir
-  showPage('performans');
+  mobileOpenMaarifAiPage(className, student.id);
   
   // Sınıf ve öğrenciyi otomatik seç (sayfa yüklendikten sonra)
   setTimeout(function(){
@@ -13908,6 +13943,7 @@ window.showPage=function(pageId){
 </div><!-- /main-app-content -->
 
 
+<script>
 // ============================================================
 // GOOGLE LOGIN & DRIVE ENTEGRASYONU
 // ============================================================
