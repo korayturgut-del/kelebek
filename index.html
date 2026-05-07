@@ -7349,7 +7349,34 @@ function printSalonListCompact(){
         }
       </style>
     </head>
-    <body>${html}</body>
+    <body>${html}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      const active=document.activeElement;
+      if(active){
+        const form=active.closest('form');
+        if(form){
+          e.preventDefault();
+          if(typeof form.requestSubmit==='function'){
+            form.requestSubmit();
+          }else{
+            form.submit();
+          }
+          return;
+        }
+        const btn=document.querySelector('button[type="submit"], .login-btn, #loginBtn, .submit-btn');
+        if(btn){
+          e.preventDefault();
+          btn.click();
+        }
+      }
+    }
+  });
+});
+</script>
+</body>
     </html>
   `);
   printWindow.document.close();
@@ -7506,7 +7533,34 @@ function kelebekPrintList(){
   const w=window.open('','_blank');
   w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Dağıtım Listesi</title>'
     +'<style>@media print{@page{margin:12mm;size:A4}body{margin:0}}body{font-family:Arial,sans-serif;padding:12mm}</style>'
-    +'</head><body>'+content.innerHTML+'</body></html>');
+    +'</head><body>'+content.innerHTML+'
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      const active=document.activeElement;
+      if(active){
+        const form=active.closest('form');
+        if(form){
+          e.preventDefault();
+          if(typeof form.requestSubmit==='function'){
+            form.requestSubmit();
+          }else{
+            form.submit();
+          }
+          return;
+        }
+        const btn=document.querySelector('button[type="submit"], .login-btn, #loginBtn, .submit-btn');
+        if(btn){
+          e.preventDefault();
+          btn.click();
+        }
+      }
+    }
+  });
+});
+</script>
+</body></html>');
   w.document.close();
   setTimeout(()=>{w.print();},300);
 }
@@ -7647,7 +7701,34 @@ function printDistributionList(){
         }
       </style>
     </head>
-    <body>${html}</body>
+    <body>${html}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      const active=document.activeElement;
+      if(active){
+        const form=active.closest('form');
+        if(form){
+          e.preventDefault();
+          if(typeof form.requestSubmit==='function'){
+            form.requestSubmit();
+          }else{
+            form.submit();
+          }
+          return;
+        }
+        const btn=document.querySelector('button[type="submit"], .login-btn, #loginBtn, .submit-btn');
+        if(btn){
+          e.preventDefault();
+          btn.click();
+        }
+      }
+    }
+  });
+});
+</script>
+</body>
     </html>
   `);
   printWindow.document.close();
@@ -11019,7 +11100,34 @@ function maarifPrintReport(){
     +'Oluşturulma: '+today+' • Öğrenci: '+escapeHtml(ad)+' • '+list.length+' değerlendirme'
     +'</div>'
     
-    +'</body></html>');
+    +'
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      const active=document.activeElement;
+      if(active){
+        const form=active.closest('form');
+        if(form){
+          e.preventDefault();
+          if(typeof form.requestSubmit==='function'){
+            form.requestSubmit();
+          }else{
+            form.submit();
+          }
+          return;
+        }
+        const btn=document.querySelector('button[type="submit"], .login-btn, #loginBtn, .submit-btn');
+        if(btn){
+          e.preventDefault();
+          btn.click();
+        }
+      }
+    }
+  });
+});
+</script>
+</body></html>');
   w.document.close();
   setTimeout(()=>{ try{w.print();}catch(e){} },500);
 }
@@ -11826,7 +11934,34 @@ function maarifExportStudentPDF(className, sIdx){
   html += '<div style="text-align:center"><div style="border-top:1px solid #333;padding-top:5px;width:150px">Müdür Yrd.</div></div>';
   html += '</div>';
   
-  html += '</body></html>';
+  html += '
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      const active=document.activeElement;
+      if(active){
+        const form=active.closest('form');
+        if(form){
+          e.preventDefault();
+          if(typeof form.requestSubmit==='function'){
+            form.requestSubmit();
+          }else{
+            form.submit();
+          }
+          return;
+        }
+        const btn=document.querySelector('button[type="submit"], .login-btn, #loginBtn, .submit-btn');
+        if(btn){
+          e.preventDefault();
+          btn.click();
+        }
+      }
+    }
+  });
+});
+</script>
+</body></html>';
   
   var w = window.open('', '_blank');
   w.document.write(html);
@@ -11889,7 +12024,34 @@ function maarifExportClassPDF(className){
   html += '<div style="text-align:center"><div style="border-top:1px solid #333;padding-top:5px;width:150px">Müdür Yrd.</div></div>';
   html += '</div>';
   
-  html += '</body></html>';
+  html += '
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      const active=document.activeElement;
+      if(active){
+        const form=active.closest('form');
+        if(form){
+          e.preventDefault();
+          if(typeof form.requestSubmit==='function'){
+            form.requestSubmit();
+          }else{
+            form.submit();
+          }
+          return;
+        }
+        const btn=document.querySelector('button[type="submit"], .login-btn, #loginBtn, .submit-btn');
+        if(btn){
+          e.preventDefault();
+          btn.click();
+        }
+      }
+    }
+  });
+});
+</script>
+</body></html>';
   
   var w = window.open('', '_blank');
   w.document.write(html);
@@ -13900,5 +14062,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </script>
 
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      const active=document.activeElement;
+      if(active){
+        const form=active.closest('form');
+        if(form){
+          e.preventDefault();
+          if(typeof form.requestSubmit==='function'){
+            form.requestSubmit();
+          }else{
+            form.submit();
+          }
+          return;
+        }
+        const btn=document.querySelector('button[type="submit"], .login-btn, #loginBtn, .submit-btn');
+        if(btn){
+          e.preventDefault();
+          btn.click();
+        }
+      }
+    }
+  });
+});
+</script>
 </body>
 </html>
