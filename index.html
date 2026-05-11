@@ -11079,7 +11079,7 @@ if(!document.getElementById('mai-spin-style')){
 // ============================================================
 const AUTH_CLIENT_ID = "1003010779103-k58eu6aq2m1djoe3kukfnjp17kjqg194.apps.googleusercontent.com";
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx-nAzW_eXUGYxytU5J-rY9atgurRfIcy9y_5GftfZOQjYtpUs0esfltxdjZDKwnMwZ/exec";
-const DRIVE_SCOPES = 'https://www.googleapis.com/auth/drive.file';
+const DRIVE_SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email';
 let currentUser = null;
 let driveAccessToken = null;
 let tokenClient = null;
@@ -11120,6 +11120,15 @@ function handleCredentialResponse(response){
 
     // UI güncelle
     unlockApp(user);
+    // Drive token'ı arka planda sessizce al
+    setTimeout(function(){
+      if(tokenClient && !driveAccessToken){
+        tokenClient.callback = (response) => {
+          if(response.access_token){ driveAccessToken = response.access_token; }
+        };
+        tokenClient.requestAccessToken({prompt: ''});
+      }
+    }, 800);
   } catch(e){
     console.error('Auth hata:', e);
     const errEl = document.getElementById('login-error');
@@ -12175,6 +12184,11 @@ function initGoogleAuth(){
       if(response.access_token){
         driveAccessToken = response.access_token;
         console.log('Drive token alındı');
+        if(tokenClient._pendingCallback){
+          const cb = tokenClient._pendingCallback;
+          tokenClient._pendingCallback = null;
+          cb();
+        }
       }
     }
   });
@@ -12208,15 +12222,20 @@ function requestDriveAccess(callback){
 }
 
 function requestNewToken(callback){
+  if(!tokenClient){
+    // tokenClient henüz hazır değil, kısa bekle
+    setTimeout(function(){ requestNewToken(callback); }, 300);
+    return;
+  }
   tokenClient.callback = (response) => {
     if(response.access_token){
       driveAccessToken = response.access_token;
       callback();
     } else {
-      alert('Drive erişimi reddedildi');
+      alert('Drive erişimi reddedildi. Lütfen tekrar deneyin.');
     }
   };
-  tokenClient.requestAccessToken({prompt: ''});
+  tokenClient.requestAccessToken({prompt: 'consent'});
 }
 
 async function saveToDrive(){
@@ -13762,194 +13781,7 @@ window.showPage=function(pageId){
 </script>
 </div><!-- /main-app-content -->
 
-<script>
-// ============================================================
-// GOOGLE LOGIN & DRIVE ENTEGRASYONU
-// ============================================================
-let googleAccessToken = null;
-let googleUserProfile = null;
 
-// Sayfa yüklendiğinde token kontrolü
-window.addEventListener('DOMContentLoaded', function() {
-  const savedToken = localStorage.getItem('google_access_token');
-  const savedProfile = localStorage.getItem('google_user_profile');
-  
-  if (savedToken && savedProfile) {
-    googleAccessToken = savedToken;
-    googleUserProfile = JSON.parse(savedProfile);
-    
-    // Token'ın geçerliliğini kontrol et
-    checkTokenValidity().then(valid => {
-      if (valid) {
-        unlockApp(googleUserProfile);
-      } else {
-        // Token süresi dolmuş, temizle
-        localStorage.removeItem('google_access_token');
-        localStorage.removeItem('google_user_profile');
-        googleAccessToken = null;
-        googleUserProfile = null;
-      }
-    });
-  }
-});
-
-// Token geçerliliğini kontrol et
-async function checkTokenValidity() {
-  try {
-    const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-      headers: { Authorization: `Bearer ${googleAccessToken}` }
-    });
-    return response.ok;
-  } catch (error) {
-    return false;
-  }
-}
-
-// Google ile giriş yap
-function handleGoogleSignIn() {
-  const client = google.accounts.oauth2.initTokenClient({
-    client_id: AUTH_CLIENT_ID,
-    scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
-    callback: async (response) => {
-      if (response.access_token) {
-        googleAccessToken = response.access_token;
-        localStorage.setItem('google_access_token', googleAccessToken);
-        
-        // Kullanıcı bilgilerini al
-        try {
-          const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-            headers: { Authorization: `Bearer ${googleAccessToken}` }
-          });
-          const profile = await userInfoResponse.json();
-          googleUserProfile = profile;
-          localStorage.setItem('google_user_profile', JSON.stringify(profile));
-          
-          // Uygulamayı aç
-          unlockApp(profile);
-        } catch (error) {
-          console.error('Kullanıcı bilgileri alınamadı:', error);
-          alert('Giriş sırasında bir hata oluştu. Lütfen tekrar deneyin.');
-        }
-      }
-    }
-  });
-  client.requestAccessToken();
-}
-
-// Çıkış yap
-function handleGoogleLogout() {
-  if (confirm('Çıkış yapmak istediğinizden emin misiniz?')) {
-    localStorage.removeItem('google_access_token');
-    localStorage.removeItem('google_user_profile');
-    googleAccessToken = null;
-    googleUserProfile = null;
-    location.reload();
-  }
-}
-
-// Google Drive'a kaydet (mevcut saveToGoogleDrive fonksiyonunu geliştir)
-async function saveToGoogleDrive(content, fileName) {
-  if (!googleAccessToken) {
-    alert('Google Drive\'a kaydetmek için lütfen önce giriş yapın.');
-    handleGoogleSignIn();
-    return;
-  }
-  
-  const metadata = {
-    name: fileName || `Öğretmen_Asistanı_${new Date().toLocaleDateString('tr-TR')}.txt`,
-    mimeType: 'text/plain'
-  };
-  
-  const formData = new FormData();
-  formData.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-  formData.append('file', new Blob([content], { type: 'text/plain' }));
-  
-  try {
-    const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${googleAccessToken}`
-      },
-      body: formData
-    });
-    
-    if (response.ok) {
-      const result = await response.json();
-      if(typeof klbToast === 'function') {
-        klbToast('✅ Google Drive\'a kaydedildi!', 'success');
-      } else {
-        alert('Google Drive\'a kaydedildi!');
-      }
-      return result;
-    } else {
-      // Token süresi dolmuşsa
-      if (response.status === 401) {
-        localStorage.removeItem('google_access_token');
-        googleAccessToken = null;
-        alert('Oturum süresi doldu. Lütfen tekrar giriş yapın.');
-        handleGoogleSignIn();
-      } else {
-        throw new Error('Kaydetme başarısız oldu');
-      }
-    }
-  } catch (error) {
-    console.error('Drive kaydetme hatası:', error);
-    alert('Google Drive\'a kaydederken bir hata oluştu: ' + error.message);
-  }
-}
-
-// Çıkış butonunu topbar'a ekle
-document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(() => {
-    const navRight = document.querySelector('.nav-right');
-    if (navRight && !document.getElementById('google-logout-btn')) {
-      const logoutBtn = document.createElement('button');
-      logoutBtn.id = 'google-logout-btn';
-      logoutBtn.className = 'icon-btn';
-      logoutBtn.setAttribute('data-tip', 'Çıkış Yap');
-      logoutBtn.innerHTML = '🚪';
-      logoutBtn.onclick = handleGoogleLogout;
-      logoutBtn.style.display = googleAccessToken ? 'flex' : 'none';
-      navRight.appendChild(logoutBtn);
-    }
-  }, 1000);
-});
-
-// GLOBAL ATAMA: onclick="..." için fonksiyonların window'a kesin atanmasını sağla
-try {
-  if (typeof handleGoogleSignIn === 'function') window.handleGoogleSignIn = handleGoogleSignIn;
-  if (typeof handleGoogleLogout === 'function') window.handleGoogleLogout = handleGoogleLogout;
-  if (typeof checkTokenValidity === 'function') window.checkTokenValidity = checkTokenValidity;
-  console.log('✅ Google login fonksiyonları hazır');
-} catch(e) {
-  console.error('Global atama hatası:', e);
-}
-
-// EK GÜVENCE: Butona DOMContentLoaded'da handler'ı elle bağla (onclick'e güvenme)
-function _ensureGoogleSignInButton(){
-  var btn = document.getElementById('google-signin-btn');
-  if (!btn) return;
-  // onclick attribute'unu temizle ve event listener ile bağla
-  btn.onclick = null;
-  btn.addEventListener('click', function(e){
-    e.preventDefault();
-    if (typeof handleGoogleSignIn === 'function') {
-      try { handleGoogleSignIn(); }
-      catch(err){ alert('Giriş hatası: ' + err.message); console.error(err); }
-    } else {
-      alert('Giriş sistemi yüklenemedi. Sayfayı yenileyin (Ctrl+Shift+R).');
-      console.error('handleGoogleSignIn fonksiyonu bulunamadı!');
-    }
-  });
-  console.log('✅ Google giriş butonu bağlandı');
-}
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', _ensureGoogleSignInButton);
-} else {
-  _ensureGoogleSignInButton();
-}
-
-</script>
 
 <!-- ════════════════════════════════════════════════════════════════
      MAARİF VISION PRO V2 — AI Entegrasyon + Akıcı UI + Yeni Kategoriler
@@ -14090,6 +13922,9 @@ function mvpSetAiConfig(cfg){
   localStorage.setItem(MVP_AI_KEY_STORAGE, JSON.stringify(cfg));
 }
 
+// BURAYA KENDİ CLOUDFLARE WORKER URL'INI YAZ (deploy sonrası)
+const MVP_WORKER_URL = 'https://dijital-ogretmen-api.korayturgut.workers.dev';
+
 window.mvpOpenAiSettings = function(){
   const cfg = mvpGetAiConfig();
   const old = document.getElementById('mvp-ai-settings'); if(old) old.remove();
@@ -14099,32 +13934,26 @@ window.mvpOpenAiSettings = function(){
   modal.innerHTML = `
     <div class="mvp-ai-modal-inner">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <h3 style="margin:0;font-size:1.1rem">🤖 Yapay Zeka Ayarları</h3>
+        <h3 style="margin:0;font-size:1.1rem">🤖 Yapay Zeka</h3>
         <button onclick="document.getElementById('mvp-ai-settings').remove()" style="background:transparent;border:none;font-size:1.4rem;cursor:pointer;color:var(--text2)">×</button>
       </div>
-      <div style="font-size:.82rem;color:var(--text2);margin-bottom:14px;line-height:1.5">
-        Maarif Vision Pro, öğretmenin girdiği davranışı <b>21 eğilim</b> ve <b>EDE matrisi</b>ne göre çok boyutlu dağıtır.
+      <div style="font-size:.82rem;color:var(--text2);margin-bottom:18px;line-height:1.55">
+        Maarif Vision Pro AI, davranışı <b>21 eğilim</b> ve <b>EDE matrisi</b>ne göre çok boyutlu dağıtır.<br><br>
+        <span style="display:inline-block;background:rgba(16,185,129,.12);color:#10b981;padding:6px 10px;border-radius:8px;font-size:.78rem;font-weight:600">
+          ✓ Yapılandırma hazır — API anahtarı sunucuda gizli
+        </span>
       </div>
-      <label style="display:block;margin-bottom:6px;font-size:.8rem;font-weight:600">Sağlayıcı</label>
-      <select id="mvp-ai-provider" style="width:100%;padding:10px;margin-bottom:12px">
-        <option value="gemini" ${cfg.provider==='gemini'?'selected':''}>Google Gemini (Ücretsiz, önerilen)</option>
-        <option value="openai" ${cfg.provider==='openai'?'selected':''}>OpenAI (GPT-4o-mini)</option>
-        <option value="anthropic" ${cfg.provider==='anthropic'?'selected':''}>Anthropic Claude</option>
-      </select>
-      <label style="display:block;margin-bottom:6px;font-size:.8rem;font-weight:600">API Anahtarı</label>
-      <input id="mvp-ai-key" type="password" placeholder="API anahtarınızı yapıştırın" value="${cfg.apiKey||''}" style="width:100%;padding:10px;margin-bottom:6px;font-family:monospace;font-size:.82rem">
-      <div style="font-size:.72rem;color:var(--text3);margin-bottom:14px;line-height:1.5">
-        🔑 Gemini API anahtarı: <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">aistudio.google.com/apikey</a> (ücretsiz)
-      </div>
-      <label style="display:flex;align-items:center;gap:8px;margin-bottom:18px;font-size:.85rem">
-        <input id="mvp-ai-enabled" type="checkbox" ${cfg.enabled?'checked':''}>
-        <span>AI'yı aktifleştir (her hızlı butona AI dağılımı uygula)</span>
+      <label style="display:flex;align-items:center;gap:10px;padding:14px;background:var(--bg2);border-radius:12px;margin-bottom:16px;cursor:pointer;border:1px solid var(--border)">
+        <input id="mvp-ai-enabled" type="checkbox" ${cfg.enabled?'checked':''} style="width:20px;height:20px">
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:.9rem">AI'yı aktifleştir</div>
+          <div style="font-size:.74rem;color:var(--text3);margin-top:2px">Hızlı butonlar AI ile çok boyutlu dağıtım yapsın</div>
+        </div>
       </label>
       <div style="display:flex;gap:8px">
         <button class="btn" style="flex:1;background:var(--bg2);color:var(--text);border:1px solid var(--border)" onclick="document.getElementById('mvp-ai-settings').remove()">İptal</button>
         <button class="btn" style="flex:2;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border:none" onclick="mvpSaveAiSettings()">💾 Kaydet</button>
       </div>
-      <div id="mvp-ai-test" style="margin-top:12px;font-size:.78rem"></div>
     </div>
   `;
   document.body.appendChild(modal);
@@ -14133,8 +13962,6 @@ window.mvpOpenAiSettings = function(){
 
 window.mvpSaveAiSettings = function(){
   const cfg = {
-    provider: document.getElementById('mvp-ai-provider').value,
-    apiKey: document.getElementById('mvp-ai-key').value.trim(),
     enabled: document.getElementById('mvp-ai-enabled').checked
   };
   mvpSetAiConfig(cfg);
@@ -14146,7 +13973,7 @@ window.mvpSaveAiSettings = function(){
 function mvpUpdateAiBadge(){
   const cfg = mvpGetAiConfig();
   document.querySelectorAll('.mvp-ai-badge').forEach(el=>{
-    if(cfg.enabled && cfg.apiKey){
+    if(cfg.enabled){
       el.className = 'mvp-ai-badge mvp-ai-on';
       el.innerHTML = '🤖 AI Aktif';
     }else{
@@ -14192,57 +14019,29 @@ PEDAGOJİK DİL: Cezalandırıcı değil, FARK ETTİRİCİ ol. Öğrenciyi etike
   "ozet": "Sorumluluk-Estetik-Saygı üçgeninde bir farkındalık fırsatı."
 }`;
 
-/* ───── 3. AI ÇAĞRISI ───── */
+/* ───── 3. AI ÇAĞRISI (Cloudflare Worker üzerinden) ───── */
 async function mvpCallAi(observation, requestedScore){
   const cfg = mvpGetAiConfig();
-  if(!cfg.enabled || !cfg.apiKey) return null;
+  if(!cfg.enabled) return null;
 
   const userPrompt = `Davranış: "${observation}"\nİstenen toplam puan değişimi: ${requestedScore>=0?'+':''}${requestedScore}\n\nBu davranışı çok boyutlu dağıt ve geçerli JSON olarak döndür.`;
 
   try{
-    let url, body, headers;
-    if(cfg.provider === 'gemini'){
-      url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${cfg.apiKey}`;
-      body = JSON.stringify({
-        systemInstruction:{parts:[{text:MVP_SYSTEM_PROMPT}]},
-        contents:[{parts:[{text:userPrompt}]}],
-        generationConfig:{temperature:0.4, responseMimeType:'application/json'}
-      });
-      headers = {'Content-Type':'application/json'};
-    }else if(cfg.provider === 'openai'){
-      url = 'https://api.openai.com/v1/chat/completions';
-      body = JSON.stringify({
-        model:'gpt-4o-mini',
-        messages:[
-          {role:'system', content:MVP_SYSTEM_PROMPT},
-          {role:'user', content:userPrompt}
-        ],
-        temperature:0.4,
-        response_format:{type:'json_object'}
-      });
-      headers = {'Content-Type':'application/json','Authorization':'Bearer '+cfg.apiKey};
-    }else if(cfg.provider === 'anthropic'){
-      url = 'https://api.anthropic.com/v1/messages';
-      body = JSON.stringify({
-        model:'claude-3-5-haiku-20241022',
-        max_tokens:1500,
-        system:MVP_SYSTEM_PROMPT,
-        messages:[{role:'user', content:userPrompt}]
-      });
-      headers = {'Content-Type':'application/json','x-api-key':cfg.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};
-    }
+    const res = await fetch(MVP_WORKER_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        systemPrompt: MVP_SYSTEM_PROMPT,
+        userPrompt: userPrompt
+      })
+    });
 
-    const res = await fetch(url, {method:'POST', headers, body});
     if(!res.ok){
-      const errText = await res.text();
-      console.error('AI hata:', errText);
-      throw new Error('AI API hatası: '+res.status);
+      const errData = await res.json().catch(()=>({error:'Bilinmeyen hata'}));
+      throw new Error(errData.error || ('Sunucu hatası: '+res.status));
     }
     const data = await res.json();
-    let text;
-    if(cfg.provider === 'gemini') text = data.candidates[0].content.parts[0].text;
-    else if(cfg.provider === 'openai') text = data.choices[0].message.content;
-    else if(cfg.provider === 'anthropic') text = data.content[0].text;
+    const text = data.text || '';
 
     // JSON parse
     const cleaned = text.replace(/```json/g,'').replace(/```/g,'').trim();
@@ -14321,7 +14120,7 @@ window.maarifQuickRecord = async function(label, puan, tip){
   const cfg = mvpGetAiConfig();
 
   // AI kapalıysa orijinal davranış
-  if(!cfg.enabled || !cfg.apiKey){
+  if(!cfg.enabled){
     return _origMaarifQuickRecord(label, puan, tip);
   }
 
