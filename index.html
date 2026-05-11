@@ -11867,6 +11867,33 @@ function maarifExportStudentPDF(className, sIdx){
   }
   html += '</div>';
   
+  // Maarif AI kayıtlarından kanıt notları
+  if(db.maarifAi && db.maarifAi[student.id] && db.maarifAi[student.id].length > 0){
+    var records = db.maarifAi[student.id].filter(function(r){ return !r.hatali; });
+    if(records.length > 0){
+      html += '<h2 style="margin-top:24px;color:#6200ea">📋 Öğretmen Kanıt Notları (Maarif Modeli)</h2>';
+      html += '<p style="font-size:11px;color:#666;margin-bottom:8px">Öğretmenin süreç boyunca kaydettiği gözlemler — AI yorumu değil, doğrudan öğretmen kaydı</p>';
+      html += '<table><tr><th>Tarih</th><th>Gözlem</th><th>Puan</th><th>Değerler</th></tr>';
+      records.forEach(function(r){
+        var tarih = r.date ? new Date(r.date).toLocaleDateString('tr-TR') : '';
+        var puan = (r.score >= 0 ? '+' : '') + (r.score || 0);
+        var degerler = '';
+        if(r.analysis && r.analysis.maarif_alignment){
+          var ma = r.analysis.maarif_alignment;
+          var all = [];
+          if(ma.cati_degerler) all = all.concat(ma.cati_degerler);
+          if(ma.alt_degerler) all = all.concat(ma.alt_degerler);
+          degerler = all.slice(0,3).join(', ');
+        }
+        html += '<tr><td style="white-space:nowrap;font-size:11px">' + tarih + '</td>';
+        html += '<td style="font-size:12px">' + (r.observation || '') + '</td>';
+        html += '<td style="font-weight:700;color:' + (r.score >= 0 ? '#2e7d32' : '#c62828') + '">' + puan + '</td>';
+        html += '<td style="font-size:11px;color:#666">' + degerler + '</td></tr>';
+      });
+      html += '</table>';
+    }
+  }
+
   html += '<div style="margin-top:40px;display:flex;justify-content:space-between">';
   html += '<div style="text-align:center"><div style="border-top:1px solid #333;padding-top:5px;width:150px">Öğretmen</div></div>';
   html += '<div style="text-align:center"><div style="border-top:1px solid #333;padding-top:5px;width:150px">Müdür Yrd.</div></div>';
