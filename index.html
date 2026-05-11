@@ -1892,6 +1892,12 @@ setInterval(() => {
       </svg>
       Google ile Giriş Yap
     </button>
+    <div id="local-login-area" style="display:none;margin-top:12px">
+      <button onclick="localLogin()" style="width:100%;padding:12px;border:2px solid #6c757d;border-radius:24px;background:#fff;color:#333;font-size:.95rem;cursor:pointer;font-weight:600">
+        🖥️ Yerel Giriş (Lokal / Dosya)
+      </button>
+    </div>
+    <div id="login-error" style="display:none;color:#dc3545;font-size:.85rem;margin-top:10px;text-align:center"></div>
 
     <div class="login-features">
       <h3>Özellikler</h3>
@@ -1918,6 +1924,53 @@ setInterval(() => {
     </p>
   </div>
 </div>
+
+<script>
+(function(){
+  var isLocal = location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  if(isLocal){
+    var btn = document.getElementById('google-signin-btn');
+    var localArea = document.getElementById('local-login-area');
+    if(btn) btn.style.display = 'none';
+    if(localArea) localArea.style.display = 'block';
+  }
+})();
+
+function handleGoogleSignIn(){
+  if(typeof google === 'undefined' || !google.accounts){
+    alert('Google servisleri yüklenemedi. İnternet bağlantınızı kontrol edin veya uygulamayı bir web sunucusu üzerinden açın.');
+    return;
+  }
+  google.accounts.id.prompt(function(notification){
+    if(notification.isNotDisplayed() || notification.isSkippedMoment()){
+      var errEl = document.getElementById('login-error');
+      if(errEl){ errEl.style.display='block'; errEl.textContent='Google girişi engellenmiş olabilir. Tarayıcı çerezlerini kontrol edin.'; }
+    }
+  });
+}
+
+function localLogin(){
+  var saved = localStorage.getItem('kelebek_local_user');
+  var user;
+  if(saved){
+    try{ user = JSON.parse(saved); }catch(e){}
+  }
+  if(!user){
+    var ad = prompt('Adınızı ve soyadınızı girin:', 'Koray Kelebek');
+    if(!ad || !ad.trim()) return;
+    user = { name: ad.trim(), email: ad.trim().toLowerCase().replace(/\s+/g,'.')+'@lokal', picture: '' };
+    localStorage.setItem('kelebek_local_user', JSON.stringify(user));
+  }
+  sessionStorage.setItem('kelebek_user', JSON.stringify(user));
+  if(typeof unlockApp === 'function'){
+    unlockApp(user);
+  } else {
+    document.getElementById('login-screen').style.display = 'none';
+    var main = document.getElementById('main-app-content');
+    if(main){ main.classList.remove('hidden'); main.style.display = 'block'; }
+  }
+}
+</script>
 
 <!-- ======== MAIN APP ======== -->
 <div id="main-app-content" class="hidden">
@@ -12132,14 +12185,6 @@ function doLogout(){
   currentUser = null;
   google.accounts.id.disableAutoSelect();
   location.reload();
-}
-
-function handleGoogleSignIn(){
-  if(typeof google === 'undefined' || !google.accounts){
-    alert('Google servisleri henüz yüklenmedi, lütfen bekleyin ve tekrar deneyin.');
-    return;
-  }
-  google.accounts.id.prompt();
 }
 
 // Google Auth başlat
