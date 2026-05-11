@@ -1536,7 +1536,7 @@ input, textarea, select, [contenteditable] {
   }
 }
 
-
+</style>
 <!-- ============================================================ -->
 <!-- MERKEZI ÖĞRENCİ YÖNETİM SİSTEMİ -->
 <!-- ============================================================ -->
@@ -1778,7 +1778,6 @@ setInterval(() => {
 }, 30000);
 </script>
 
-</style>
 <style>
 
 /* ===== LOGIN PAGE STYLES ===== */
@@ -7146,18 +7145,6 @@ function buildPage(seat){
     }
   }
   
-  // DEBUG: İlk öğrenci için uyarı göster
-  if(!window._debugShown){
-    window._debugShown=true;
-    const imageCount=questions.filter(q=>q.images&&q.images.length>0).length;
-    alert('🔍 DEBUG:\n\n' +
-      'Toplam Soru: ' + questions.length + '\n' +
-      'Resimli Soru: ' + imageCount + '\n' +
-      'Grup: ' + (seat.examGroupName||'Bilinmiyor') + '\n\n' +
-      'F12 → Console\'a bakın!'
-    );
-  }
-
   let qNum=0;
   const qItems=showQs?questions.map((q,i)=>{
     if(q.type==='section')return`<div class="pq-section-title">${q.title||''}</div>`;
