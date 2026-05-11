@@ -4133,6 +4133,7 @@ function addClassDo(){
   db.classes[v]=[];save();H('nc-branch').value='';
   renderClassTabs();renderStats();renderKChecks();
   selectClass(v);
+  try{ klbToast('✅ '+v+' sınıfı eklendi','success'); }catch(e){}
 }
 function deleteClass(){
   if(!activeClass)return;
@@ -4160,6 +4161,7 @@ function addStudentDo(){
   });
   save();H('st-no').value='';H('st-name').value='';
   renderStudentTable();renderStats();
+  try{ klbToast('✅ '+ad+' eklendi','success'); }catch(e){}
   
   // Merkezi sisteme senkronize et
   cssAutoUpload();
@@ -13947,6 +13949,542 @@ if (document.readyState === 'loading') {
   _ensureGoogleSignInButton();
 }
 
+</script>
+
+<!-- ════════════════════════════════════════════════════════════════
+     MAARİF VISION PRO V2 — AI Entegrasyon + Akıcı UI + Yeni Kategoriler
+     Türkiye Yüzyılı Maarif Modeli — Pedagojik Muhakeme Motoru
+══════════════════════════════════════════════════════════════════ -->
+<style>
+/* ───── AKICI MOBİL UI — WhatsApp / Bankacılık hissi ───── */
+:root{ --mvp-radius:14px; --mvp-shadow:0 2px 8px rgba(0,0,0,.06); }
+[data-theme="dark"]{ --mvp-shadow:0 2px 8px rgba(0,0,0,.35); }
+
+/* Genel yumuşatma */
+*{ -webkit-tap-highlight-color:transparent; }
+body{ -webkit-font-smoothing:antialiased; }
+
+/* Butonlar — daha narin, gözü yormayan */
+.btn, button.btn{
+  border-radius:12px !important;
+  transition:all .18s cubic-bezier(.4,0,.2,1) !important;
+  font-weight:600 !important;
+  letter-spacing:.01em;
+}
+.btn:active{ transform:scale(.97); }
+
+/* Hızlı butonlar (maarifQuickRecord) — kompakt ve şık */
+.mai-quick-btn{
+  font-size:.78rem !important;
+  padding:9px 12px !important;
+  border-radius:11px !important;
+  font-weight:600 !important;
+  border:1px solid var(--border) !important;
+  transition:all .18s ease !important;
+  min-height:auto !important;
+}
+.mai-quick-btn b{ font-weight:800; margin-left:4px; opacity:.85; }
+.mai-quick-btn:active{ transform:scale(.96); }
+.mai-quick-pos{ background:rgba(34,197,94,.08) !important; color:#16a34a !important; }
+.mai-quick-pos:hover{ background:rgba(34,197,94,.15) !important; }
+.mai-quick-neg{ background:rgba(239,68,68,.08) !important; color:#dc2626 !important; }
+.mai-quick-neg:hover{ background:rgba(239,68,68,.15) !important; }
+[data-theme="dark"] .mai-quick-pos{ color:#4ade80 !important; }
+[data-theme="dark"] .mai-quick-neg{ color:#f87171 !important; }
+
+/* Nav-tab daha incelt */
+.nav-tab{ font-size:.82rem !important; padding:8px 12px !important; }
+
+/* Inputlar — yumuşak */
+input, textarea, select{
+  border-radius:11px !important;
+  transition:border-color .18s ease, box-shadow .18s ease !important;
+}
+input:focus, textarea:focus, select:focus{
+  box-shadow:0 0 0 3px rgba(99,102,241,.15) !important;
+}
+
+/* Kart radius'ları */
+.card, .panel, [class*="card-"]{ border-radius:var(--mvp-radius) !important; }
+
+/* Toast pozisyonu — mobilde daha görünür */
+#klb-toast{
+  top:auto !important; bottom:90px !important;
+  right:16px !important; left:16px !important;
+  max-width:none !important;
+  text-align:center;
+  border-radius:14px !important;
+}
+
+/* Yeni: yazılı/performans kartı */
+.mvp-grade-card{
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:14px; padding:12px; margin:8px 0;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px; box-shadow:var(--mvp-shadow);
+}
+.mvp-grade-card label{ font-size:.78rem; color:var(--text2); font-weight:600; flex:1; }
+.mvp-grade-card input{
+  width:78px; text-align:center; font-weight:700;
+  padding:8px; font-size:1rem; background:var(--bg); color:var(--text);
+  border:1px solid var(--border);
+}
+.mvp-section-title{
+  font-size:.72rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.08em; color:var(--text3); margin:16px 0 8px;
+  padding:0 4px;
+}
+
+/* AI durum rozet */
+.mvp-ai-badge{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:4px 10px; border-radius:20px; font-size:.7rem; font-weight:600;
+}
+.mvp-ai-on{ background:rgba(16,185,129,.15); color:#10b981; }
+.mvp-ai-off{ background:rgba(239,68,68,.12); color:#ef4444; }
+
+/* AI analiz modal */
+.mvp-ai-modal{
+  position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:99998;
+  display:flex; align-items:flex-end; justify-content:center;
+  animation:mvpFadeIn .2s ease;
+}
+@keyframes mvpFadeIn{ from{opacity:0} to{opacity:1} }
+.mvp-ai-modal-inner{
+  background:var(--bg); width:100%; max-width:520px;
+  border-radius:20px 20px 0 0; padding:20px;
+  max-height:88vh; overflow-y:auto;
+  animation:mvpSlideUp .25s cubic-bezier(.4,0,.2,1);
+}
+@keyframes mvpSlideUp{ from{transform:translateY(40px)} to{transform:translateY(0)} }
+.mvp-ai-row{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 0; border-bottom:1px solid var(--border);
+  font-size:.84rem;
+}
+.mvp-ai-row:last-child{ border-bottom:none; }
+.mvp-ai-row .crit{ font-weight:600; }
+.mvp-ai-row .pct{ color:var(--text3); font-size:.74rem; }
+.mvp-ai-row .impact{ font-weight:800; padding:3px 8px; border-radius:6px; }
+.mvp-ai-row .pos{ background:rgba(34,197,94,.15); color:#16a34a; }
+.mvp-ai-row .neg{ background:rgba(239,68,68,.15); color:#dc2626; }
+</style>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   MAARİF VISION PRO V2 — AI Pedagojik Muhakeme Motoru
+═══════════════════════════════════════════════════════════ */
+(function(){
+'use strict';
+
+/* ───── 1. AI API YÖNETİMİ ───── */
+const MVP_AI_KEY_STORAGE = 'mvp_ai_config_v2';
+
+function mvpGetAiConfig(){
+  try{
+    const raw = localStorage.getItem(MVP_AI_KEY_STORAGE);
+    return raw ? JSON.parse(raw) : {provider:'gemini', apiKey:'', enabled:false};
+  }catch(e){ return {provider:'gemini', apiKey:'', enabled:false}; }
+}
+function mvpSetAiConfig(cfg){
+  localStorage.setItem(MVP_AI_KEY_STORAGE, JSON.stringify(cfg));
+}
+
+window.mvpOpenAiSettings = function(){
+  const cfg = mvpGetAiConfig();
+  const old = document.getElementById('mvp-ai-settings'); if(old) old.remove();
+  const modal = document.createElement('div');
+  modal.id = 'mvp-ai-settings';
+  modal.className = 'mvp-ai-modal';
+  modal.innerHTML = `
+    <div class="mvp-ai-modal-inner">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h3 style="margin:0;font-size:1.1rem">🤖 Yapay Zeka Ayarları</h3>
+        <button onclick="document.getElementById('mvp-ai-settings').remove()" style="background:transparent;border:none;font-size:1.4rem;cursor:pointer;color:var(--text2)">×</button>
+      </div>
+      <div style="font-size:.82rem;color:var(--text2);margin-bottom:14px;line-height:1.5">
+        Maarif Vision Pro, öğretmenin girdiği davranışı <b>21 eğilim</b> ve <b>EDE matrisi</b>ne göre çok boyutlu dağıtır.
+      </div>
+      <label style="display:block;margin-bottom:6px;font-size:.8rem;font-weight:600">Sağlayıcı</label>
+      <select id="mvp-ai-provider" style="width:100%;padding:10px;margin-bottom:12px">
+        <option value="gemini" ${cfg.provider==='gemini'?'selected':''}>Google Gemini (Ücretsiz, önerilen)</option>
+        <option value="openai" ${cfg.provider==='openai'?'selected':''}>OpenAI (GPT-4o-mini)</option>
+        <option value="anthropic" ${cfg.provider==='anthropic'?'selected':''}>Anthropic Claude</option>
+      </select>
+      <label style="display:block;margin-bottom:6px;font-size:.8rem;font-weight:600">API Anahtarı</label>
+      <input id="mvp-ai-key" type="password" placeholder="API anahtarınızı yapıştırın" value="${cfg.apiKey||''}" style="width:100%;padding:10px;margin-bottom:6px;font-family:monospace;font-size:.82rem">
+      <div style="font-size:.72rem;color:var(--text3);margin-bottom:14px;line-height:1.5">
+        🔑 Gemini API anahtarı: <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">aistudio.google.com/apikey</a> (ücretsiz)
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:18px;font-size:.85rem">
+        <input id="mvp-ai-enabled" type="checkbox" ${cfg.enabled?'checked':''}>
+        <span>AI'yı aktifleştir (her hızlı butona AI dağılımı uygula)</span>
+      </label>
+      <div style="display:flex;gap:8px">
+        <button class="btn" style="flex:1;background:var(--bg2);color:var(--text);border:1px solid var(--border)" onclick="document.getElementById('mvp-ai-settings').remove()">İptal</button>
+        <button class="btn" style="flex:2;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border:none" onclick="mvpSaveAiSettings()">💾 Kaydet</button>
+      </div>
+      <div id="mvp-ai-test" style="margin-top:12px;font-size:.78rem"></div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e=>{ if(e.target===modal) modal.remove(); });
+};
+
+window.mvpSaveAiSettings = function(){
+  const cfg = {
+    provider: document.getElementById('mvp-ai-provider').value,
+    apiKey: document.getElementById('mvp-ai-key').value.trim(),
+    enabled: document.getElementById('mvp-ai-enabled').checked
+  };
+  mvpSetAiConfig(cfg);
+  if(typeof klbToast==='function') klbToast(cfg.enabled?'✅ AI etkin':'ℹ️ AI devre dışı','success');
+  document.getElementById('mvp-ai-settings').remove();
+  mvpUpdateAiBadge();
+};
+
+function mvpUpdateAiBadge(){
+  const cfg = mvpGetAiConfig();
+  document.querySelectorAll('.mvp-ai-badge').forEach(el=>{
+    if(cfg.enabled && cfg.apiKey){
+      el.className = 'mvp-ai-badge mvp-ai-on';
+      el.innerHTML = '🤖 AI Aktif';
+    }else{
+      el.className = 'mvp-ai-badge mvp-ai-off';
+      el.innerHTML = '⚠️ AI Kapalı';
+    }
+  });
+}
+
+/* ───── 2. SİSTEM TALİMATI (System Prompt) ───── */
+const MVP_SYSTEM_PROMPT = `Sen "Türkiye Yüzyılı Maarif Modeli" felsefesini içselleştirmiş, bir "Maarif Uzmanı" yapay zekasısın. Dilin aklıselim (sağduyulu), kalbiselim (şefkatli), zevkiselim (estetik) olmalı.
+
+GÖREVİN: Öğretmenin bildirdiği bir davranışı/olayı al, çok boyutlu olarak değerlendir.
+
+ÜÇ BÜTÜNLÜK İLKESİ:
+1. Ontolojik: Ruh-beden bütünlüğü (sorumluluk, irade, ahlak)
+2. Epistemolojik: Bilgiden hikmete dönüşüm
+3. Aksiyolojik: Erdem-Değer-Eylem (EDE) silsilesi
+
+ÇATI DEĞERLER: Adalet, Saygı, Sorumluluk
+ALT DEĞERLER: Sevgi, Dostluk, Dürüstlük, Vatanseverlik, Estetik, Yardımseverlik, Sabır, Şefkat, Merhamet, Cesaret, Tasarruf, Çalışkanlık, Sağlıklı yaşam, Aile bütünlüğü
+
+21 EĞİLİM:
+- Entelektüel (11): Merak, Uzmanlaşma, Odaklanma, Yaratıcılık, Gerçeği arama, Açık fikirlilik, Analitiklik, Sistematik olma, Sorgulama, Şüphe, Eleştirel bakış
+- Sosyal (5): Empati, Sorumluluk, Girişkenlik, Güven, Oyunseverlik
+- Benlik (5): Merak, Bağımsızlık, Azim/kararlılık, Öz yeterlilik, Öz güven
+
+PUAN DAĞILIM ALGORİTMASI:
+Verilen toplam puanı (örn: -3 veya +2), olayın doğasına göre 2-4 farklı kritere AĞIRLIKLI dağıt.
+Örnek: "Sırayı karaladı" -3 puan → Sorumluluk %40 (-1.20), Estetik %30 (-0.90), Saygı %30 (-0.90)
+
+PEDAGOJİK DİL: Cezalandırıcı değil, FARK ETTİRİCİ ol. Öğrenciyi etiketleme.
+
+ÇIKTI FORMATI (sadece geçerli JSON, başka hiçbir metin yok):
+{
+  "dagitim": [
+    {"kriter":"Sorumluluk","tip":"cati_deger","agirlik":40,"etki":-1.20,"neden":"Kamu malına zarar"},
+    {"kriter":"Estetik","tip":"alt_deger","agirlik":30,"etki":-0.90,"neden":"Çevreye duyarsızlık"},
+    {"kriter":"Saygı","tip":"cati_deger","agirlik":30,"etki":-0.90,"neden":"Diğerlerinin alanına müdahale"}
+  ],
+  "egilimler": {"benlik":[],"sosyal":["Sorumluluk"],"entelektuel":[]},
+  "geri_bildirim": "Sevgili öğrenci, sırayı karalaman sadece bir puan kaybı değil; çevrene duyduğun estetik saygının ve kamusal sorumluluğunun bir yansımasıdır. Birlikte düzeltebiliriz.",
+  "ozet": "Sorumluluk-Estetik-Saygı üçgeninde bir farkındalık fırsatı."
+}`;
+
+/* ───── 3. AI ÇAĞRISI ───── */
+async function mvpCallAi(observation, requestedScore){
+  const cfg = mvpGetAiConfig();
+  if(!cfg.enabled || !cfg.apiKey) return null;
+
+  const userPrompt = `Davranış: "${observation}"\nİstenen toplam puan değişimi: ${requestedScore>=0?'+':''}${requestedScore}\n\nBu davranışı çok boyutlu dağıt ve geçerli JSON olarak döndür.`;
+
+  try{
+    let url, body, headers;
+    if(cfg.provider === 'gemini'){
+      url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${cfg.apiKey}`;
+      body = JSON.stringify({
+        systemInstruction:{parts:[{text:MVP_SYSTEM_PROMPT}]},
+        contents:[{parts:[{text:userPrompt}]}],
+        generationConfig:{temperature:0.4, responseMimeType:'application/json'}
+      });
+      headers = {'Content-Type':'application/json'};
+    }else if(cfg.provider === 'openai'){
+      url = 'https://api.openai.com/v1/chat/completions';
+      body = JSON.stringify({
+        model:'gpt-4o-mini',
+        messages:[
+          {role:'system', content:MVP_SYSTEM_PROMPT},
+          {role:'user', content:userPrompt}
+        ],
+        temperature:0.4,
+        response_format:{type:'json_object'}
+      });
+      headers = {'Content-Type':'application/json','Authorization':'Bearer '+cfg.apiKey};
+    }else if(cfg.provider === 'anthropic'){
+      url = 'https://api.anthropic.com/v1/messages';
+      body = JSON.stringify({
+        model:'claude-3-5-haiku-20241022',
+        max_tokens:1500,
+        system:MVP_SYSTEM_PROMPT,
+        messages:[{role:'user', content:userPrompt}]
+      });
+      headers = {'Content-Type':'application/json','x-api-key':cfg.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};
+    }
+
+    const res = await fetch(url, {method:'POST', headers, body});
+    if(!res.ok){
+      const errText = await res.text();
+      console.error('AI hata:', errText);
+      throw new Error('AI API hatası: '+res.status);
+    }
+    const data = await res.json();
+    let text;
+    if(cfg.provider === 'gemini') text = data.candidates[0].content.parts[0].text;
+    else if(cfg.provider === 'openai') text = data.choices[0].message.content;
+    else if(cfg.provider === 'anthropic') text = data.content[0].text;
+
+    // JSON parse
+    const cleaned = text.replace(/```json/g,'').replace(/```/g,'').trim();
+    return JSON.parse(cleaned);
+  }catch(e){
+    console.error('mvpCallAi hata:', e);
+    if(typeof klbToast==='function') klbToast('⚠️ AI hatası: '+e.message,'error');
+    return null;
+  }
+}
+
+/* ───── 4. AI ANALİZ MODALI ───── */
+function mvpShowAnalysisModal(observation, score, aiResult, onConfirm){
+  const old = document.getElementById('mvp-ai-analiz'); if(old) old.remove();
+  const modal = document.createElement('div');
+  modal.id = 'mvp-ai-analiz';
+  modal.className = 'mvp-ai-modal';
+
+  const total = aiResult.dagitim.reduce((s,x)=>s+x.etki,0);
+  const rows = aiResult.dagitim.map(d=>{
+    const isPos = d.etki >= 0;
+    return `<div class="mvp-ai-row">
+      <div style="flex:1;min-width:0">
+        <div class="crit">${d.kriter} <span style="font-size:.68rem;color:var(--text3);font-weight:400">(${d.tip==='cati_deger'?'çatı':d.tip==='alt_deger'?'alt':'eğilim'})</span></div>
+        <div class="pct">${d.agirlik}% ağırlık — ${d.neden}</div>
+      </div>
+      <div class="impact ${isPos?'pos':'neg'}">${isPos?'+':''}${d.etki.toFixed(2)}</div>
+    </div>`;
+  }).join('');
+
+  const egilimler = aiResult.egilimler||{};
+  const egTags = [
+    ...(egilimler.benlik||[]).map(e=>`<span style="background:#0891b2;color:#fff;padding:2px 7px;border-radius:4px;font-size:.65rem;font-weight:600;margin:2px">B:${e}</span>`),
+    ...(egilimler.sosyal||[]).map(e=>`<span style="background:#0d9488;color:#fff;padding:2px 7px;border-radius:4px;font-size:.65rem;font-weight:600;margin:2px">S:${e}</span>`),
+    ...(egilimler.entelektuel||[]).map(e=>`<span style="background:#7c3aed;color:#fff;padding:2px 7px;border-radius:4px;font-size:.65rem;font-weight:600;margin:2px">E:${e}</span>`)
+  ].join('');
+
+  modal.innerHTML = `
+    <div class="mvp-ai-modal-inner">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h3 style="margin:0;font-size:1.05rem">🤖 AI Pedagojik Analiz</h3>
+        <button onclick="document.getElementById('mvp-ai-analiz').remove()" style="background:transparent;border:none;font-size:1.4rem;cursor:pointer;color:var(--text2)">×</button>
+      </div>
+      <div style="background:var(--bg2);padding:10px 12px;border-radius:10px;font-size:.84rem;margin-bottom:14px;border-left:3px solid var(--accent)">
+        <div style="font-size:.7rem;color:var(--text3);margin-bottom:4px">DAVRANIŞ</div>
+        <div>${observation}</div>
+      </div>
+      <div class="mvp-section-title">Çok Boyutlu Dağılım</div>
+      ${rows}
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;margin-top:8px;border-top:2px solid var(--border)">
+        <b style="font-size:.9rem">Toplam Etki</b>
+        <div class="impact ${total>=0?'pos':'neg'}" style="font-size:1rem">${total>=0?'+':''}${total.toFixed(2)}</div>
+      </div>
+      ${egTags ? `<div class="mvp-section-title">Aktive Olan Eğilimler</div><div style="margin-bottom:12px">${egTags}</div>` : ''}
+      <div class="mvp-section-title">Pedagojik Geri Bildirim</div>
+      <div style="background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(168,85,247,.08));padding:12px;border-radius:10px;font-size:.84rem;line-height:1.55;margin-bottom:16px;font-style:italic">
+        ${aiResult.geri_bildirim||'—'}
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" style="flex:1;background:var(--bg2);color:var(--text);border:1px solid var(--border)" onclick="document.getElementById('mvp-ai-analiz').remove()">İptal</button>
+        <button class="btn" id="mvp-confirm-ai" style="flex:2;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none">✅ Kaydet</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  document.getElementById('mvp-confirm-ai').onclick = ()=>{
+    onConfirm(aiResult);
+    modal.remove();
+  };
+  modal.addEventListener('click', e=>{ if(e.target===modal) modal.remove(); });
+}
+
+/* ───── 5. maarifQuickRecord'u AI İLE SARMALA ───── */
+const _origMaarifQuickRecord = window.maarifQuickRecord;
+window.maarifQuickRecord = async function(label, puan, tip){
+  const cfg = mvpGetAiConfig();
+
+  // AI kapalıysa orijinal davranış
+  if(!cfg.enabled || !cfg.apiKey){
+    return _origMaarifQuickRecord(label, puan, tip);
+  }
+
+  const id = window.maarifSelectedStudentId;
+  if(!id){ klbToast('⚠️ Önce öğrenci seç','error'); return; }
+  const sinif = H('mai-sinif').value;
+  const student = (db.classes[sinif]||[]).find(s=>s.id===id);
+  if(!student){ klbToast('⚠️ Öğrenci bulunamadı','error'); return; }
+
+  // Olumsuz onay
+  if(tip === 'neg'){
+    if(!confirm('⚠️ Olumsuz kayıt eklenecek!\n\n"' + label + '" → ' + puan + ' puan\n\nKalıcı kayıt olur. AI çok boyutlu dağılım yapacak.\n\nDevam?')) return;
+  }
+
+  klbToast('🤖 AI analiz ediyor...','info');
+  const aiResult = await mvpCallAi(label, puan);
+
+  if(!aiResult){
+    // AI başarısız → klasik kaydet
+    if(confirm('AI çağrısı başarısız. Klasik (tek boyutlu) kayıt yapılsın mı?')){
+      return _origMaarifQuickRecord(label, puan, tip);
+    }
+    return;
+  }
+
+  // Modalı göster, onaylarsa kaydet
+  mvpShowAnalysisModal(label, puan, aiResult, (result)=>{
+    mvpSaveAiEvaluation(student, sinif, label, puan, tip, result);
+  });
+};
+
+function mvpSaveAiEvaluation(student, sinif, label, puan, tip, aiResult){
+  if(!db.maarifAi) db.maarifAi = {};
+  if(!db.maarifAi[student.id]) db.maarifAi[student.id] = [];
+
+  const cati = aiResult.dagitim.filter(d=>d.tip==='cati_deger').map(d=>d.kriter);
+  const alt = aiResult.dagitim.filter(d=>d.tip==='alt_deger').map(d=>d.kriter);
+  const realScore = parseFloat(aiResult.dagitim.reduce((s,x)=>s+x.etki,0).toFixed(2));
+
+  const evaluation = {
+    id: 'mai_' + Date.now() + '_' + Math.floor(Math.random()*1000),
+    tarih: new Date().toISOString(),
+    sinif: sinif,
+    ogrenciAd: student.ad,
+    ogrenciNo: student.no,
+    observation: label,
+    score: realScore,
+    requestedScore: puan,
+    tip: tip === 'neg' ? 'olumsuz' : 'olumlu',
+    silinemez: tip === 'neg',
+    kaynak: 'ai',
+    maarif: {
+      cati_degerler: cati,
+      alt_degerler: alt,
+      egilimler: aiResult.egilimler || {benlik:[],sosyal:[],entelektuel:[]},
+      beceriler: []
+    },
+    aiDagitim: aiResult.dagitim,
+    pedagogical_evidence: aiResult.ozet || '',
+    inspector_note: '',
+    feedback_for_student: aiResult.geri_bildirim || ''
+  };
+
+  db.maarifAi[student.id].push(evaluation);
+  if(typeof student.toplamPuan !== 'number') student.toplamPuan = 100;
+  student.toplamPuan = Math.max(0, student.toplamPuan + realScore);
+
+  save();
+  if(typeof maarifLoadHistory==='function') maarifLoadHistory();
+  if(typeof maarifRenderGlobalList==='function') maarifRenderGlobalList();
+
+  klbToast('✅ AI değerlendirme kaydedildi ('+(realScore>=0?'+':'')+realScore.toFixed(2)+')','success');
+}
+
+/* ───── 6. AKADEMİK PUAN ALANLARI (Yazılı/Performans/Proje) ───── */
+window.mvpOpenGradesPanel = function(){
+  const id = window.maarifSelectedStudentId;
+  if(!id){ klbToast('⚠️ Önce öğrenci seç','error'); return; }
+  const sinif = H('mai-sinif').value;
+  const student = (db.classes[sinif]||[]).find(s=>s.id===id);
+  if(!student){ klbToast('⚠️ Öğrenci bulunamadı','error'); return; }
+
+  if(!student.akademik) student.akademik = {y1:'',y2:'',p1:'',p2:'',proje:'',kitap:''};
+  const a = student.akademik;
+
+  const old = document.getElementById('mvp-grades'); if(old) old.remove();
+  const modal = document.createElement('div');
+  modal.id = 'mvp-grades';
+  modal.className = 'mvp-ai-modal';
+  modal.innerHTML = `
+    <div class="mvp-ai-modal-inner">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <h3 style="margin:0;font-size:1.05rem">📊 Akademik Puanlar</h3>
+        <button onclick="document.getElementById('mvp-grades').remove()" style="background:transparent;border:none;font-size:1.4rem;cursor:pointer;color:var(--text2)">×</button>
+      </div>
+      <div style="font-size:.78rem;color:var(--text2);margin-bottom:12px">
+        <b>${student.ad}</b> — ${sinif}
+      </div>
+      <div class="mvp-section-title">Yazılı Sınavlar (Kavramsal Beceriler)</div>
+      <div class="mvp-grade-card"><label>Yazılı 1</label><input type="number" min="0" max="100" id="g-y1" value="${a.y1}"></div>
+      <div class="mvp-grade-card"><label>Yazılı 2</label><input type="number" min="0" max="100" id="g-y2" value="${a.y2}"></div>
+      <div class="mvp-section-title">Performans (Uygulama, Üretkenlik)</div>
+      <div class="mvp-grade-card"><label>Performans 1</label><input type="number" min="0" max="100" id="g-p1" value="${a.p1}"></div>
+      <div class="mvp-grade-card"><label>Performans 2</label><input type="number" min="0" max="100" id="g-p2" value="${a.p2}"></div>
+      <div class="mvp-section-title">Üst Düzey Düşünme</div>
+      <div class="mvp-grade-card"><label>Dönem Projesi</label><input type="number" min="0" max="100" id="g-proje" value="${a.proje}"></div>
+      <div class="mvp-section-title">Öz Yansıtma & Epistemolojik Bütünlük</div>
+      <div class="mvp-grade-card"><label>Kitap İçi Alanlar</label><input type="number" min="0" max="100" id="g-kitap" value="${a.kitap}"></div>
+      <button class="btn" style="width:100%;margin-top:14px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;padding:14px" onclick="mvpSaveGrades('${student.id}','${sinif}')">💾 Kaydet</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e=>{ if(e.target===modal) modal.remove(); });
+};
+
+window.mvpSaveGrades = function(studentId, sinif){
+  const student = (db.classes[sinif]||[]).find(s=>s.id===studentId);
+  if(!student) return;
+  student.akademik = {
+    y1: document.getElementById('g-y1').value,
+    y2: document.getElementById('g-y2').value,
+    p1: document.getElementById('g-p1').value,
+    p2: document.getElementById('g-p2').value,
+    proje: document.getElementById('g-proje').value,
+    kitap: document.getElementById('g-kitap').value
+  };
+  save();
+  document.getElementById('mvp-grades').remove();
+  klbToast('✅ Akademik puanlar kaydedildi','success');
+};
+
+/* ───── 7. NAVBAR'A AI VE GRADES BUTONLARI EKLE ───── */
+function mvpAddButtons(){
+  // Performans sayfasındaki maarif panelinin üstüne ekle
+  const tryInsert = ()=>{
+    const target = document.getElementById('page-performans');
+    if(!target || document.getElementById('mvp-toolbar')) return;
+    const bar = document.createElement('div');
+    bar.id = 'mvp-toolbar';
+    bar.style.cssText = 'display:flex;gap:8px;align-items:center;padding:10px 12px;background:var(--bg2);border-bottom:1px solid var(--border);flex-wrap:wrap';
+    bar.innerHTML = `
+      <span class="mvp-ai-badge mvp-ai-off">⚠️ AI Kapalı</span>
+      <button class="btn" style="padding:7px 12px;font-size:.78rem;background:var(--bg);border:1px solid var(--border);border-radius:10px" onclick="mvpOpenAiSettings()">🤖 AI Ayarları</button>
+      <button class="btn" style="padding:7px 12px;font-size:.78rem;background:var(--bg);border:1px solid var(--border);border-radius:10px" onclick="mvpOpenGradesPanel()">📊 Yazılı/Performans</button>
+    `;
+    target.insertBefore(bar, target.firstChild);
+    mvpUpdateAiBadge();
+  };
+  tryInsert();
+  // Sayfa değişince de dene
+  const obs = new MutationObserver(tryInsert);
+  obs.observe(document.body, {childList:true, subtree:true});
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', mvpAddButtons);
+}else{
+  mvpAddButtons();
+}
+
+console.log('🌸 Maarif Vision Pro V2 — AI Pedagojik Muhakeme Motoru yüklendi');
+
+})();
 </script>
 
 </body>
