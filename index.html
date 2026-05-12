@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0a0b0e">
-<title>Maarif · Gelişim Asistanı v0.4.0</title>
+<title>Maarif · Gelişim Asistanı v0.5.0</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>if(typeof pdfjsLib!=="undefined"){pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";}</script>
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <style>
 /* ════════════════════════════════════════════════════════
-   MAARİF v0.4.0 — Modüler, Bağımsız Uygulama
+   MAARİF v0.5.0 — Modüler, Bağımsız Uygulama
    "Banking-grade" UX · Türkiye Yüzyılı Maarif Modeli
    ═══════════════════════════════════════════════════════ */
 
@@ -1244,7 +1244,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
   <div class="login" id="login-screen">
     <div class="login-mark">Maarif</div>
     <div class="login-tagline">Gelişim Asistanı</div>
-    <div class="login-version">v0.4.0 · Türkiye Yüzyılı Maarif Modeli</div>
+    <div class="login-version">v0.5.0 · Türkiye Yüzyılı Maarif Modeli</div>
 
     <div id="google-login-target"></div>
     <div id="login-error" class="login-error hidden"></div>
@@ -1353,7 +1353,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
     </div>
 
     <div style="text-align:center;color:var(--text-3);font-size:11px;margin:32px 0 20px;letter-spacing:0.05em">
-      Maarif v0.4.0 · 11 Mayıs 2026
+      Maarif v0.5.0 · 11 Mayıs 2026
     </div>
   </div>
 
@@ -2371,154 +2371,310 @@ KURALLAR:
        AI bağlamı analiz eder, rule engine kriterleri filtreler.
        Yaratıcılık/Estetik gibi alakasız kriterler asla seçilmez.
        ═══════════════════════════════════════════════ */
+    /* Severity multiplier (şiddet katsayısı) */
+    SEVERITY_MULTIPLIER: {
+      low:    0.7,
+      medium: 1.0,
+      high:   1.5
+    },
+    
+    /* Confidence eşiği — bunun altında öğretmen onayı zorunlu */
+    CONFIDENCE_THRESHOLD: 0.60,
+    
+    /* Tüm Maarif kriterleri (domain ile) */
+    ALL_CRITERIA: {
+      'cati|Adalet':         {domain:'karakter'},
+      'cati|Saygı':          {domain:'sosyal'},
+      'cati|Sorumluluk':     {domain:'karakter'},
+      'egilim_entelektuel|Merak':           {domain:'akademik'},
+      'egilim_entelektuel|Yaratıcılık':     {domain:'akademik'},
+      'egilim_entelektuel|Eleştirel Bakış': {domain:'akademik'},
+      'egilim_entelektuel|Odaklanma':       {domain:'akademik'},
+      'egilim_entelektuel|Analitiklik':     {domain:'akademik'},
+      'egilim_entelektuel|Sistematiklik':   {domain:'akademik'},
+      'egilim_entelektuel|Soru Sorma':      {domain:'akademik'},
+      'egilim_sosyal|Empati':       {domain:'sosyal'},
+      'egilim_sosyal|Girişkenlik':  {domain:'sosyal'},
+      'egilim_sosyal|Güven':        {domain:'sosyal'},
+      'egilim_sosyal|Oyunseverlik': {domain:'sosyal'},
+      'egilim_sosyal|Sorumluluk (Sosyal)': {domain:'sosyal'},
+      'egilim_benlik|Azim ve Kararlılık': {domain:'karakter'},
+      'egilim_benlik|Öz Yeterlilik':      {domain:'karakter'},
+      'egilim_benlik|Bağımsızlık':        {domain:'karakter'},
+      'egilim_benlik|Seçicilik':          {domain:'karakter'},
+      'egilim_benlik|Kendine Güvenme':    {domain:'karakter'},
+      'karakter|Bilge':       {domain:'akademik'},
+      'karakter|Ahlaklı':     {domain:'karakter'},
+      'karakter|Merhametli':  {domain:'sosyal'},
+      'karakter|Estetik':     {domain:'akademik'},
+      'karakter|Üretken':     {domain:'akademik'},
+      'karakter|Vatansever':  {domain:'karakter'}
+    },
+    
     RULES: {
-      // FIZIKSEL ÇATIŞMA: itme, vurma, çekme, dokunma
+      // ═══════ DİSİPLİN / SOSYAL (negatif) ═══════
       physical_conflict: {
+        domains: ['sosyal'],
         allowed: [
-          {category:'cati', item:'Saygı', priority:5},
-          {category:'egilim_sosyal', item:'Empati', priority:5},
-          {category:'cati', item:'Sorumluluk', priority:4},
-          {category:'egilim_benlik', item:'Öz Yeterlilik', priority:3},
-          {category:'karakter', item:'Ahlaklı', priority:3},
-          {category:'karakter', item:'Merhametli', priority:3}
+          {category:'cati', item:'Saygı', priority:5, direction:'negative'},
+          {category:'egilim_sosyal', item:'Empati', priority:5, direction:'negative'},
+          {category:'cati', item:'Sorumluluk', priority:4, direction:'negative'},
+          {category:'egilim_benlik', item:'Öz Yeterlilik', priority:3, direction:'negative'},
+          {category:'karakter', item:'Ahlaklı', priority:3, direction:'negative'}
         ],
+        blocked: ['Yaratıcılık', 'Estetik', 'Bilge', 'Üretken', 'Merak', 'Soru Sorma'],
         impactRange: [-5, -2],
         polarity: 'negative'
       },
-      // FIZIKSEL KORUYUCU: düşmesin diye tutma, koruma
       physical_protective: {
+        domains: ['sosyal', 'karakter'],
         allowed: [
-          {category:'egilim_sosyal', item:'Empati', priority:5},
-          {category:'karakter', item:'Merhametli', priority:5},
-          {category:'cati', item:'Sorumluluk', priority:4},
-          {category:'egilim_sosyal', item:'Sorumluluk (Sosyal)', priority:4}
+          {category:'egilim_sosyal', item:'Empati', priority:5, direction:'positive'},
+          {category:'karakter', item:'Merhametli', priority:5, direction:'positive'},
+          {category:'cati', item:'Sorumluluk', priority:4, direction:'positive'},
+          {category:'egilim_sosyal', item:'Sorumluluk (Sosyal)', priority:4, direction:'positive'}
         ],
+        blocked: ['Yaratıcılık', 'Estetik', 'Eleştirel Bakış'],
         impactRange: [3, 5],
         polarity: 'positive'
       },
-      // SÖZLÜ ÇATIŞMA: hakaret, alay, lakap takma
       verbal_conflict: {
+        domains: ['sosyal'],
         allowed: [
-          {category:'cati', item:'Saygı', priority:5},
-          {category:'egilim_sosyal', item:'Empati', priority:4},
-          {category:'karakter', item:'Ahlaklı', priority:4},
-          {category:'egilim_benlik', item:'Öz Yeterlilik', priority:2}
+          {category:'cati', item:'Saygı', priority:5, direction:'negative'},
+          {category:'egilim_sosyal', item:'Empati', priority:4, direction:'negative'},
+          {category:'karakter', item:'Ahlaklı', priority:4, direction:'negative'}
         ],
+        blocked: ['Yaratıcılık', 'Estetik', 'Bilge', 'Merak', 'Vatansever'],
         impactRange: [-4, -1],
         polarity: 'negative'
       },
-      // DERSE KATILMAMA: kitap, ödev, hazırlıksız
+      bullying: {
+        domains: ['sosyal'],
+        allowed: [
+          {category:'cati', item:'Saygı', priority:5, direction:'negative'},
+          {category:'egilim_sosyal', item:'Empati', priority:5, direction:'negative'},
+          {category:'karakter', item:'Ahlaklı', priority:5, direction:'negative'},
+          {category:'karakter', item:'Merhametli', priority:4, direction:'negative'}
+        ],
+        blocked: ['Yaratıcılık', 'Estetik', 'Bilge', 'Üretken'],
+        impactRange: [-5, -3],
+        polarity: 'negative'
+      },
+      
+      // ═══════ AKADEMİK (negatif) ═══════
       academic_neglect: {
+        domains: ['akademik'],
         allowed: [
-          {category:'cati', item:'Sorumluluk', priority:5},
-          {category:'egilim_benlik', item:'Azim ve Kararlılık', priority:4},
-          {category:'egilim_benlik', item:'Öz Yeterlilik', priority:3},
-          {category:'egilim_entelektuel', item:'Sistematiklik', priority:3}
+          {category:'cati', item:'Sorumluluk', priority:5, direction:'negative'},
+          {category:'egilim_benlik', item:'Azim ve Kararlılık', priority:4, direction:'negative'},
+          {category:'egilim_benlik', item:'Öz Yeterlilik', priority:3, direction:'negative'},
+          {category:'egilim_entelektuel', item:'Sistematiklik', priority:3, direction:'negative'}
         ],
+        blocked: ['Yaratıcılık', 'Empati', 'Merhametli'],
         impactRange: [-3, -1],
         polarity: 'negative'
       },
-      // DİKKAT DAĞINIKLIĞI: konuşma, telefon, dalmak
       inattention: {
+        domains: ['akademik'],
         allowed: [
-          {category:'egilim_entelektuel', item:'Odaklanma', priority:5},
-          {category:'cati', item:'Saygı', priority:4},
-          {category:'cati', item:'Sorumluluk', priority:3}
+          {category:'egilim_entelektuel', item:'Odaklanma', priority:5, direction:'negative'},
+          {category:'cati', item:'Saygı', priority:4, direction:'negative'},
+          {category:'cati', item:'Sorumluluk', priority:3, direction:'negative'}
         ],
+        blocked: ['Yaratıcılık', 'Bilge', 'Merhametli', 'Estetik'],
         impactRange: [-4, -1],
         polarity: 'negative'
       },
-      // DÜZEN BOZMA: sıra değiştirme, sınıf eşyasına zarar
-      disorder: {
+      academic_passivity: {
+        domains: ['akademik'],
         allowed: [
-          {category:'cati', item:'Saygı', priority:5},
-          {category:'cati', item:'Sorumluluk', priority:5},
-          {category:'karakter', item:'Estetik', priority:3}
+          {category:'egilim_benlik', item:'Kendine Güvenme', priority:5, direction:'negative'},
+          {category:'egilim_sosyal', item:'Girişkenlik', priority:4, direction:'negative'},
+          {category:'egilim_entelektuel', item:'Merak', priority:3, direction:'negative'}
         ],
+        blocked: ['Estetik', 'Vatansever', 'Adalet'],
+        impactRange: [-2, -1],
+        polarity: 'negative'
+      },
+      disorder: {
+        domains: ['sosyal'],
+        allowed: [
+          {category:'cati', item:'Saygı', priority:5, direction:'negative'},
+          {category:'cati', item:'Sorumluluk', priority:5, direction:'negative'},
+          {category:'karakter', item:'Estetik', priority:3, direction:'negative'}
+        ],
+        blocked: ['Yaratıcılık', 'Empati', 'Bilge', 'Merhametli'],
         impactRange: [-3, -1],
         polarity: 'negative'
       },
-      // YALAN / SAHTECILIK: kopya, yalan, kandırma
       dishonesty: {
+        domains: ['karakter', 'akademik'],
         allowed: [
-          {category:'karakter', item:'Ahlaklı', priority:5},
-          {category:'cati', item:'Adalet', priority:5},
-          {category:'cati', item:'Saygı', priority:3}
+          {category:'karakter', item:'Ahlaklı', priority:5, direction:'negative'},
+          {category:'cati', item:'Adalet', priority:5, direction:'negative'},
+          {category:'cati', item:'Saygı', priority:3, direction:'negative'}
         ],
+        blocked: ['Yaratıcılık', 'Empati', 'Merhametli', 'Estetik', 'Bilge'],
         impactRange: [-5, -2],
         polarity: 'negative'
       },
-      // POZİTİF: AKTİF KATILIM
+      
+      // ═══════ AKADEMİK (pozitif) ═══════
       active_participation: {
+        domains: ['akademik', 'sosyal'],
         allowed: [
-          {category:'egilim_entelektuel', item:'Merak', priority:5},
-          {category:'egilim_sosyal', item:'Girişkenlik', priority:5},
-          {category:'egilim_entelektuel', item:'Soru Sorma', priority:4},
-          {category:'egilim_benlik', item:'Kendine Güvenme', priority:3}
+          {category:'egilim_entelektuel', item:'Merak', priority:5, direction:'positive'},
+          {category:'egilim_sosyal', item:'Girişkenlik', priority:5, direction:'positive'},
+          {category:'egilim_entelektuel', item:'Soru Sorma', priority:4, direction:'positive'},
+          {category:'egilim_benlik', item:'Kendine Güvenme', priority:3, direction:'positive'}
         ],
+        blocked: ['Empati', 'Merhametli', 'Vatansever'],
         impactRange: [2, 4],
         polarity: 'positive'
       },
-      // POZİTİF: YARDIM, PAYLAŞIM
-      prosocial: {
+      critical_thinking: {
+        domains: ['akademik'],
         allowed: [
-          {category:'egilim_sosyal', item:'Empati', priority:5},
-          {category:'cati', item:'Sorumluluk', priority:4},
-          {category:'karakter', item:'Merhametli', priority:4},
-          {category:'cati', item:'Adalet', priority:3}
+          {category:'egilim_entelektuel', item:'Eleştirel Bakış', priority:5, direction:'positive'},
+          {category:'egilim_entelektuel', item:'Analitiklik', priority:5, direction:'positive'},
+          {category:'egilim_entelektuel', item:'Soru Sorma', priority:4, direction:'positive'},
+          {category:'karakter', item:'Bilge', priority:3, direction:'positive'}
         ],
-        impactRange: [2, 4],
+        blocked: ['Empati', 'Merhametli', 'Estetik'],
+        impactRange: [3, 5],
         polarity: 'positive'
       },
-      // POZİTİF: YARATICI ÇÖZÜM (gerçekten yaratıcı bir şey yaptıysa)
       creative_work: {
+        domains: ['akademik'],
         allowed: [
-          {category:'egilim_entelektuel', item:'Yaratıcılık', priority:5},
-          {category:'egilim_entelektuel', item:'Eleştirel Bakış', priority:4},
-          {category:'karakter', item:'Üretken', priority:4},
-          {category:'egilim_benlik', item:'Bağımsızlık', priority:3}
+          {category:'egilim_entelektuel', item:'Yaratıcılık', priority:5, direction:'positive'},
+          {category:'egilim_entelektuel', item:'Eleştirel Bakış', priority:4, direction:'positive'},
+          {category:'karakter', item:'Üretken', priority:4, direction:'positive'},
+          {category:'egilim_benlik', item:'Bağımsızlık', priority:3, direction:'positive'},
+          {category:'karakter', item:'Estetik', priority:3, direction:'positive'}
         ],
+        blocked: ['Empati', 'Merhametli', 'Vatansever'],
         impactRange: [3, 5],
         polarity: 'positive'
       },
-      // POZİTİF: LİDERLİK
-      leadership: {
+      scientific_inquiry: {
+        domains: ['akademik'],
         allowed: [
-          {category:'cati', item:'Sorumluluk', priority:5},
-          {category:'egilim_sosyal', item:'Girişkenlik', priority:5},
-          {category:'egilim_benlik', item:'Kendine Güvenme', priority:4},
-          {category:'karakter', item:'Bilge', priority:3}
+          {category:'egilim_entelektuel', item:'Analitiklik', priority:5, direction:'positive'},
+          {category:'egilim_entelektuel', item:'Sistematiklik', priority:5, direction:'positive'},
+          {category:'egilim_entelektuel', item:'Eleştirel Bakış', priority:4, direction:'positive'},
+          {category:'egilim_entelektuel', item:'Merak', priority:4, direction:'positive'},
+          {category:'karakter', item:'Bilge', priority:3, direction:'positive'}
         ],
+        blocked: ['Empati', 'Merhametli', 'Estetik'],
         impactRange: [3, 5],
         polarity: 'positive'
       },
-      // POZİTİF: TELAFI - kendini düzeltme
-      self_correction: {
+      academic_achievement: {
+        domains: ['akademik', 'karakter'],
         allowed: [
-          {category:'egilim_benlik', item:'Azim ve Kararlılık', priority:5},
-          {category:'cati', item:'Sorumluluk', priority:4},
-          {category:'karakter', item:'Ahlaklı', priority:4},
-          {category:'egilim_benlik', item:'Öz Yeterlilik', priority:3}
+          {category:'egilim_benlik', item:'Azim ve Kararlılık', priority:5, direction:'positive'},
+          {category:'egilim_benlik', item:'Öz Yeterlilik', priority:4, direction:'positive'},
+          {category:'karakter', item:'Üretken', priority:4, direction:'positive'},
+          {category:'cati', item:'Sorumluluk', priority:3, direction:'positive'}
         ],
-        impactRange: [3, 5],
+        blocked: ['Empati', 'Merhametli'],
+        impactRange: [2, 5],
         polarity: 'positive'
       },
-      // POZİTİF: ÇABA / AZİM
-      effort: {
+      
+      // ═══════ SOSYAL (pozitif) ═══════
+      prosocial: {
+        domains: ['sosyal', 'karakter'],
         allowed: [
-          {category:'egilim_benlik', item:'Azim ve Kararlılık', priority:5},
-          {category:'egilim_benlik', item:'Öz Yeterlilik', priority:4},
-          {category:'karakter', item:'Üretken', priority:3}
+          {category:'egilim_sosyal', item:'Empati', priority:5, direction:'positive'},
+          {category:'cati', item:'Sorumluluk', priority:4, direction:'positive'},
+          {category:'karakter', item:'Merhametli', priority:4, direction:'positive'},
+          {category:'cati', item:'Adalet', priority:3, direction:'positive'}
         ],
+        blocked: ['Yaratıcılık', 'Eleştirel Bakış', 'Analitiklik'],
         impactRange: [2, 4],
         polarity: 'positive'
       },
-      // NÖTR: belirsiz, gözlem gerektiren
-      neutral: {
+      academic_help: {
+        // Birine akademik konuda yardım etti — multi-domain!
+        domains: ['sosyal', 'akademik'],
         allowed: [
-          {category:'egilim_benlik', item:'Öz Yeterlilik', priority:3},
-          {category:'cati', item:'Sorumluluk', priority:2}
+          {category:'egilim_sosyal', item:'Empati', priority:5, direction:'positive'},
+          {category:'karakter', item:'Bilge', priority:5, direction:'positive'},
+          {category:'cati', item:'Sorumluluk', priority:4, direction:'positive'},
+          {category:'karakter', item:'Üretken', priority:3, direction:'positive'},
+          {category:'egilim_sosyal', item:'Girişkenlik', priority:3, direction:'positive'}
         ],
+        blocked: ['Estetik', 'Vatansever'],
+        impactRange: [3, 5],
+        polarity: 'positive'
+      },
+      leadership: {
+        domains: ['sosyal', 'karakter'],
+        allowed: [
+          {category:'cati', item:'Sorumluluk', priority:5, direction:'positive'},
+          {category:'egilim_sosyal', item:'Girişkenlik', priority:5, direction:'positive'},
+          {category:'egilim_benlik', item:'Kendine Güvenme', priority:4, direction:'positive'},
+          {category:'karakter', item:'Bilge', priority:3, direction:'positive'}
+        ],
+        blocked: ['Empati', 'Yaratıcılık', 'Estetik'],
+        impactRange: [3, 5],
+        polarity: 'positive'
+      },
+      
+      // ═══════ KARAKTER (pozitif) ═══════
+      self_correction: {
+        domains: ['karakter'],
+        allowed: [
+          {category:'egilim_benlik', item:'Azim ve Kararlılık', priority:5, direction:'positive'},
+          {category:'cati', item:'Sorumluluk', priority:4, direction:'positive'},
+          {category:'karakter', item:'Ahlaklı', priority:5, direction:'positive'},
+          {category:'egilim_benlik', item:'Öz Yeterlilik', priority:3, direction:'positive'},
+          {category:'egilim_sosyal', item:'Empati', priority:3, direction:'positive'}
+        ],
+        blocked: ['Yaratıcılık', 'Estetik'],
+        impactRange: [3, 5],
+        polarity: 'positive'
+      },
+      effort: {
+        domains: ['karakter', 'akademik'],
+        allowed: [
+          {category:'egilim_benlik', item:'Azim ve Kararlılık', priority:5, direction:'positive'},
+          {category:'egilim_benlik', item:'Öz Yeterlilik', priority:4, direction:'positive'},
+          {category:'karakter', item:'Üretken', priority:3, direction:'positive'},
+          {category:'egilim_entelektuel', item:'Odaklanma', priority:3, direction:'positive'}
+        ],
+        blocked: ['Empati', 'Merhametli', 'Estetik'],
+        impactRange: [2, 4],
+        polarity: 'positive'
+      },
+      
+      // ═══════ HİBRİT / KOMPLEKS DURUMLAR ═══════
+      conflict_with_repair: {
+        // Çatışma + ardından özür/telafi = pedagojik olarak değerli!
+        domains: ['sosyal', 'karakter'],
+        allowed: [
+          {category:'cati', item:'Saygı', priority:5, direction:'mixed'},
+          {category:'egilim_sosyal', item:'Empati', priority:5, direction:'mixed'},
+          {category:'karakter', item:'Ahlaklı', priority:4, direction:'positive'},
+          {category:'egilim_benlik', item:'Azim ve Kararlılık', priority:3, direction:'positive'},
+          {category:'cati', item:'Sorumluluk', priority:4, direction:'mixed'}
+        ],
+        blocked: ['Yaratıcılık', 'Estetik', 'Bilge'],
+        impactRange: [-1, 2],  // Onarım pozitife çekiyor!
+        polarity: 'mixed'
+      },
+      
+      // NÖTR
+      neutral: {
+        domains: ['karakter'],
+        allowed: [
+          {category:'egilim_benlik', item:'Öz Yeterlilik', priority:3, direction:'neutral'},
+          {category:'cati', item:'Sorumluluk', priority:2, direction:'neutral'}
+        ],
+        blocked: [],
         impactRange: [-1, 1],
         polarity: 'neutral'
       }
@@ -2527,24 +2683,21 @@ KURALLAR:
     /* Rule engine: bağlama göre izin verilen kriterleri al */
     getAllowedCriteria(behaviorType, context) {
       const rule = daily.RULES[behaviorType] || daily.RULES.neutral;
-      let allowed = rule.allowed.slice();
+      let allowed = rule.allowed.map(a => ({...a}));  // deep copy
       
       // Bağlam ayarlamaları
       if (context && context.repetition === 'recurring') {
-        // Tekrar eden davranış → Azim/Sorumluluk önceliği artar
         allowed.forEach(a => {
           if (a.item === 'Azim ve Kararlılık' || a.item === 'Sorumluluk') a.priority += 1;
         });
       }
       if (context && context.intent === 'accidental') {
-        // Kaza ise → Empati önce, Saygı sonra
         allowed.forEach(a => {
           if (a.item === 'Empati') a.priority += 1;
           if (a.item === 'Saygı') a.priority -= 1;
         });
       }
       if (context && context.remorse === 'shown') {
-        // Pişmanlık varsa → Ahlaklı, Azim öne
         allowed.forEach(a => {
           if (a.item === 'Ahlaklı' || a.item === 'Azim ve Kararlılık') a.priority += 1;
         });
@@ -2552,25 +2705,85 @@ KURALLAR:
       return allowed.sort((a,b) => b.priority - a.priority);
     },
     
-    /* Impact hesabı: bağlama göre puan etkisini ayarla */
+    /* Yasak kriterleri al */
+    getBlockedCriteria(behaviorType) {
+      const rule = daily.RULES[behaviorType] || daily.RULES.neutral;
+      return rule.blocked || [];
+    },
+    
+    /* Davranışın domain(ler)ini al */
+    getDomains(behaviorType) {
+      const rule = daily.RULES[behaviorType] || daily.RULES.neutral;
+      return rule.domains || ['karakter'];
+    },
+    
+    /* Impact hesabı: bağlam + severity multiplier kullanır */
     computeImpact(behaviorType, context) {
       const rule = daily.RULES[behaviorType] || daily.RULES.neutral;
       const [min, max] = rule.impactRange;
-      let val = (min + max) / 2;  // Orta nokta
+      const sign = (max < 0) ? -1 : (min > 0 ? 1 : 0);
+      
+      // Severity (şiddet) ana çarpan
+      const sevMult = daily.SEVERITY_MULTIPLIER[(context && context.severity) || 'medium'];
+      
+      // Temel değer: orta noktadan başla
+      let val = (min + max) / 2;
       
       if (context) {
-        if (context.intent === 'intentional')      val = max < 0 ? max : max;        // En şiddetli
-        else if (context.intent === 'impulsive')   val = (min + max) / 2;            // Orta
-        else if (context.intent === 'accidental')  val = min < 0 ? min + 1 : min;    // En hafif
+        // Niyet
+        if (context.intent === 'intentional') {
+          val = sign < 0 ? max : max;        // En şiddetli yöne
+        } else if (context.intent === 'impulsive') {
+          val = (min + max) / 2;
+        } else if (context.intent === 'accidental') {
+          val = sign < 0 ? min + 1 : min;    // En hafif
+        }
         
-        if (context.harm === 'high')      val = max < 0 ? max : max;
-        else if (context.harm === 'low')  val = min < 0 ? min + 1 : min;
+        // Zarar
+        if (context.harm === 'high')      val = sign < 0 ? max : max;
+        else if (context.harm === 'low')  val = sign < 0 ? min + 1 : min;
         
-        if (context.remorse === 'shown' && val < 0) val = Math.min(0, val + 1);  // Pişmanlık = ceza yumuşar
+        // Pişmanlık: cezayı yumuşat (sadece negatif olaylarda)
+        if (context.remorse === 'shown' && val < 0) {
+          val = Math.min(0, val + 1);
+        }
         
-        if (context.repetition === 'recurring' && val < 0) val = max;  // Tekrar = en şiddetli
+        // Tekrar: en şiddetli yöne it (negatif olaylarda)
+        if (context.repetition === 'recurring' && val < 0) {
+          val = max;
+        }
+        
+        // Severity multiplier uygula
+        val = val * sevMult;
       }
-      return Math.round(Math.max(rule.impactRange[0], Math.min(rule.impactRange[1], val)));
+      
+      // Sınırla ama severity multiplier'ın yüksek olanını da hesaba kat
+      const finalMin = rule.impactRange[0] * (sevMult > 1 ? sevMult : 1);
+      const finalMax = rule.impactRange[1] * (sevMult > 1 ? sevMult : 1);
+      return Math.round(Math.max(finalMin, Math.min(finalMax, val)));
+    },
+    
+    /* Güven skoru hesapla — AI emin değilse öğretmen onayı gerekli */
+    computeConfidence(contextResult, validCriteria, allowedCriteria) {
+      let score = 0.50;  // baseline
+      
+      // Tüm context alanları belirgin mi?
+      if (contextResult.intent && contextResult.intent !== 'unclear') score += 0.10;
+      if (contextResult.harm && contextResult.harm !== 'unclear') score += 0.10;
+      if (contextResult.repetition && contextResult.repetition !== 'unclear') score += 0.05;
+      if (contextResult.behaviorType && contextResult.behaviorType !== 'neutral') score += 0.15;
+      
+      // Kriter seçimi düzgün mü?
+      if (validCriteria && validCriteria.length >= 2 && validCriteria.length <= 4) score += 0.10;
+      
+      // Yüksek priority kriterler kullanılmış mı?
+      if (validCriteria && allowedCriteria && allowedCriteria.length > 0) {
+        const top2 = allowedCriteria.slice(0, 2).map(c => c.item);
+        const usedTop = validCriteria.filter(c => top2.includes(c.item)).length;
+        if (usedTop >= 1) score += 0.10;
+      }
+      
+      return Math.min(1.0, Math.max(0, score));
     },
 
     /* AI ile serbest yazı analizi (Hybrid: AI + Rule Engine) */
@@ -2583,47 +2796,75 @@ KURALLAR:
       // ═════════════════════════════════════════════
       // STAGE 1: CONTEXT DETECTION (AI bağlamı analiz eder, kriter SEÇMEZ)
       // ═════════════════════════════════════════════
-      const contextSystemPrompt = `MAARIF ANALYSIS PROTOCOL - STAGE 1: CONTEXT DETECTION
+      const contextSystemPrompt = `MAARIF PEDAGOGICAL DECISION ENGINE — STAGE 1: CONTEXT DETECTION
 
-You analyze a teacher observation. Output ONLY structured context, NOT criteria.
+You are a behavior classifier. Output ONLY structured context. NO criteria selection, NO weights.
 
-STEP 1 - Detect behavior type (choose ONE):
+STEP 1 — Detect behavior type (choose ONE):
+
+DISIPLIN / SOSYAL (negatif):
 - physical_conflict     : itme, vurma, çekme, dövme (saldırgan fiziksel)
-- physical_protective   : düşmesin diye tutma, koruma
+- physical_protective   : düşmesin diye tutma, koruma (POZİTİF)
 - verbal_conflict       : hakaret, alay, lakap, küfür
-- academic_neglect      : kitap getirmeme, ödev yapmama
-- inattention           : derste konuşma, telefon, dalmak, uyumak
+- bullying              : sistemli zorbalık, sürekli rahatsız etme
 - disorder              : sıra/düzen bozma, eşyaya zarar
-- dishonesty            : kopya, yalan, kandırma
-- active_participation  : derse aktif katılım, soru sorma
-- prosocial             : yardım etme, paylaşma
-- creative_work         : YARATICI ÜRÜN/ÇÖZÜM (gerçek sanat, özgün fikir)
-- leadership            : grup yönetme, organize etme
-- self_correction       : hatasını telafi etme, özür dileme
-- effort                : zorluğa rağmen çabalama
-- neutral               : belirsiz
 
-STEP 2 - Determine:
-- valence: positive | negative | neutral
-- intent: intentional | impulsive | accidental
-- harm: none | low | medium | high
-- repetition: first_time | occasional | recurring
+AKADEMİK (negatif):
+- academic_neglect      : kitap getirmeme, ödev yapmama, hazırlıksız
+- inattention           : derste konuşma, telefon, dalmak, uyumak
+- academic_passivity    : derste çekingen, soru sormaya korkma
+- dishonesty            : kopya, yalan, kandırma (karakter+akademik)
+
+AKADEMİK (pozitif):
+- active_participation  : derse aktif katılım, parmak kaldırma
+- critical_thinking     : sorgulama, analiz, mantıksal çıkarım
+- creative_work         : YARATICI ÜRÜN (gerçek sanat, özgün fikir, yenilik)
+- scientific_inquiry    : bilimsel sorgulama, deney, hipotez
+- academic_achievement  : çalışma sonucu başarı (sınav, ödev)
+
+SOSYAL (pozitif):
+- prosocial             : yardım, paylaşma (genel)
+- academic_help         : AKADEMİK KONUDA yardım (deney, ders, açıklama)
+- leadership            : grup yönetme, organize etme
+
+KARAKTER (pozitif):
+- self_correction       : telafi, özür, hatasını düzeltme
+- effort                : zorluğa rağmen çabalama, azim
+
+HİBRİT:
+- conflict_with_repair  : çatışma + ardından telafi/özür (KARMAŞIK ama VALUABLE)
+
+DİĞER:
+- neutral               : belirsiz, hiçbir kategoriye uymaz
+
+STEP 2 — Determine context:
+- valence: positive | negative | neutral | mixed
+- intent: intentional | impulsive | accidental | unclear
+- severity: low | medium | high     ← ŞİDDET SEVİYESİ (hafif dürtme=low, sinirli itme=medium, yere düşürme=high)
+- harm: none | low | medium | high  ← ZARAR SEVİYESİ
+- repetition: first_time | occasional | recurring | unclear
 - remorse: shown | absent | unclear
 
-STEP 3 - Safety: NEVER label personality ("problemli", "agresif"). Only describe BEHAVIOR.
+STEP 3 — Domain tags (multi-domain mümkün):
+- domains: 1-3 tane seç: ["akademik", "sosyal", "karakter"]
+- Örnek: "deney düzeneğinde arkadaşına yardım etti" → ["akademik", "sosyal"]
 
-${examples ? 'TEACHER PAST CORRECTIONS:\\n' + examples + '\\n\\n' : ''}
+STEP 4 — Safety: NEVER label personality ("problemli", "agresif", "ahlaksız"). Only describe BEHAVIOR.
 
-OUTPUT ONLY JSON:
+${examples ? 'ÖĞRETMEN ÖNCEKİ DÜZELTMELERİ:\\n' + examples + '\\n\\n' : ''}
+
+OUTPUT ONLY JSON, no other text:
 {
   "behaviorType": "physical_conflict",
   "valence": "negative",
   "intent": "impulsive",
+  "severity": "medium",
   "harm": "medium",
   "repetition": "first_time",
   "remorse": "absent",
+  "domains": ["sosyal"],
   "label": "3-5 kelimelik özet (Türkçe)",
-  "developmentalNote": "Pedagojik gözlem (Türkçe, kişilik etiketi yok)"
+  "developmentalNote": "Pedagojik gözlem (Türkçe, kişilik etiketi yok, sadece davranış ve gelişim ihtiyacı)"
 }`;
       
       let contextResult;
@@ -2672,38 +2913,51 @@ OUTPUT ONLY JSON:
       // ═════════════════════════════════════════════
       // STAGE 3: AI ağırlık dağıtımı — SADECE izin verilen kriterler arasından
       // ═════════════════════════════════════════════
-      const top4 = allowedCriteria.slice(0, 4);
-      const criteriaList = top4.map((cr, i) => 
-        `${i+1}. ${cr.item} (kategori: ${cr.category}, öncelik: ${cr.priority})`
+      const top5 = allowedCriteria.slice(0, 5);
+      const criteriaList = top5.map((cr, i) => 
+        `${i+1}. ${cr.item} (kategori: ${cr.category}, öncelik: ${cr.priority}, yön: ${cr.direction || 'neutral'})`
       ).join('\n');
+      const blockedList = daily.getBlockedCriteria(behaviorType);
       
-      const weightSystemPrompt = `MAARIF ANALYSIS PROTOCOL - STAGE 2: WEIGHT DISTRIBUTION
+      const weightSystemPrompt = `MAARIF PEDAGOGICAL DECISION ENGINE — STAGE 2: WEIGHT DISTRIBUTION
 
-Given context + allowed criteria, distribute weights.
+Distribute weights to MAARIF criteria based on context.
 
 CONTEXT:
 - Behavior: ${behaviorType}
 - Valence: ${contextResult.valence}
 - Intent: ${contextResult.intent}
+- Severity: ${contextResult.severity || 'medium'}
 - Harm: ${contextResult.harm}
+- Domains: ${(contextResult.domains || []).join(', ')}
 
-ALLOWED CRITERIA (ONLY choose from these):
+ALLOWED CRITERIA (only choose from these — with their direction):
 ${criteriaList}
 
+BLOCKED (NEVER use these): ${blockedList.join(', ') || 'none'}
+
 RULES:
-1. Choose 2-4 criteria from the list above ONLY.
-2. Higher priority should generally get higher weights.
+1. Choose 2-4 criteria from the ALLOWED list ONLY.
+2. Higher priority criteria should generally get higher weights, but use judgment.
 3. Total weight MUST equal 100.
 4. Min weight 15, max 60.
+5. Provide "direction" for each criterion: "positive" (gelişiyor) | "negative" (eksiklik) | "mixed" (her ikisi de var).
+6. If domains is multi-domain, distribute across domains (don't bunch up in one).
+
+EXPLANATION GUIDELINES:
+- 1-2 cümle Türkçe
+- KİŞİLİK ETİKETİ YASAK ("problemli", "agresif", "uyumsuz")
+- Davranış + gelişim ihtiyacı dili kullan
+- Müfettiş/veliye savunulabilir olmalı
 
 OUTPUT ONLY JSON:
 {
   "criteria": [
-    {"category":"cati", "item":"Saygı", "weight":50},
-    {"category":"egilim_sosyal", "item":"Empati", "weight":35},
-    {"category":"karakter", "item":"Ahlaklı", "weight":15}
+    {"category":"cati", "item":"Saygı", "weight":50, "direction":"negative"},
+    {"category":"egilim_sosyal", "item":"Empati", "weight":35, "direction":"negative"},
+    {"category":"karakter", "item":"Ahlaklı", "weight":15, "direction":"negative"}
   ],
-  "explanation": "Pedagojik açıklama (Türkçe, 1-2 cümle, kişilik etiketi yok)"
+  "explanation": "Pedagojik açıklama"
 }`;
       
       let weightResult;
@@ -2766,14 +3020,22 @@ OUTPUT ONLY JSON:
         }
       }
       
+      // Confidence score
+      const confidence = daily.computeConfidence(contextResult, validCriteria, allowedCriteria);
+      const needsReview = confidence < daily.CONFIDENCE_THRESHOLD;
+      
       return {
-        polarity: contextResult.valence === 'positive' ? 'positive' : (contextResult.valence === 'negative' ? 'negative' : 'neutral'),
+        polarity: contextResult.valence === 'positive' ? 'positive' : (contextResult.valence === 'negative' ? 'negative' : (contextResult.valence === 'mixed' ? 'mixed' : 'neutral')),
         scoreImpact: computedImpact,
         label: contextResult.label || observation.slice(0, 40),
         criteria: validCriteria,
         explanation: weightResult.explanation || contextResult.developmentalNote || '',
         behaviorType: behaviorType,
         context: contextResult,
+        domains: contextResult.domains || daily.getDomains(behaviorType),
+        confidence: confidence,
+        needsReview: needsReview,
+        blocked: daily.getBlockedCriteria(behaviorType),
         source: 'hybrid'
       };
     }
@@ -3860,6 +4122,9 @@ OUTPUT ONLY JSON:
         explanation: result.explanation,
         behaviorType: result.behaviorType,
         context: result.context,
+        domains: result.domains,
+        confidence: result.confidence,
+        needsReview: result.needsReview,
         source: 'ai',
         aiOriginal: result,
         studentId: state.currentStudent
@@ -3933,17 +4198,37 @@ OUTPUT ONLY JSON:
         Toplam: ${total}% ${total !== 100 ? '(100 olmalı)' : '✓'}
       </div>`;
       
+      // Düşük güven uyarısı
+      if (ev.needsReview) {
+        html += `<div class="card" style="margin-bottom:10px;background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.4)">
+          <div style="font-size:12px;color:var(--amber);font-weight:700;margin-bottom:4px">⚠️ Düşük Güven — Öğretmen Onayı Önerilir</div>
+          <div style="font-size:11.5px;color:var(--text-2);line-height:1.5">AI bu olayı %${Math.round((ev.confidence||0)*100)} güvenle değerlendirebildi. Kriterleri ve puanı dikkatlice kontrol edin.</div>
+        </div>`;
+      }
+      
       if (ev.context) {
         const ctxLabels = {
-          intent: {intentional:'Kasıtlı', impulsive:'Dürtüsel', accidental:'Kazara'},
+          intent: {intentional:'Kasıtlı', impulsive:'Dürtüsel', accidental:'Kazara', unclear:'Belirsiz'},
+          severity: {low:'Hafif', medium:'Orta', high:'Şiddetli'},
           harm: {none:'Zarar yok', low:'Hafif', medium:'Orta', high:'Yüksek'},
-          repetition: {first_time:'İlk kez', occasional:'Ara sıra', recurring:'Tekrar eden'},
-          remorse: {shown:'Pişman', absent:'Yok', unclear:'Belirsiz'}
+          repetition: {first_time:'İlk kez', occasional:'Ara sıra', recurring:'Tekrar eden', unclear:'Belirsiz'},
+          remorse: {shown:'Pişman', absent:'Yok', unclear:'Belirsiz'},
+          domain: {akademik:'📚 Akademik', sosyal:'🤝 Sosyal', karakter:'💎 Karakter'}
         };
+        const conf = ev.confidence ? Math.round(ev.confidence * 100) : null;
+        const confColor = conf >= 75 ? 'var(--emerald)' : conf >= 60 ? 'var(--amber)' : 'var(--rose)';
+        
         html += `<div class="card" style="margin-bottom:10px;background:rgba(20,184,166,0.05);border-color:rgba(20,184,166,0.2)">
-          <div style="font-size:11px;color:var(--teal);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">🔍 AI Bağlam Analizi</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-size:11px;color:var(--teal);text-transform:uppercase;letter-spacing:0.08em">🔍 AI Bağlam Analizi</div>
+            ${conf !== null ? '<div style="font-size:11px;font-weight:700;color:' + confColor + '">Güven: %' + conf + '</div>' : ''}
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px">
+            ${(ev.domains || []).map(d => '<span class="chip" style="background:rgba(20,184,166,0.15);color:var(--teal);font-weight:700">' + (ctxLabels.domain[d] || d) + '</span>').join('')}
+          </div>
           <div style="display:flex;flex-wrap:wrap;gap:6px">
             ${ev.context.intent ? '<span class="chip" style="background:rgba(99,102,241,0.12);color:var(--indigo)">Niyet: ' + (ctxLabels.intent[ev.context.intent] || ev.context.intent) + '</span>' : ''}
+            ${ev.context.severity ? '<span class="chip" style="background:rgba(244,63,94,0.12);color:var(--rose)">Şiddet: ' + (ctxLabels.severity[ev.context.severity] || ev.context.severity) + '</span>' : ''}
             ${ev.context.harm ? '<span class="chip" style="background:rgba(245,158,11,0.12);color:var(--amber)">Zarar: ' + (ctxLabels.harm[ev.context.harm] || ev.context.harm) + '</span>' : ''}
             ${ev.context.repetition ? '<span class="chip" style="background:rgba(99,102,241,0.12);color:var(--indigo)">Sıklık: ' + (ctxLabels.repetition[ev.context.repetition] || ev.context.repetition) + '</span>' : ''}
             ${ev.context.remorse ? '<span class="chip" style="background:rgba(16,185,129,0.12);color:var(--emerald)">Pişmanlık: ' + (ctxLabels.remorse[ev.context.remorse] || ev.context.remorse) + '</span>' : ''}
@@ -4613,7 +4898,7 @@ OUTPUT ONLY JSON:
       </div>
       
       <div class="footer">
-        Maarif Gelişim Asistanı · v0.4.0 · ${new Date().toLocaleString('tr-TR')}<br>
+        Maarif Gelişim Asistanı · v0.5.0 · ${new Date().toLocaleString('tr-TR')}<br>
         Bu rapor öğretmen tarafından kaydedilen kanıta dayalı gözlemlerden oluşturulmuştur.
       </div>
       <scr` + `ipt>setTimeout(function(){window.print();},800);</scr` + `ipt>
