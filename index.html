@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0a0b0e">
-<title>Maarif · Gelişim Asistanı v0.2.0</title>
+<title>Maarif · Gelişim Asistanı v0.3.0</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>if(typeof pdfjsLib!=="undefined"){pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";}</script>
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <style>
 /* ════════════════════════════════════════════════════════
-   MAARİF v0.2.0 — Modüler, Bağımsız Uygulama
+   MAARİF v0.3.0 — Modüler, Bağımsız Uygulama
    "Banking-grade" UX · Türkiye Yüzyılı Maarif Modeli
    ═══════════════════════════════════════════════════════ */
 
@@ -971,6 +971,239 @@ input, textarea, select { font-family: inherit; color: inherit; }
 .exam-batch-status.done { background: rgba(16,185,129,0.15); color: var(--emerald); }
 .exam-batch-status.error { background: rgba(244,63,94,0.15); color: var(--rose); }
 
+
+/* ════════ DAILY TRACKING (Günlük Takip) ════════ */
+.score-display {
+  background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(20,184,166,0.06));
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-lg);
+  padding: 18px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.score-ring {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  position: relative;
+  flex-shrink: 0;
+}
+.score-ring-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(var(--score-color) calc(var(--score-pct) * 1%), var(--bg-2) 0);
+  -webkit-mask: radial-gradient(circle, transparent 60%, #000 62%);
+          mask: radial-gradient(circle, transparent 60%, #000 62%);
+}
+.score-ring-inner {
+  position: absolute;
+  inset: 8px;
+  background: var(--bg-1);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+.score-num {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+}
+.score-info { flex: 1; min-width: 0; }
+.score-info-label {
+  font-size: 11px;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+.score-info-status {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+}
+.score-info-stats {
+  font-size: 11px;
+  color: var(--text-2);
+  margin-top: 2px;
+}
+
+.quick-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.quick-btn {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 12px 10px;
+  text-align: left;
+  transition: transform 0.1s, background 0.15s;
+  cursor: pointer;
+  position: relative;
+  min-height: 64px;
+}
+.quick-btn:active { transform: scale(0.97); }
+.quick-btn.negative { border-left: 3px solid var(--rose); }
+.quick-btn.positive { border-left: 3px solid var(--emerald); }
+.quick-btn-icon { font-size: 18px; margin-bottom: 4px; }
+.quick-btn-label {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: 2px;
+}
+.quick-btn-impact {
+  font-size: 11px;
+  font-weight: 700;
+}
+.quick-btn.negative .quick-btn-impact { color: var(--rose); }
+.quick-btn.positive .quick-btn-impact { color: var(--emerald); }
+
+.divider-label {
+  text-align: center;
+  color: var(--text-3);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  margin: 14px 0 10px;
+  text-transform: uppercase;
+  position: relative;
+}
+.divider-label::before,
+.divider-label::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 30%;
+  height: 1px;
+  background: var(--line);
+}
+.divider-label::before { left: 0; }
+.divider-label::after  { right: 0; }
+
+.event-timeline-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  margin-bottom: 6px;
+}
+.event-timeline-item.negative { border-left: 3px solid var(--rose); }
+.event-timeline-item.positive { border-left: 3px solid var(--emerald); }
+.event-time {
+  font-size: 11px;
+  color: var(--text-3);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  min-width: 42px;
+}
+.event-body { flex: 1; min-width: 0; }
+.event-label {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.event-impact {
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.event-impact.negative { color: var(--rose); }
+.event-impact.positive { color: var(--emerald); }
+
+.confirm-criteria {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 12px;
+  margin-bottom: 8px;
+}
+.confirm-criteria-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--line);
+}
+.confirm-criteria-item:last-child { border-bottom: none; }
+.confirm-criteria-cat {
+  font-size: 11px;
+  color: var(--text-3);
+  width: 70px;
+  flex-shrink: 0;
+}
+.confirm-criteria-name { flex: 1; font-size: 13px; font-weight: 500; }
+.confirm-criteria-weight {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--indigo);
+}
+
+.multi-student-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.multi-student-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.multi-student-chip.selected {
+  background: rgba(99,102,241,0.12);
+  border-color: var(--indigo);
+}
+.multi-student-chip-check {
+  width: 18px; height: 18px;
+  border-radius: 4px;
+  border: 2px solid var(--line-2);
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+}
+.multi-student-chip.selected .multi-student-chip-check {
+  background: var(--indigo);
+  border-color: var(--indigo);
+  color: #fff;
+}
+.multi-student-chip-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.score-mini {
+  font-weight: 700;
+  font-size: 13px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.score-mini.high { background: rgba(16,185,129,0.15); color: var(--emerald); }
+.score-mini.mid { background: rgba(245,158,11,0.15); color: var(--amber); }
+.score-mini.low { background: rgba(244,63,94,0.15); color: var(--rose); }
+
 /* ════════ PRINT (for reports) ════════ */
 @media print {
   body { background: #fff; color: #1a1a1a; }
@@ -1011,7 +1244,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
   <div class="login" id="login-screen">
     <div class="login-mark">Maarif</div>
     <div class="login-tagline">Gelişim Asistanı</div>
-    <div class="login-version">v0.2.0 · Türkiye Yüzyılı Maarif Modeli</div>
+    <div class="login-version">v0.3.0 · Türkiye Yüzyılı Maarif Modeli</div>
 
     <div id="google-login-target"></div>
     <div id="login-error" class="login-error hidden"></div>
@@ -1057,6 +1290,14 @@ input, textarea, select { font-family: inherit; color: inherit; }
 
     <div class="section-label">Çalışma Alanı</div>
     <div class="menu-list">
+      <div class="menu-item" onclick="Maarif.nav.go('daily-classes')">
+        <div class="menu-icon emerald">⚡</div>
+        <div class="menu-text">
+          <div class="menu-title">Günlük Hızlı Kayıt</div>
+          <div class="menu-sub">Sınıf içi olayları anında işle</div>
+        </div>
+        <div class="menu-chev">›</div>
+      </div>
       <div class="menu-item" onclick="Maarif.nav.go('classes')">
         <div class="menu-icon indigo">🎓</div>
         <div class="menu-text">
@@ -1112,7 +1353,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
     </div>
 
     <div style="text-align:center;color:var(--text-3);font-size:11px;margin:32px 0 20px;letter-spacing:0.05em">
-      Maarif v0.2.0 · 11 Mayıs 2026
+      Maarif v0.3.0 · 11 Mayıs 2026
     </div>
   </div>
 
@@ -1390,7 +1631,11 @@ const Maarif = (function() {
     getStats() {
       const classCount = Object.keys(state.db.classes).length;
       const studentCount = Object.values(state.db.classes).reduce((sum, arr) => sum + arr.length, 0);
-      return { classCount, studentCount };
+      let eventCount = 0;
+      if (state.db.dailyEvents) {
+        Object.values(state.db.dailyEvents).forEach(arr => { eventCount += arr.length; });
+      }
+      return { classCount, studentCount, eventCount };
     }
   };
 
@@ -1958,6 +2203,247 @@ KURALLAR:
     }
   };
 
+
+  // ═══════════════════════════════════════════════════════════
+  // DAILY MODULE — Günlük Takip & Hızlı Kayıt
+  // ═══════════════════════════════════════════════════════════
+  const daily = {
+    /* Default hızlı kayıt şablonları */
+    DEFAULT_TEMPLATES: [
+      // NEGATİF — sınıf düzenini ve süreci aksatanlar
+      {id:'kitap', label:'Kitap getirmedi', emoji:'📚', impact:-2, polarity:'negative',
+        criteria:[
+          {category:'cati', item:'Sorumluluk', weight:60},
+          {category:'egilim_benlik', item:'Öz Yeterlilik', weight:40}
+        ]},
+      {id:'odev', label:'Ödev yapmadı', emoji:'📓', impact:-2, polarity:'negative',
+        criteria:[
+          {category:'cati', item:'Sorumluluk', weight:50},
+          {category:'egilim_benlik', item:'Azim ve Kararlılık', weight:50}
+        ]},
+      {id:'uyudu', label:'Derste uyudu', emoji:'😴', impact:-3, polarity:'negative',
+        criteria:[
+          {category:'egilim_entelektuel', item:'Odaklanma', weight:60},
+          {category:'cati', item:'Saygı', weight:40}
+        ]},
+      {id:'konustu', label:'Arkadaşıyla konuştu', emoji:'💬', impact:-3, polarity:'negative',
+        criteria:[
+          {category:'cati', item:'Saygı', weight:50},
+          {category:'egilim_entelektuel', item:'Odaklanma', weight:30},
+          {category:'egilim_sosyal', item:'Sorumluluk (Sosyal)', weight:20}
+        ]},
+      {id:'telefon', label:'Telefon/tablet', emoji:'📱', impact:-4, polarity:'negative',
+        criteria:[
+          {category:'cati', item:'Sorumluluk', weight:40},
+          {category:'cati', item:'Saygı', weight:30},
+          {category:'egilim_entelektuel', item:'Odaklanma', weight:30}
+        ]},
+      {id:'duzen', label:'Sıra/düzen bozdu', emoji:'🪑', impact:-3, polarity:'negative',
+        criteria:[
+          {category:'cati', item:'Saygı', weight:50},
+          {category:'cati', item:'Sorumluluk', weight:30},
+          {category:'karakter', item:'Estetik', weight:20}
+        ]},
+      {id:'sozkesti', label:'Söz kesti', emoji:'🤐', impact:-2, polarity:'negative',
+        criteria:[
+          {category:'cati', item:'Saygı', weight:60},
+          {category:'egilim_sosyal', item:'Empati', weight:40}
+        ]},
+      // POZİTİF — süreç odaklı katkılar
+      {id:'aktif', label:'Aktif katıldı', emoji:'🙋', impact:3, polarity:'positive',
+        criteria:[
+          {category:'egilim_entelektuel', item:'Merak', weight:35},
+          {category:'egilim_sosyal', item:'Girişkenlik', weight:35},
+          {category:'egilim_entelektuel', item:'Soru Sorma', weight:30}
+        ]},
+      {id:'yardim', label:'Arkadaşına yardım etti', emoji:'🤝', impact:3, polarity:'positive',
+        criteria:[
+          {category:'egilim_sosyal', item:'Empati', weight:50},
+          {category:'cati', item:'Sorumluluk', weight:30},
+          {category:'karakter', item:'Merhametli', weight:20}
+        ]},
+      {id:'yaratici', label:'Yaratıcı çözüm', emoji:'💡', impact:4, polarity:'positive',
+        criteria:[
+          {category:'egilim_entelektuel', item:'Yaratıcılık', weight:50},
+          {category:'egilim_entelektuel', item:'Eleştirel Bakış', weight:30},
+          {category:'egilim_benlik', item:'Bağımsızlık', weight:20}
+        ]},
+      {id:'lider', label:'Liderlik etti', emoji:'⭐', impact:4, polarity:'positive',
+        criteria:[
+          {category:'cati', item:'Sorumluluk', weight:40},
+          {category:'egilim_sosyal', item:'Girişkenlik', weight:40},
+          {category:'egilim_benlik', item:'Kendine Güvenme', weight:20}
+        ]},
+      {id:'telafi', label:'Telafi (kendini düzeltti)', emoji:'🌟', impact:5, polarity:'positive',
+        criteria:[
+          {category:'egilim_benlik', item:'Azim ve Kararlılık', weight:50},
+          {category:'cati', item:'Sorumluluk', weight:30},
+          {category:'karakter', item:'Ahlaklı', weight:20}
+        ]},
+      {id:'paylasim', label:'Paylaştı (kalem/araç)', emoji:'✋', impact:2, polarity:'positive',
+        criteria:[
+          {category:'cati', item:'Adalet', weight:50},
+          {category:'egilim_sosyal', item:'Empati', weight:30},
+          {category:'cati', item:'Sorumluluk', weight:20}
+        ]},
+      {id:'dinler', label:'Dikkatlice dinledi', emoji:'👂', impact:2, polarity:'positive',
+        criteria:[
+          {category:'egilim_entelektuel', item:'Odaklanma', weight:50},
+          {category:'cati', item:'Saygı', weight:50}
+        ]}
+    ],
+    
+    /* Şablonları al — local + custom */
+    getTemplates() {
+      try {
+        const custom = JSON.parse(localStorage.getItem('maarif_quick_templates_v1') || 'null');
+        return custom || daily.DEFAULT_TEMPLATES.slice();
+      } catch(e) { return daily.DEFAULT_TEMPLATES.slice(); }
+    },
+    saveTemplates(arr) {
+      localStorage.setItem('maarif_quick_templates_v1', JSON.stringify(arr));
+    },
+    
+    /* AI öğrenme — düzeltmelerden öğrensin */
+    getCorrections() {
+      try {
+        return JSON.parse(localStorage.getItem('maarif_ai_corrections') || '[]');
+      } catch(e) { return []; }
+    },
+    saveCorrection(input, aiResult, teacherResult) {
+      const all = daily.getCorrections();
+      all.unshift({
+        input: input,
+        ai: aiResult,
+        teacher: teacherResult,
+        date: new Date().toISOString()
+      });
+      // Son 20 düzeltmeyi tut (prompt'u büyütmesin)
+      localStorage.setItem('maarif_ai_corrections', JSON.stringify(all.slice(0, 20)));
+    },
+    
+    /* Öğrenci olaylarını al */
+    getEvents(studentId) {
+      if (!state.db.dailyEvents) state.db.dailyEvents = {};
+      return state.db.dailyEvents[studentId] || [];
+    },
+    
+    /* Öğrencinin süreç puanı: 100 + tüm olayların etkisi */
+    getProcessScore(studentId) {
+      const events = daily.getEvents(studentId);
+      const total = events.reduce((s, e) => s + (e.scoreImpact || 0), 0);
+      return 100 + total;
+    },
+    
+    /* Olay ekle */
+    addEvent(studentId, eventData) {
+      if (!state.db.dailyEvents) state.db.dailyEvents = {};
+      if (!state.db.dailyEvents[studentId]) state.db.dailyEvents[studentId] = [];
+      const event = {
+        id: 'ev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        date: new Date().toISOString(),
+        ...eventData
+      };
+      state.db.dailyEvents[studentId].unshift(event); // en yeni başta
+      data.saveLocal();
+      return event;
+    },
+    
+    deleteEvent(studentId, eventId) {
+      if (!state.db.dailyEvents || !state.db.dailyEvents[studentId]) return;
+      state.db.dailyEvents[studentId] = state.db.dailyEvents[studentId].filter(e => e.id !== eventId);
+      data.saveLocal();
+    },
+    
+    /* Süreç puanı durumu */
+    getStatus(score) {
+      // 100 üzerinden değerlendir
+      if (score >= 110) return { label: 'Yerleşmiş+', color: 'var(--emerald)', pct: 100 };
+      if (score >= 90)  return { label: 'Yerleşmiş',  color: 'var(--emerald)', pct: Math.min(100, score) };
+      if (score >= 70)  return { label: 'Gelişmekte', color: 'var(--amber)',   pct: score };
+      if (score >= 50)  return { label: 'Desteklenmeli', color: 'var(--amber)', pct: score };
+      return                  { label: 'Yoğun Destek',    color: 'var(--rose)',  pct: Math.max(0, score) };
+    },
+    
+    /* AI ile serbest yazı analizi (öğretmenden öğrenir) */
+    async analyzeWithAI(observation) {
+      const corrections = daily.getCorrections();
+      const examples = corrections.slice(0, 5).map(c => 
+        `Önceki olay: "${c.input}"
+Öğretmen düzeltmesi: ${JSON.stringify(c.teacher)}`
+      ).join('\n\n');
+      
+      const systemPrompt = `Sen Türkiye Yüzyılı Maarif Modeli uzmanı bir öğretmen asistanısın. Öğretmenin yazdığı sınıf içi gözlemi analiz et.
+
+ÇIKARMAN GEREKEN:
+1. Olayın etki yönü: "negative" (sınıf düzenini bozan) veya "positive" (süreci destekleyen)
+2. Puan etkisi: negatif -1/-5, pozitif +1/+5 arası TAM SAYI
+3. Maarif kriterleri: HER İKİ KATEGORİDEN olmak üzere EN AZ 3 kriter, ağırlıklar TOPLAMI TAM OLARAK 100
+
+KATEGORİLER:
+- cati: Adalet, Saygı, Sorumluluk
+- egilim_entelektuel: Merak, Yaratıcılık, Eleştirel Bakış, Odaklanma, Analitiklik, Sistematiklik, Soru Sorma
+- egilim_sosyal: Empati, Girişkenlik, Güven, Oyunseverlik, Sorumluluk (Sosyal)
+- egilim_benlik: Azim ve Kararlılık, Öz Yeterlilik, Bağımsızlık, Seçicilik, Kendine Güvenme
+- karakter: Bilge, Ahlaklı, Merhametli, Estetik, Üretken, Vatansever
+
+KURAL: Toplam ağırlık MUTLAKA 100 olacak. Eğer toplamın 100 değilse kendin baştan dağıt.
+EN AZ 3 kriter, EN FAZLA 5 kriter. En küçük ağırlık 10, en büyük 50.
+
+${examples ? 'ÖĞRETMENİN GEÇMİŞ DÜZELTMELERİ (bu tarzı taklit et):\n' + examples + '\n\n' : ''}
+
+SADECE şu JSON formatında döndür, başka hiçbir şey yazma:
+{
+  "polarity": "negative",
+  "scoreImpact": -3,
+  "label": "Kısa açıklama (3-5 kelime)",
+  "criteria": [
+    {"category":"cati", "item":"Sorumluluk", "weight":40},
+    {"category":"egilim_benlik", "item":"Azim ve Kararlılık", "weight":30},
+    {"category":"egilim_entelektuel", "item":"Odaklanma", "weight":30}
+  ],
+  "explanation": "Bu davranış neden bu kriterlere etki eder, kısa pedagojik açıklama"
+}`;
+      
+      try {
+        const r = await fetch(CONFIG.AI_WORKER, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemPrompt: systemPrompt,
+            userPrompt: `Öğretmen gözlemi: "${observation}"`,
+            jsonMode: true,
+            temperature: 0.2,
+            model: 'gemini-2.5-flash'
+          })
+        });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const json = await r.json();
+        const text = (json.text || '').replace(/```json/g,'').replace(/```/g,'').trim();
+        const result = JSON.parse(text);
+        
+        // Validation: ağırlık toplamı 100 değilse düzelt
+        if (result.criteria) {
+          const total = result.criteria.reduce((s,c) => s + (c.weight || 0), 0);
+          if (total !== 100 && total > 0) {
+            const ratio = 100 / total;
+            result.criteria.forEach(c => c.weight = Math.round(c.weight * ratio));
+            // Yuvarlama hatası varsa en büyüğe ekle
+            const newTotal = result.criteria.reduce((s,c) => s + c.weight, 0);
+            if (newTotal !== 100) {
+              const maxIdx = result.criteria.reduce((mi, c, i, a) => c.weight > a[mi].weight ? i : mi, 0);
+              result.criteria[maxIdx].weight += (100 - newTotal);
+            }
+          }
+        }
+        return result;
+      } catch(e) {
+        console.error('AI hata:', e);
+        return null;
+      }
+    }
+  };
+
   // ═══════════════ NAVIGATION ═══════════════
   const nav = {
     go(page, params = {}) {
@@ -2122,13 +2608,30 @@ KURALLAR:
         { key: 'etkinlik',    emoji: '🎨', name: 'Sınıf İçi Etkinlikler', desc: 'Süreç gözlemleri' },
         { key: 'proje',       emoji: '🏆', name: 'Dönem Projesi', desc: 'Dönem sonu projesi' }
       ];
-      let html = `<div class="card" style="margin-bottom:16px">
+      const __score = daily.getProcessScore(s.id);
+      const __status = daily.getStatus(__score);
+      const __events = daily.getEvents(s.id);
+      let html = `<div class="card" style="margin-bottom:12px">
         <div style="display:flex;align-items:center;gap:12px">
           <div class="student-avatar" style="width:48px;height:48px;font-size:18px">${(s.ad||'?').charAt(0).toUpperCase()}</div>
-          <div>
+          <div style="flex:1">
             <div style="font-weight:700;font-size:16px">${escapeHTML(s.ad)}</div>
             <div style="font-size:12px;color:var(--text-2)">${escapeHTML(s.class)} ${s.no ? '· No: ' + escapeHTML(s.no) : ''}</div>
           </div>
+          <div style="text-align:center">
+            <div style="font-family:var(--font-display);font-weight:800;font-size:22px;color:${__status.color}">${__score}</div>
+            <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.05em">${__status.label}</div>
+          </div>
+        </div>
+      </div>
+      <div class="card card-clickable" style="margin-bottom:16px;background:rgba(16,185,129,0.05);border-color:rgba(16,185,129,0.2)" onclick="Maarif.pages['daily-student'].open('${s.id}')">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="menu-icon emerald" style="width:36px;height:36px;font-size:14px">⚡</div>
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:13.5px">Günlük Hızlı Kayıt</div>
+            <div style="font-size:11.5px;color:var(--text-2)">${__events.length} kayıt — Hızlı olay gir</div>
+          </div>
+          <div class="menu-chev">›</div>
         </div>
       </div>
       <div class="section-label" style="margin:8px 0 12px 4px">Değerlendirme</div>
@@ -2770,6 +3273,450 @@ KURALLAR:
       r.readAsDataURL(file);
     });
   }
+
+  // ─── DAILY: Sınıf seç ───
+  pages['daily-classes'] = {
+    title: 'Hızlı Kayıt',
+    render() {
+      const classes = Object.keys(state.db.classes);
+      if (classes.length === 0) {
+        return `<div class="empty">
+          <div class="empty-icon">⚡</div>
+          <div class="empty-text">Önce sınıf ve öğrenci ekleyin</div>
+          <button class="btn btn-primary" onclick="Maarif.nav.go('classes')" style="max-width:240px;margin:0 auto">Sınıflara git</button>
+        </div>`;
+      }
+      let html = `<div class="text-sm" style="margin-bottom:14px">Sınıf seçin, sonra öğrenci(ler) seçeceksiniz.</div>`;
+      classes.forEach(cls => {
+        const count = state.db.classes[cls].length;
+        html += `<div class="card card-clickable" onclick="Maarif.pages['daily-class'].open('${escapeAttr(cls)}')">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="menu-icon emerald" style="width:38px;height:38px;font-size:16px">🎓</div>
+            <div style="flex:1">
+              <div style="font-weight:600;font-size:14.5px">${escapeHTML(cls)}</div>
+              <div style="font-size:12px;color:var(--text-2)">${count} öğrenci</div>
+            </div>
+            <div class="menu-chev">›</div>
+          </div>
+        </div>`;
+      });
+      return html;
+    }
+  };
+  
+  // ─── DAILY: Sınıf detay (öğrenci listesi + toplu kayıt seçeneği) ───
+  pages['daily-class'] = {
+    title: 'Sınıf',
+    open(cls) {
+      state.currentClass = cls;
+      state._dailySelected = [];
+      nav.go('daily-class');
+    },
+    render() {
+      const cls = state.currentClass;
+      const students = state.db.classes[cls] || [];
+      document.getElementById('page-title').textContent = cls;
+      
+      if (students.length === 0) {
+        return '<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">Öğrenci yok</div></div>';
+      }
+      
+      // Aktif mod: tek seçim mi, çoklu mu?
+      let html = `<div class="card" style="margin-bottom:14px;padding:12px">
+        <div style="display:flex;gap:8px">
+          <button class="tab active" id="dc-tab-single" onclick="Maarif.pages['daily-class'].setMode('single')" style="flex:1;padding:10px;font-size:13px">👤 Tek Öğrenci</button>
+          <button class="tab" id="dc-tab-multi" onclick="Maarif.pages['daily-class'].setMode('multi')" style="flex:1;padding:10px;font-size:13px">👥 Çoklu (Toplu)</button>
+        </div>
+      </div>`;
+      
+      html += `<div id="dc-content"></div>`;
+      return html;
+    },
+    afterRender() {
+      pages['daily-class'].setMode('single');
+    },
+    setMode(mode) {
+      state._dailyMode = mode;
+      state._dailySelected = [];
+      document.getElementById('dc-tab-single').classList.toggle('active', mode === 'single');
+      document.getElementById('dc-tab-multi').classList.toggle('active', mode === 'multi');
+      pages['daily-class'].renderContent();
+    },
+    renderContent() {
+      const cls = state.currentClass;
+      const students = state.db.classes[cls] || [];
+      const host = document.getElementById('dc-content');
+      const mode = state._dailyMode;
+      
+      let html = '';
+      if (mode === 'single') {
+        html += `<div class="text-xs" style="margin-bottom:10px">Bir öğrenci seçin, profiline ve hızlı kayıt ekranına gidin.</div>`;
+        students.forEach(s => {
+          const score = daily.getProcessScore(s.id);
+          const status = daily.getStatus(score);
+          const cls_ = score >= 100 ? 'high' : score >= 70 ? 'mid' : 'low';
+          const events = daily.getEvents(s.id);
+          html += `<div class="card card-clickable" onclick="Maarif.pages['daily-student'].open('${s.id}')">
+            <div class="student-row">
+              <div class="student-avatar">${(s.ad||'?').charAt(0).toUpperCase()}</div>
+              <div style="flex:1;min-width:0">
+                <div class="student-name">${escapeHTML(s.ad)}</div>
+                <div class="student-sub">${events.length} olay${s.no ? ' · No:' + escapeHTML(s.no) : ''}</div>
+              </div>
+              <span class="score-mini ${cls_}">${score}</span>
+              <div class="menu-chev">›</div>
+            </div>
+          </div>`;
+        });
+      } else {
+        // multi mode
+        html += `<div class="text-xs" style="margin-bottom:10px">Öğrencileri seçin, sonra olayı uygulayın (örn. tüm seçili öğrencilere "kitap getirmedi" -2).</div>`;
+        html += `<div class="multi-student-grid">`;
+        students.forEach(s => {
+          const selected = state._dailySelected.includes(s.id);
+          const score = daily.getProcessScore(s.id);
+          html += `<div class="multi-student-chip ${selected ? 'selected' : ''}" onclick="Maarif.pages['daily-class'].toggleStudent('${s.id}')">
+            <div class="multi-student-chip-check">${selected ? '✓' : ''}</div>
+            <div class="multi-student-chip-name">${escapeHTML(s.ad)}</div>
+          </div>`;
+        });
+        html += `</div>`;
+        html += `<div style="display:flex;gap:6px;margin-bottom:14px">
+          <button class="btn btn-secondary" style="padding:10px 14px;font-size:13px" onclick="Maarif.pages['daily-class'].selectAll(true)">Hepsini seç</button>
+          <button class="btn btn-secondary" style="padding:10px 14px;font-size:13px" onclick="Maarif.pages['daily-class'].selectAll(false)">Hiçbiri</button>
+        </div>`;
+        if (state._dailySelected.length > 0) {
+          html += `<button class="btn btn-primary" onclick="Maarif.pages['daily-class'].applyMulti()">⚡ ${state._dailySelected.length} öğrenciye hızlı kayıt</button>`;
+        }
+      }
+      host.innerHTML = html;
+    },
+    toggleStudent(id) {
+      const idx = state._dailySelected.indexOf(id);
+      if (idx >= 0) state._dailySelected.splice(idx, 1);
+      else state._dailySelected.push(id);
+      pages['daily-class'].renderContent();
+    },
+    selectAll(all) {
+      const cls = state.currentClass;
+      state._dailySelected = all ? (state.db.classes[cls] || []).map(s => s.id) : [];
+      pages['daily-class'].renderContent();
+    },
+    applyMulti() {
+      if (state._dailySelected.length === 0) return;
+      nav.go('daily-quick-multi');
+    }
+  };
+  
+  // ─── DAILY STUDENT: tek öğrenci hızlı kayıt + profil ───
+  pages['daily-student'] = {
+    title: 'Öğrenci',
+    open(studentId) {
+      state.currentStudent = studentId;
+      nav.go('daily-student');
+    },
+    render() {
+      const s = data.getStudent(state.currentStudent);
+      if (!s) return '<div class="empty">Öğrenci bulunamadı</div>';
+      document.getElementById('page-title').textContent = s.ad;
+      
+      const score = daily.getProcessScore(s.id);
+      const status = daily.getStatus(score);
+      const events = daily.getEvents(s.id);
+      const negCount = events.filter(e => (e.scoreImpact||0) < 0).length;
+      const posCount = events.filter(e => (e.scoreImpact||0) > 0).length;
+      
+      let html = `<div class="score-display">
+        <div class="score-ring" style="--score-pct:${Math.max(0,Math.min(100, status.pct))};--score-color:${status.color}">
+          <div class="score-ring-bg"></div>
+          <div class="score-ring-inner">
+            <div class="score-num" style="color:${status.color}">${score}</div>
+          </div>
+        </div>
+        <div class="score-info">
+          <div class="score-info-label">Süreç Puanı</div>
+          <div class="score-info-status" style="color:${status.color}">${status.label}</div>
+          <div class="score-info-stats">${events.length} olay · ${negCount} negatif · ${posCount} pozitif</div>
+        </div>
+      </div>`;
+      
+      html += `<div class="section-label" style="margin:18px 4px 8px">⚡ Hızlı Kayıt</div>`;
+      
+      const templates = daily.getTemplates();
+      const negatives = templates.filter(t => t.polarity === 'negative');
+      const positives = templates.filter(t => t.polarity === 'positive');
+      
+      html += `<div class="quick-grid">`;
+      negatives.forEach(t => {
+        html += `<button class="quick-btn negative" onclick="Maarif.pages['daily-student'].applyQuick('${t.id}')">
+          <div class="quick-btn-icon">${t.emoji}</div>
+          <div class="quick-btn-label">${t.label}</div>
+          <div class="quick-btn-impact">${t.impact}</div>
+        </button>`;
+      });
+      html += `</div>`;
+      
+      html += `<div class="divider-label">POZİTİF</div>`;
+      html += `<div class="quick-grid">`;
+      positives.forEach(t => {
+        html += `<button class="quick-btn positive" onclick="Maarif.pages['daily-student'].applyQuick('${t.id}')">
+          <div class="quick-btn-icon">${t.emoji}</div>
+          <div class="quick-btn-label">${t.label}</div>
+          <div class="quick-btn-impact">+${t.impact}</div>
+        </button>`;
+      });
+      html += `</div>`;
+      
+      html += `<div class="section-label" style="margin:18px 4px 8px">✍️ Yazarak AI ile Gir</div>
+        <div class="input-group">
+          <textarea class="textarea" id="ds-free" placeholder="Olayı kısaca yaz: 'Bugün tahtaya kalkıp arkadaşının çözemediği soruyu çözdü ve nasıl yaptığını anlattı...'"></textarea>
+        </div>
+        <button class="btn btn-secondary" onclick="Maarif.pages['daily-student'].applyAI()">🤖 AI ile Analiz Et</button>
+      `;
+      
+      if (events.length > 0) {
+        html += `<div class="section-label" style="margin:22px 4px 8px">📊 Bugünkü Olaylar (${events.length})</div>`;
+        events.slice(0, 10).forEach(ev => {
+          const time = new Date(ev.date).toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
+          const impact = ev.scoreImpact || 0;
+          const cls_ = impact >= 0 ? 'positive' : 'negative';
+          html += `<div class="event-timeline-item ${cls_}">
+            <div class="event-time">${time}</div>
+            <div class="event-body">
+              <div class="event-label">${escapeHTML(ev.label || ev.observation || '?')}</div>
+              <div style="font-size:10.5px;color:var(--text-3)">${(ev.criteria || []).map(c => escapeHTML(c.item)).slice(0,3).join(' · ')}</div>
+            </div>
+            <div class="event-impact ${cls_}">${impact >= 0 ? '+' : ''}${impact}</div>
+            <button onclick="Maarif.pages['daily-student'].deleteEvent('${ev.id}')" style="background:none;border:none;color:var(--text-3);padding:0 4px;font-size:14px;cursor:pointer">🗑</button>
+          </div>`;
+        });
+      }
+      
+      return html;
+    },
+    applyQuick(templateId) {
+      const tpl = daily.getTemplates().find(t => t.id === templateId);
+      if (!tpl) return;
+      // Onay sayfasına git
+      state._pendingEvent = {
+        templateId: tpl.id,
+        label: tpl.label,
+        emoji: tpl.emoji,
+        scoreImpact: tpl.impact,
+        polarity: tpl.polarity,
+        criteria: tpl.criteria.slice(),
+        source: 'quick',
+        studentId: state.currentStudent
+      };
+      nav.go('daily-confirm');
+    },
+    async applyAI() {
+      const txt = document.getElementById('ds-free').value.trim();
+      if (txt.length < 6) { ui.toast('En az birkaç kelime yazın', 'error'); return; }
+      ui.toast('AI analiz ediyor...', 'info');
+      const result = await daily.analyzeWithAI(txt);
+      if (!result) { ui.toast('AI yanıt vermedi', 'error'); return; }
+      state._pendingEvent = {
+        observation: txt,
+        label: result.label || txt.slice(0, 40),
+        scoreImpact: result.scoreImpact || 0,
+        polarity: result.polarity,
+        criteria: result.criteria || [],
+        explanation: result.explanation,
+        source: 'ai',
+        aiOriginal: result,
+        studentId: state.currentStudent
+      };
+      nav.go('daily-confirm');
+    },
+    deleteEvent(evId) {
+      if (!confirm('Bu olayı silelim mi?')) return;
+      daily.deleteEvent(state.currentStudent, evId);
+      ui.toast('✓ Silindi', 'success');
+      nav._render('daily-student');
+    }
+  };
+  
+  // ─── DAILY CONFIRM: hangi kriterlerden puan düşüldüğünü göster, onayla ───
+  pages['daily-confirm'] = {
+    title: 'Onayla',
+    render() {
+      const ev = state._pendingEvent;
+      if (!ev) return '<div class="empty">Olay yok</div>';
+      
+      const s = data.getStudent(ev.studentId);
+      const impactColor = ev.scoreImpact >= 0 ? 'var(--emerald)' : 'var(--rose)';
+      const impactStr = (ev.scoreImpact >= 0 ? '+' : '') + ev.scoreImpact;
+      
+      let html = `<div class="card" style="margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+          <div class="student-avatar" style="width:40px;height:40px;font-size:14px">${(s.ad||'?').charAt(0).toUpperCase()}</div>
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:14px">${escapeHTML(s.ad)}</div>
+            <div style="font-size:11.5px;color:var(--text-2)">${escapeHTML(s.class)}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg-2);border-radius:10px">
+          <div>
+            <div style="font-size:11.5px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em">Olay</div>
+            <div style="font-weight:600;font-size:14px;margin-top:2px">${ev.emoji || '📌'} ${escapeHTML(ev.label || '?')}</div>
+          </div>
+          <div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:${impactColor}">${impactStr}</div>
+        </div>
+      </div>`;
+      
+      if (ev.observation) {
+        html += `<div class="card" style="margin-bottom:14px;background:var(--bg-2)">
+          <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Gözleminiz</div>
+          <div style="font-size:13px;font-style:italic">"${escapeHTML(ev.observation)}"</div>
+        </div>`;
+      }
+      
+      html += `<div class="section-label" style="margin:0 4px 8px">🌳 Hangi Maarif Kriterlerinden Etkilendi</div>
+        <div class="text-xs" style="margin:0 4px 10px">${ev.source === 'ai' ? '🤖 AI önerisi' : 'Standart şablon'} — Değiştirmek istersen aşağıdaki ağırlıkları düzenle.</div>`;
+      
+      html += `<div class="confirm-criteria">`;
+      (ev.criteria || []).forEach((c, idx) => {
+        const catLabel = {cati:'Çatı', egilim_entelektuel:'Entelektüel', egilim_sosyal:'Sosyal', egilim_benlik:'Benlik', karakter:'Karakter'}[c.category] || c.category;
+        html += `<div class="confirm-criteria-item">
+          <div class="confirm-criteria-cat">${catLabel}</div>
+          <div class="confirm-criteria-name">${escapeHTML(c.item)}</div>
+          <input type="number" min="0" max="100" value="${c.weight}" 
+                 style="width:54px;background:var(--bg-2);border:1px solid var(--line-2);border-radius:6px;padding:4px 6px;text-align:center;font-size:12px;color:var(--text);font-weight:700"
+                 oninput="Maarif.pages['daily-confirm'].updateWeight(${idx}, this.value)">
+          <span style="font-size:11px;color:var(--text-3)">%</span>
+        </div>`;
+      });
+      html += `</div>`;
+      
+      // Toplam ağırlık göstergesi
+      const total = (ev.criteria || []).reduce((s,c) => s + (c.weight||0), 0);
+      const totalColor = total === 100 ? 'var(--emerald)' : 'var(--amber)';
+      html += `<div style="text-align:center;padding:8px;background:var(--bg-2);border-radius:8px;margin-bottom:12px;font-size:12px;color:${totalColor};font-weight:700">
+        Toplam: ${total}% ${total !== 100 ? '(100 olmalı)' : '✓'}
+      </div>`;
+      
+      if (ev.explanation) {
+        html += `<div class="card" style="margin-bottom:14px;background:rgba(99,102,241,0.06);border-color:rgba(99,102,241,0.2)">
+          <div style="font-size:11px;color:var(--indigo);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">🤖 AI Açıklaması</div>
+          <div style="font-size:12.5px;line-height:1.5">${escapeHTML(ev.explanation)}</div>
+        </div>`;
+      }
+      
+      html += `<div class="input-group">
+        <label class="input-label">Puan etkisi (gerekirse düzelt)</label>
+        <input type="number" min="-10" max="10" class="input" value="${ev.scoreImpact}" id="confirm-impact" style="text-align:center;font-size:18px;font-weight:700">
+      </div>`;
+      
+      html += `<button class="btn btn-primary" onclick="Maarif.pages['daily-confirm'].save()">✓ Onayla ve Kaydet</button>
+        <button class="btn btn-secondary mt-2" onclick="Maarif.nav.back()">İptal</button>`;
+      
+      return html;
+    },
+    updateWeight(idx, val) {
+      const ev = state._pendingEvent;
+      if (!ev || !ev.criteria || !ev.criteria[idx]) return;
+      ev.criteria[idx].weight = parseInt(val) || 0;
+      nav._render('daily-confirm');
+    },
+    save() {
+      const ev = state._pendingEvent;
+      if (!ev) return;
+      const newImpact = parseInt(document.getElementById('confirm-impact').value);
+      if (!isNaN(newImpact)) ev.scoreImpact = newImpact;
+      
+      // AI ise ve öğretmen değiştirmişse, learning'e kaydet
+      if (ev.source === 'ai' && ev.aiOriginal) {
+        const wasChanged = JSON.stringify(ev.aiOriginal.criteria) !== JSON.stringify(ev.criteria)
+                         || ev.aiOriginal.scoreImpact !== ev.scoreImpact;
+        if (wasChanged) {
+          daily.saveCorrection(ev.observation, ev.aiOriginal, {
+            criteria: ev.criteria,
+            scoreImpact: ev.scoreImpact
+          });
+        }
+      }
+      
+      daily.addEvent(ev.studentId, {
+        label: ev.label,
+        emoji: ev.emoji,
+        observation: ev.observation,
+        scoreImpact: ev.scoreImpact,
+        polarity: ev.polarity || (ev.scoreImpact >= 0 ? 'positive' : 'negative'),
+        criteria: ev.criteria,
+        source: ev.source,
+        templateId: ev.templateId
+      });
+      
+      state._pendingEvent = null;
+      ui.toast('✓ Olay kaydedildi', 'success');
+      nav.back();
+    }
+  };
+  
+  // ─── DAILY MULTI: çoklu öğrenciye hızlı kayıt ───
+  pages['daily-quick-multi'] = {
+    title: 'Toplu Kayıt',
+    render() {
+      const count = state._dailySelected.length;
+      let html = `<div class="text-sm" style="margin-bottom:14px">
+        <b style="color:var(--text)">${count} öğrenciye</b> aynı olay uygulanacak.
+      </div>`;
+      
+      html += `<div class="section-label" style="margin:0 4px 8px">⚡ Olay Seç</div>`;
+      
+      const templates = daily.getTemplates();
+      const negatives = templates.filter(t => t.polarity === 'negative');
+      const positives = templates.filter(t => t.polarity === 'positive');
+      
+      html += `<div class="quick-grid">`;
+      negatives.forEach(t => {
+        html += `<button class="quick-btn negative" onclick="Maarif.pages['daily-quick-multi'].applyAll('${t.id}')">
+          <div class="quick-btn-icon">${t.emoji}</div>
+          <div class="quick-btn-label">${t.label}</div>
+          <div class="quick-btn-impact">${t.impact}</div>
+        </button>`;
+      });
+      html += `</div>`;
+      
+      html += `<div class="divider-label">POZİTİF</div>`;
+      html += `<div class="quick-grid">`;
+      positives.forEach(t => {
+        html += `<button class="quick-btn positive" onclick="Maarif.pages['daily-quick-multi'].applyAll('${t.id}')">
+          <div class="quick-btn-icon">${t.emoji}</div>
+          <div class="quick-btn-label">${t.label}</div>
+          <div class="quick-btn-impact">+${t.impact}</div>
+        </button>`;
+      });
+      html += `</div>`;
+      
+      return html;
+    },
+    applyAll(templateId) {
+      const tpl = daily.getTemplates().find(t => t.id === templateId);
+      if (!tpl) return;
+      const studentIds = state._dailySelected || [];
+      if (studentIds.length === 0) { ui.toast('Öğrenci seçili değil', 'error'); return; }
+      
+      if (!confirm(studentIds.length + ' öğrenciye "' + tpl.label + '" (' + (tpl.impact >= 0 ? '+' : '') + tpl.impact + ') uygulansın mı?')) return;
+      
+      studentIds.forEach(sid => {
+        daily.addEvent(sid, {
+          label: tpl.label,
+          emoji: tpl.emoji,
+          scoreImpact: tpl.impact,
+          polarity: tpl.polarity,
+          criteria: tpl.criteria.slice(),
+          source: 'quick-multi',
+          templateId: tpl.id
+        });
+      });
+      
+      ui.toast('✓ ' + studentIds.length + ' öğrenciye kaydedildi', 'success');
+      state._dailySelected = [];
+      nav.back();
+    }
+  };
   // ─── ASSESSMENT FORM ───
   pages.assess = {
     open(type) {
@@ -3015,7 +3962,7 @@ KURALLAR:
         { key: 'proje', name: 'Dönem Projesi', emoji: '🏆' }
       ];
 
-      // Aggregate criteria across all assessments
+      // Aggregate criteria across all assessments AND daily events
       const aggregate = {};
       let totalEvents = 0;
       Object.values(assess).forEach(a => {
@@ -3029,30 +3976,56 @@ KURALLAR:
           });
         }
       });
+      // Günlük olayları da hasatlamaya dahil et (her olayın kriterleri ağırlıklarıyla)
+      const dailyEvts = daily.getEvents(s.id);
+      const processScore = daily.getProcessScore(s.id);
+      const processStatus = daily.getStatus(processScore);
+      dailyEvts.forEach(ev => {
+        if (ev.criteria) {
+          totalEvents++;
+          const mult = Math.abs(ev.scoreImpact || 1); // negatif/pozitif fark etmez, ağırlık
+          ev.criteria.forEach(c => {
+            const key = c.category + '|' + c.item;
+            if (!aggregate[key]) aggregate[key] = { category: c.category, item: c.item, total: 0, count: 0 };
+            aggregate[key].total += (c.weight || 0) * mult / 10;
+            aggregate[key].count++;
+          });
+        }
+      });
 
       // Sort by total
       const sortedAggregate = Object.values(aggregate).sort((a, b) => b.total - a.total);
       const maxTotal = sortedAggregate[0] ? sortedAggregate[0].total : 100;
 
+      const __pscore = daily.getProcessScore(s.id);
+      const __pstatus = daily.getStatus(__pscore);
       let html = `<div class="card" style="background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(20,184,166,0.05));border-color:var(--line-2)">
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
           <div class="student-avatar" style="width:56px;height:56px;font-size:22px;background:linear-gradient(135deg,var(--indigo),var(--teal));color:#fff;border:none">${(s.ad||'?').charAt(0).toUpperCase()}</div>
-          <div>
+          <div style="flex:1">
             <div style="font-weight:800;font-size:18px;font-family:var(--font-display)">${escapeHTML(s.ad)}</div>
             <div style="font-size:12px;color:var(--text-2)">${escapeHTML(s.class)} ${s.no ? '· No: ' + escapeHTML(s.no) : ''}</div>
             <div style="font-size:11px;color:var(--text-3);margin-top:4px">📅 ${new Date().toLocaleDateString('tr-TR')}</div>
+          </div>
+          <div style="text-align:center;padding:8px 14px;background:var(--bg-2);border-radius:12px;border:1px solid var(--line-2)">
+            <div style="font-family:var(--font-display);font-weight:800;font-size:26px;color:${__pstatus.color};line-height:1">${__pscore}</div>
+            <div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px">${__pstatus.label}</div>
           </div>
         </div>
       </div>`;
 
       // Tabs
-      html += `<div class="tabs" id="report-tabs">
+      html += `<div class="tabs" id="report-tabs" style="overflow-x:auto;flex-wrap:nowrap">
         <div class="tab active" data-tab="hasat" onclick="Maarif.pages.report.tab('hasat')">🌾 Hasat</div>
-        <div class="tab" data-tab="kanit" onclick="Maarif.pages.report.tab('kanit')">📋 Kanıtlar</div>
+        <div class="tab" data-tab="kanit" onclick="Maarif.pages.report.tab('kanit')">📋 Kanıt</div>
+        <div class="tab" data-tab="daily" onclick="Maarif.pages.report.tab('daily')">⚡ Günlük</div>
         <div class="tab" data-tab="detay" onclick="Maarif.pages.report.tab('detay')">📑 Detay</div>
       </div>
       <div id="report-content"></div>
-      <button class="btn btn-secondary mt-4" onclick="window.print()">🖨️ Yazdır / PDF</button>`;
+      <div class="flex gap-2 mt-4">
+        <button class="btn btn-secondary" onclick="window.print()">🖨️ Yazdır</button>
+        <button class="btn btn-primary" onclick="Maarif.pages.report.veliReport()">👨‍👩‍👧 Veli Raporu</button>
+      </div>`;
 
       // Save data for tab switcher
       pages.report._data = { student: s, assess: assess, sortedAggregate: sortedAggregate, maxTotal: maxTotal, types: types };
@@ -3124,6 +4097,47 @@ KURALLAR:
         });
         host.innerHTML = html;
       }
+      else if (name === 'daily') {
+        const dailyEvts = daily.getEvents(s.id);
+        if (dailyEvts.length === 0) {
+          host.innerHTML = '<div class="empty"><div class="empty-icon">⚡</div><div class="empty-text">Henüz günlük olay yok</div></div>';
+          return;
+        }
+        const score = daily.getProcessScore(s.id);
+        const status = daily.getStatus(score);
+        const negCount = dailyEvts.filter(e => (e.scoreImpact||0) < 0).length;
+        const posCount = dailyEvts.filter(e => (e.scoreImpact||0) > 0).length;
+        const totalImpact = dailyEvts.reduce((s,e) => s + (e.scoreImpact||0), 0);
+        
+        let html = `<div class="score-display" style="margin-bottom:14px">
+          <div style="font-family:var(--font-display);font-weight:800;font-size:32px;color:${status.color};text-align:center;flex:1">
+            ${score}
+            <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.1em;font-weight:600;margin-top:2px">${status.label}</div>
+          </div>
+          <div style="border-left:1px solid var(--line-2);padding-left:14px;flex:1">
+            <div style="font-size:11.5px;color:var(--text-2);margin-bottom:4px">Başlangıç: 100</div>
+            <div style="font-size:11.5px;color:var(--text-2);margin-bottom:4px">Toplam etki: <b style="color:${totalImpact>=0?'var(--emerald)':'var(--rose)'}">${totalImpact>=0?'+':''}${totalImpact}</b></div>
+            <div style="font-size:11.5px;color:var(--text-2)">${dailyEvts.length} olay · ${negCount}- / ${posCount}+</div>
+          </div>
+        </div>`;
+        
+        html += '<div class="text-xs" style="margin:0 4px 10px">Kronolojik (yeniden eskiye):</div>';
+        dailyEvts.forEach(ev => {
+          const date = ev.date ? new Date(ev.date) : new Date();
+          const dateStr = date.toLocaleDateString('tr-TR') + ' ' + date.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+          const cls_ = (ev.scoreImpact||0) >= 0 ? 'positive' : 'negative';
+          html += `<div class="event-timeline-item ${cls_}">
+            <div class="event-time">${dateStr}</div>
+            <div class="event-body">
+              <div class="event-label">${ev.emoji ? ev.emoji + ' ' : ''}${escapeHTML(ev.label || ev.observation || '?')}</div>
+              ${ev.observation && ev.label !== ev.observation ? '<div style="font-size:11px;color:var(--text-3);font-style:italic;margin-top:2px">"' + escapeHTML(ev.observation) + '"</div>' : ''}
+              <div style="font-size:10.5px;color:var(--text-3);margin-top:3px">${(ev.criteria || []).map(c => escapeHTML(c.item)).slice(0,4).join(' · ')}</div>
+            </div>
+            <div class="event-impact ${cls_}">${(ev.scoreImpact||0) >= 0 ? '+' : ''}${ev.scoreImpact || 0}</div>
+          </div>`;
+        });
+        host.innerHTML = html;
+      }
       else if (name === 'detay') {
         let html = '';
         types.forEach(t => {
@@ -3141,7 +4155,118 @@ KURALLAR:
         if (!html) html = '<div class="empty"><div class="empty-icon">📑</div><div class="empty-text">Henüz değerlendirme yok</div></div>';
         host.innerHTML = html;
       }
-    }
+    },
+    veliReport() {
+      const s = data.getStudent(state.currentStudent);
+      if (!s) return;
+      const assess = state.db.assessments[s.id] || {};
+      const score = daily.getProcessScore(s.id);
+      const status = daily.getStatus(score);
+      const events = daily.getEvents(s.id);
+      const negCount = events.filter(e => (e.scoreImpact||0) < 0).length;
+      const posCount = events.filter(e => (e.scoreImpact||0) > 0).length;
+      
+      // Aggregate top criteria
+      const agg = {};
+      Object.values(assess).forEach(a => {
+        if (a.criteria) a.criteria.forEach(c => {
+          const k = c.item;
+          agg[k] = (agg[k]||0) + (c.weight||0);
+        });
+      });
+      events.forEach(ev => {
+        if (ev.criteria) ev.criteria.forEach(c => {
+          const k = c.item;
+          agg[k] = (agg[k]||0) + (c.weight||0) * Math.abs(ev.scoreImpact||1) / 10;
+        });
+      });
+      const topCriteria = Object.entries(agg).sort((a,b) => b[1]-a[1]).slice(0,5);
+      
+      // Yazılı/performans puanları
+      const yazili1 = assess.yazili1 && assess.yazili1.score != null ? assess.yazili1.score : null;
+      const yazili2 = assess.yazili2 && assess.yazili2.score != null ? assess.yazili2.score : null;
+      
+      const w = window.open('', '_blank');
+      const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${escapeHTML(s.ad)} - Veli Raporu</title>
+      <style>
+      body{font-family:'Segoe UI',sans-serif;padding:30px;color:#1a1a1a;max-width:700px;margin:0 auto;background:#fff;font-size:14px}
+      h1{color:#4f46e5;font-size:20px;margin:0 0 4px;border-bottom:3px solid #4f46e5;padding-bottom:8px}
+      .sub{color:#666;font-size:12px;margin-bottom:24px}
+      .info-card{background:#f5f3ff;border-radius:14px;padding:20px;margin-bottom:24px}
+      .info-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px}
+      .score-box{background:linear-gradient(135deg,#6366f1,#14b8a6);color:#fff;padding:24px;border-radius:14px;margin-bottom:24px;text-align:center}
+      .score-num{font-size:48px;font-weight:800;line-height:1}
+      .score-lbl{font-size:13px;letter-spacing:0.1em;text-transform:uppercase;margin-top:6px;opacity:0.9}
+      .section-title{color:#4f46e5;font-size:15px;font-weight:700;margin:24px 0 10px;border-left:4px solid #4f46e5;padding-left:10px}
+      .bar-row{margin-bottom:8px}
+      .bar-head{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px}
+      .bar-track{height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden}
+      .bar-fill{height:100%;border-radius:4px}
+      .bar-fill.high{background:#10b981}.bar-fill.mid{background:#f59e0b}.bar-fill.low{background:#ef4444}
+      .level{font-weight:700;font-size:11px;text-transform:uppercase}.level.high{color:#10b981}.level.mid{color:#f59e0b}.level.low{color:#ef4444}
+      .msg-box{background:#fef3c7;border-left:4px solid #f59e0b;padding:16px;border-radius:8px;margin-top:24px;font-style:italic;line-height:1.6;font-size:13px;color:#78350f}
+      .footer{text-align:center;color:#9ca3af;font-size:10px;margin-top:32px;border-top:1px solid #e5e7eb;padding-top:12px}
+      @media print{body{padding:14px;font-size:12px}@page{margin:1cm}}
+      </style></head><body>
+      <h1>👨‍👩‍👧 Veli Raporu</h1>
+      <div class="sub">Türkiye Yüzyılı Maarif Modeli — Gelişim Özeti</div>
+      
+      <div class="info-card">
+        <div class="info-row"><span><b>Öğrenci:</b></span><span>${escapeHTML(s.ad)}</span></div>
+        <div class="info-row"><span><b>Sınıf:</b></span><span>${escapeHTML(s.class)}</span></div>
+        ${s.no ? `<div class="info-row"><span><b>Numara:</b></span><span>${escapeHTML(s.no)}</span></div>` : ''}
+        <div class="info-row"><span><b>Tarih:</b></span><span>${new Date().toLocaleDateString('tr-TR')}</span></div>
+      </div>
+      
+      <div class="score-box">
+        <div class="score-num">${score}</div>
+        <div class="score-lbl">SÜREÇ PUANI · ${status.label.toUpperCase()}</div>
+        <div style="font-size:11px;margin-top:8px;opacity:0.85">Başlangıç 100 üzerinden ${events.length} olay sonrası</div>
+      </div>
+      
+      ${(yazili1 || yazili2) ? `
+      <div class="section-title">📝 Yazılı Sınavlar</div>
+      ${yazili1 != null ? `<div class="bar-row"><div class="bar-head"><span>Yazılı 1</span><span><b>${yazili1}/100</b></span></div><div class="bar-track"><div class="bar-fill ${yazili1>=70?'high':yazili1>=50?'mid':'low'}" style="width:${yazili1}%"></div></div></div>` : ''}
+      ${yazili2 != null ? `<div class="bar-row"><div class="bar-head"><span>Yazılı 2</span><span><b>${yazili2}/100</b></span></div><div class="bar-track"><div class="bar-fill ${yazili2>=70?'high':yazili2>=50?'mid':'low'}" style="width:${yazili2}%"></div></div></div>` : ''}
+      ` : ''}
+      
+      <div class="section-title">🌳 Karakter & Eğilim Gelişimi</div>
+      ${topCriteria.map(([item, val]) => {
+        const maxVal = topCriteria[0][1];
+        const pct = Math.min(100, Math.round((val/maxVal)*100));
+        const lvl = pct <= 40 ? 'low' : pct <= 75 ? 'mid' : 'high';
+        const lblTxt = lvl === 'low' ? 'Desteklenmeli' : lvl === 'mid' ? 'Gelişmekte' : 'Yerleşmiş';
+        return `<div class="bar-row"><div class="bar-head"><span>${escapeHTML(item)}</span><span class="level ${lvl}">${lblTxt}</span></div><div class="bar-track"><div class="bar-fill ${lvl}" style="width:${pct}%"></div></div></div>`;
+      }).join('')}
+      
+      <div class="section-title">📊 Bu Dönem Özeti</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center">
+        <div style="background:#f5f3ff;padding:14px;border-radius:10px"><div style="font-size:22px;font-weight:800;color:#4f46e5">${events.length}</div><div style="font-size:11px;color:#666">Olay Kaydı</div></div>
+        <div style="background:#ecfdf5;padding:14px;border-radius:10px"><div style="font-size:22px;font-weight:800;color:#10b981">${posCount}</div><div style="font-size:11px;color:#666">Pozitif</div></div>
+        <div style="background:#fef2f2;padding:14px;border-radius:10px"><div style="font-size:22px;font-weight:800;color:#ef4444">${negCount}</div><div style="font-size:11px;color:#666">Gelişim Alanı</div></div>
+      </div>
+      
+      <div class="msg-box">
+        <b>📝 Öğretmen Notu:</b><br>
+        ${score >= 110 ? 
+          `${escapeHTML(s.ad.split(' ')[0])}, sınıf içinde son derece olumlu davranışlar sergilemekte. Karakter gelişimi ve süreç odaklı çabası takdire şayan. Bu istikrarı sürdürmesi için desteklemenizi rica ediyorum.` 
+        : score >= 90 ?
+          `${escapeHTML(s.ad.split(' ')[0])}, derslere katılım ve sosyal gelişim açısından olumlu bir yolda ilerliyor. Bu süreci destekleyici tutumunuzla daha da güçlendirebiliriz.`
+        : score >= 70 ?
+          `${escapeHTML(s.ad.split(' ')[0])} için gelişim sürecinde bazı alanlarda destek gerekiyor. Birlikte çalışarak ${escapeHTML(s.ad.split(' ')[0])}'in potansiyelini ortaya çıkarabiliriz. Görüşmek isterim.`
+        : 
+          `${escapeHTML(s.ad.split(' ')[0])} için süreç odaklı yoğun bir desteğe ihtiyaç var. En kısa zamanda görüşmek üzere okula davet ediyorum.`}
+      </div>
+      
+      <div class="footer">
+        Maarif Gelişim Asistanı · v0.3.0 · ${new Date().toLocaleString('tr-TR')}<br>
+        Bu rapor öğretmen tarafından kaydedilen kanıta dayalı gözlemlerden oluşturulmuştur.
+      </div>
+      <script>setTimeout(function(){window.print();},800);</script>
+      </body></html>`;
+      w.document.write(html);
+      w.document.close();
+    },
   };
 
   // ═══════════════ UI HELPERS ═══════════════
@@ -3207,7 +4332,7 @@ KURALLAR:
 
   // ═══════════════ PUBLIC API ═══════════════
   return {
-    auth, data, drive, ai, exam, nav, pages, ui, state,
+    auth, data, drive, ai, exam, daily, nav, pages, ui, state,
     CONFIG, MAARIF_CRITERIA
   };
 })();
