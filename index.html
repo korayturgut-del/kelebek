@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0a0b0e">
-<title>Maarif · Gelişim Asistanı v0.3.0.1</title>
+<title>Maarif · Gelişim Asistanı v0.4.0</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>if(typeof pdfjsLib!=="undefined"){pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";}</script>
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <style>
 /* ════════════════════════════════════════════════════════
-   MAARİF v0.3.0.1 — Modüler, Bağımsız Uygulama
+   MAARİF v0.4.0 — Modüler, Bağımsız Uygulama
    "Banking-grade" UX · Türkiye Yüzyılı Maarif Modeli
    ═══════════════════════════════════════════════════════ */
 
@@ -1244,7 +1244,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
   <div class="login" id="login-screen">
     <div class="login-mark">Maarif</div>
     <div class="login-tagline">Gelişim Asistanı</div>
-    <div class="login-version">v0.3.0.1 · Türkiye Yüzyılı Maarif Modeli</div>
+    <div class="login-version">v0.4.0 · Türkiye Yüzyılı Maarif Modeli</div>
 
     <div id="google-login-target"></div>
     <div id="login-error" class="login-error hidden"></div>
@@ -1353,7 +1353,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
     </div>
 
     <div style="text-align:center;color:var(--text-3);font-size:11px;margin:32px 0 20px;letter-spacing:0.05em">
-      Maarif v0.3.0.1 · 11 Mayıs 2026
+      Maarif v0.4.0 · 11 Mayıs 2026
     </div>
   </div>
 
@@ -2365,82 +2365,417 @@ KURALLAR:
       return                  { label: 'Yoğun Destek',    color: 'var(--rose)',  pct: Math.max(0, score) };
     },
     
-    /* AI ile serbest yazı analizi (öğretmenden öğrenir) */
+
+    /* ═══════════════════════════════════════════════
+       RULE ENGINE — Behavior → Allowed Criteria mapping
+       AI bağlamı analiz eder, rule engine kriterleri filtreler.
+       Yaratıcılık/Estetik gibi alakasız kriterler asla seçilmez.
+       ═══════════════════════════════════════════════ */
+    RULES: {
+      // FIZIKSEL ÇATIŞMA: itme, vurma, çekme, dokunma
+      physical_conflict: {
+        allowed: [
+          {category:'cati', item:'Saygı', priority:5},
+          {category:'egilim_sosyal', item:'Empati', priority:5},
+          {category:'cati', item:'Sorumluluk', priority:4},
+          {category:'egilim_benlik', item:'Öz Yeterlilik', priority:3},
+          {category:'karakter', item:'Ahlaklı', priority:3},
+          {category:'karakter', item:'Merhametli', priority:3}
+        ],
+        impactRange: [-5, -2],
+        polarity: 'negative'
+      },
+      // FIZIKSEL KORUYUCU: düşmesin diye tutma, koruma
+      physical_protective: {
+        allowed: [
+          {category:'egilim_sosyal', item:'Empati', priority:5},
+          {category:'karakter', item:'Merhametli', priority:5},
+          {category:'cati', item:'Sorumluluk', priority:4},
+          {category:'egilim_sosyal', item:'Sorumluluk (Sosyal)', priority:4}
+        ],
+        impactRange: [3, 5],
+        polarity: 'positive'
+      },
+      // SÖZLÜ ÇATIŞMA: hakaret, alay, lakap takma
+      verbal_conflict: {
+        allowed: [
+          {category:'cati', item:'Saygı', priority:5},
+          {category:'egilim_sosyal', item:'Empati', priority:4},
+          {category:'karakter', item:'Ahlaklı', priority:4},
+          {category:'egilim_benlik', item:'Öz Yeterlilik', priority:2}
+        ],
+        impactRange: [-4, -1],
+        polarity: 'negative'
+      },
+      // DERSE KATILMAMA: kitap, ödev, hazırlıksız
+      academic_neglect: {
+        allowed: [
+          {category:'cati', item:'Sorumluluk', priority:5},
+          {category:'egilim_benlik', item:'Azim ve Kararlılık', priority:4},
+          {category:'egilim_benlik', item:'Öz Yeterlilik', priority:3},
+          {category:'egilim_entelektuel', item:'Sistematiklik', priority:3}
+        ],
+        impactRange: [-3, -1],
+        polarity: 'negative'
+      },
+      // DİKKAT DAĞINIKLIĞI: konuşma, telefon, dalmak
+      inattention: {
+        allowed: [
+          {category:'egilim_entelektuel', item:'Odaklanma', priority:5},
+          {category:'cati', item:'Saygı', priority:4},
+          {category:'cati', item:'Sorumluluk', priority:3}
+        ],
+        impactRange: [-4, -1],
+        polarity: 'negative'
+      },
+      // DÜZEN BOZMA: sıra değiştirme, sınıf eşyasına zarar
+      disorder: {
+        allowed: [
+          {category:'cati', item:'Saygı', priority:5},
+          {category:'cati', item:'Sorumluluk', priority:5},
+          {category:'karakter', item:'Estetik', priority:3}
+        ],
+        impactRange: [-3, -1],
+        polarity: 'negative'
+      },
+      // YALAN / SAHTECILIK: kopya, yalan, kandırma
+      dishonesty: {
+        allowed: [
+          {category:'karakter', item:'Ahlaklı', priority:5},
+          {category:'cati', item:'Adalet', priority:5},
+          {category:'cati', item:'Saygı', priority:3}
+        ],
+        impactRange: [-5, -2],
+        polarity: 'negative'
+      },
+      // POZİTİF: AKTİF KATILIM
+      active_participation: {
+        allowed: [
+          {category:'egilim_entelektuel', item:'Merak', priority:5},
+          {category:'egilim_sosyal', item:'Girişkenlik', priority:5},
+          {category:'egilim_entelektuel', item:'Soru Sorma', priority:4},
+          {category:'egilim_benlik', item:'Kendine Güvenme', priority:3}
+        ],
+        impactRange: [2, 4],
+        polarity: 'positive'
+      },
+      // POZİTİF: YARDIM, PAYLAŞIM
+      prosocial: {
+        allowed: [
+          {category:'egilim_sosyal', item:'Empati', priority:5},
+          {category:'cati', item:'Sorumluluk', priority:4},
+          {category:'karakter', item:'Merhametli', priority:4},
+          {category:'cati', item:'Adalet', priority:3}
+        ],
+        impactRange: [2, 4],
+        polarity: 'positive'
+      },
+      // POZİTİF: YARATICI ÇÖZÜM (gerçekten yaratıcı bir şey yaptıysa)
+      creative_work: {
+        allowed: [
+          {category:'egilim_entelektuel', item:'Yaratıcılık', priority:5},
+          {category:'egilim_entelektuel', item:'Eleştirel Bakış', priority:4},
+          {category:'karakter', item:'Üretken', priority:4},
+          {category:'egilim_benlik', item:'Bağımsızlık', priority:3}
+        ],
+        impactRange: [3, 5],
+        polarity: 'positive'
+      },
+      // POZİTİF: LİDERLİK
+      leadership: {
+        allowed: [
+          {category:'cati', item:'Sorumluluk', priority:5},
+          {category:'egilim_sosyal', item:'Girişkenlik', priority:5},
+          {category:'egilim_benlik', item:'Kendine Güvenme', priority:4},
+          {category:'karakter', item:'Bilge', priority:3}
+        ],
+        impactRange: [3, 5],
+        polarity: 'positive'
+      },
+      // POZİTİF: TELAFI - kendini düzeltme
+      self_correction: {
+        allowed: [
+          {category:'egilim_benlik', item:'Azim ve Kararlılık', priority:5},
+          {category:'cati', item:'Sorumluluk', priority:4},
+          {category:'karakter', item:'Ahlaklı', priority:4},
+          {category:'egilim_benlik', item:'Öz Yeterlilik', priority:3}
+        ],
+        impactRange: [3, 5],
+        polarity: 'positive'
+      },
+      // POZİTİF: ÇABA / AZİM
+      effort: {
+        allowed: [
+          {category:'egilim_benlik', item:'Azim ve Kararlılık', priority:5},
+          {category:'egilim_benlik', item:'Öz Yeterlilik', priority:4},
+          {category:'karakter', item:'Üretken', priority:3}
+        ],
+        impactRange: [2, 4],
+        polarity: 'positive'
+      },
+      // NÖTR: belirsiz, gözlem gerektiren
+      neutral: {
+        allowed: [
+          {category:'egilim_benlik', item:'Öz Yeterlilik', priority:3},
+          {category:'cati', item:'Sorumluluk', priority:2}
+        ],
+        impactRange: [-1, 1],
+        polarity: 'neutral'
+      }
+    },
+    
+    /* Rule engine: bağlama göre izin verilen kriterleri al */
+    getAllowedCriteria(behaviorType, context) {
+      const rule = daily.RULES[behaviorType] || daily.RULES.neutral;
+      let allowed = rule.allowed.slice();
+      
+      // Bağlam ayarlamaları
+      if (context && context.repetition === 'recurring') {
+        // Tekrar eden davranış → Azim/Sorumluluk önceliği artar
+        allowed.forEach(a => {
+          if (a.item === 'Azim ve Kararlılık' || a.item === 'Sorumluluk') a.priority += 1;
+        });
+      }
+      if (context && context.intent === 'accidental') {
+        // Kaza ise → Empati önce, Saygı sonra
+        allowed.forEach(a => {
+          if (a.item === 'Empati') a.priority += 1;
+          if (a.item === 'Saygı') a.priority -= 1;
+        });
+      }
+      if (context && context.remorse === 'shown') {
+        // Pişmanlık varsa → Ahlaklı, Azim öne
+        allowed.forEach(a => {
+          if (a.item === 'Ahlaklı' || a.item === 'Azim ve Kararlılık') a.priority += 1;
+        });
+      }
+      return allowed.sort((a,b) => b.priority - a.priority);
+    },
+    
+    /* Impact hesabı: bağlama göre puan etkisini ayarla */
+    computeImpact(behaviorType, context) {
+      const rule = daily.RULES[behaviorType] || daily.RULES.neutral;
+      const [min, max] = rule.impactRange;
+      let val = (min + max) / 2;  // Orta nokta
+      
+      if (context) {
+        if (context.intent === 'intentional')      val = max < 0 ? max : max;        // En şiddetli
+        else if (context.intent === 'impulsive')   val = (min + max) / 2;            // Orta
+        else if (context.intent === 'accidental')  val = min < 0 ? min + 1 : min;    // En hafif
+        
+        if (context.harm === 'high')      val = max < 0 ? max : max;
+        else if (context.harm === 'low')  val = min < 0 ? min + 1 : min;
+        
+        if (context.remorse === 'shown' && val < 0) val = Math.min(0, val + 1);  // Pişmanlık = ceza yumuşar
+        
+        if (context.repetition === 'recurring' && val < 0) val = max;  // Tekrar = en şiddetli
+      }
+      return Math.round(Math.max(rule.impactRange[0], Math.min(rule.impactRange[1], val)));
+    },
+
+    /* AI ile serbest yazı analizi (Hybrid: AI + Rule Engine) */
     async analyzeWithAI(observation) {
       const corrections = daily.getCorrections();
       const examples = corrections.slice(0, 5).map(c => 
-        `Önceki olay: "${c.input}"
-Öğretmen düzeltmesi: ${JSON.stringify(c.teacher)}`
+        `Olay: "${c.input}"\n\u00d6\u011fretmen d\u00fczeltmesi: ${JSON.stringify(c.teacher)}`
       ).join('\n\n');
       
-      const systemPrompt = `Sen Türkiye Yüzyılı Maarif Modeli uzmanı bir öğretmen asistanısın. Öğretmenin yazdığı sınıf içi gözlemi analiz et.
+      // ═════════════════════════════════════════════
+      // STAGE 1: CONTEXT DETECTION (AI bağlamı analiz eder, kriter SEÇMEZ)
+      // ═════════════════════════════════════════════
+      const contextSystemPrompt = `MAARIF ANALYSIS PROTOCOL - STAGE 1: CONTEXT DETECTION
 
-ÇIKARMAN GEREKEN:
-1. Olayın etki yönü: "negative" (sınıf düzenini bozan) veya "positive" (süreci destekleyen)
-2. Puan etkisi: negatif -1/-5, pozitif +1/+5 arası TAM SAYI
-3. Maarif kriterleri: HER İKİ KATEGORİDEN olmak üzere EN AZ 3 kriter, ağırlıklar TOPLAMI TAM OLARAK 100
+You analyze a teacher observation. Output ONLY structured context, NOT criteria.
 
-KATEGORİLER:
-- cati: Adalet, Saygı, Sorumluluk
-- egilim_entelektuel: Merak, Yaratıcılık, Eleştirel Bakış, Odaklanma, Analitiklik, Sistematiklik, Soru Sorma
-- egilim_sosyal: Empati, Girişkenlik, Güven, Oyunseverlik, Sorumluluk (Sosyal)
-- egilim_benlik: Azim ve Kararlılık, Öz Yeterlilik, Bağımsızlık, Seçicilik, Kendine Güvenme
-- karakter: Bilge, Ahlaklı, Merhametli, Estetik, Üretken, Vatansever
+STEP 1 - Detect behavior type (choose ONE):
+- physical_conflict     : itme, vurma, çekme, dövme (saldırgan fiziksel)
+- physical_protective   : düşmesin diye tutma, koruma
+- verbal_conflict       : hakaret, alay, lakap, küfür
+- academic_neglect      : kitap getirmeme, ödev yapmama
+- inattention           : derste konuşma, telefon, dalmak, uyumak
+- disorder              : sıra/düzen bozma, eşyaya zarar
+- dishonesty            : kopya, yalan, kandırma
+- active_participation  : derse aktif katılım, soru sorma
+- prosocial             : yardım etme, paylaşma
+- creative_work         : YARATICI ÜRÜN/ÇÖZÜM (gerçek sanat, özgün fikir)
+- leadership            : grup yönetme, organize etme
+- self_correction       : hatasını telafi etme, özür dileme
+- effort                : zorluğa rağmen çabalama
+- neutral               : belirsiz
 
-KURAL: Toplam ağırlık MUTLAKA 100 olacak. Eğer toplamın 100 değilse kendin baştan dağıt.
-EN AZ 3 kriter, EN FAZLA 5 kriter. En küçük ağırlık 10, en büyük 50.
+STEP 2 - Determine:
+- valence: positive | negative | neutral
+- intent: intentional | impulsive | accidental
+- harm: none | low | medium | high
+- repetition: first_time | occasional | recurring
+- remorse: shown | absent | unclear
 
-${examples ? 'ÖĞRETMENİN GEÇMİŞ DÜZELTMELERİ (bu tarzı taklit et):\n' + examples + '\n\n' : ''}
+STEP 3 - Safety: NEVER label personality ("problemli", "agresif"). Only describe BEHAVIOR.
 
-SADECE şu JSON formatında döndür, başka hiçbir şey yazma:
+${examples ? 'TEACHER PAST CORRECTIONS:\\n' + examples + '\\n\\n' : ''}
+
+OUTPUT ONLY JSON:
 {
-  "polarity": "negative",
-  "scoreImpact": -3,
-  "label": "Kısa açıklama (3-5 kelime)",
-  "criteria": [
-    {"category":"cati", "item":"Sorumluluk", "weight":40},
-    {"category":"egilim_benlik", "item":"Azim ve Kararlılık", "weight":30},
-    {"category":"egilim_entelektuel", "item":"Odaklanma", "weight":30}
-  ],
-  "explanation": "Bu davranış neden bu kriterlere etki eder, kısa pedagojik açıklama"
+  "behaviorType": "physical_conflict",
+  "valence": "negative",
+  "intent": "impulsive",
+  "harm": "medium",
+  "repetition": "first_time",
+  "remorse": "absent",
+  "label": "3-5 kelimelik özet (Türkçe)",
+  "developmentalNote": "Pedagojik gözlem (Türkçe, kişilik etiketi yok)"
 }`;
       
+      let contextResult;
       try {
-        const r = await fetch(CONFIG.AI_WORKER, {
+        const r1 = await fetch(CONFIG.AI_WORKER, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            systemPrompt: systemPrompt,
-            userPrompt: `Öğretmen gözlemi: "${observation}"`,
+            systemPrompt: contextSystemPrompt,
+            userPrompt: `Teacher observation: "${observation}"`,
             jsonMode: true,
-            temperature: 0.2,
-            model: 'gemini-2.5-flash'
+            temperature: 0.1,
+            model: 'gemini-2.5-flash',
+            maxOutputTokens: 800
           })
         });
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        const json = await r.json();
-        const text = (json.text || '').replace(/```json/g,'').replace(/```/g,'').trim();
-        const result = JSON.parse(text);
-        
-        // Validation: ağırlık toplamı 100 değilse düzelt
-        if (result.criteria) {
-          const total = result.criteria.reduce((s,c) => s + (c.weight || 0), 0);
-          if (total !== 100 && total > 0) {
-            const ratio = 100 / total;
-            result.criteria.forEach(c => c.weight = Math.round(c.weight * ratio));
-            // Yuvarlama hatası varsa en büyüğe ekle
-            const newTotal = result.criteria.reduce((s,c) => s + c.weight, 0);
-            if (newTotal !== 100) {
-              const maxIdx = result.criteria.reduce((mi, c, i, a) => c.weight > a[mi].weight ? i : mi, 0);
-              result.criteria[maxIdx].weight += (100 - newTotal);
-            }
-          }
-        }
-        return result;
+        if (!r1.ok) throw new Error('Stage1 HTTP ' + r1.status);
+        const j1 = await r1.json();
+        const t1 = (j1.text || '').replace(/```json/g,'').replace(/```/g,'').trim();
+        contextResult = JSON.parse(t1);
       } catch(e) {
-        console.error('AI hata:', e);
+        console.error('Stage 1 hata:', e);
         return null;
       }
+      
+      // ═════════════════════════════════════════════
+      // STAGE 2: RULE ENGINE — izin verilen kriterleri al
+      // ═════════════════════════════════════════════
+      const behaviorType = contextResult.behaviorType || 'neutral';
+      const allowedCriteria = daily.getAllowedCriteria(behaviorType, contextResult);
+      const computedImpact = daily.computeImpact(behaviorType, contextResult);
+      
+      if (!allowedCriteria || allowedCriteria.length === 0) {
+        return {
+          polarity: contextResult.valence || 'neutral',
+          scoreImpact: computedImpact,
+          label: contextResult.label || observation.slice(0, 40),
+          criteria: [],
+          explanation: contextResult.developmentalNote || '',
+          behaviorType: behaviorType,
+          context: contextResult,
+          source: 'hybrid'
+        };
+      }
+      
+      // ═════════════════════════════════════════════
+      // STAGE 3: AI ağırlık dağıtımı — SADECE izin verilen kriterler arasından
+      // ═════════════════════════════════════════════
+      const top4 = allowedCriteria.slice(0, 4);
+      const criteriaList = top4.map((cr, i) => 
+        `${i+1}. ${cr.item} (kategori: ${cr.category}, öncelik: ${cr.priority})`
+      ).join('\n');
+      
+      const weightSystemPrompt = `MAARIF ANALYSIS PROTOCOL - STAGE 2: WEIGHT DISTRIBUTION
+
+Given context + allowed criteria, distribute weights.
+
+CONTEXT:
+- Behavior: ${behaviorType}
+- Valence: ${contextResult.valence}
+- Intent: ${contextResult.intent}
+- Harm: ${contextResult.harm}
+
+ALLOWED CRITERIA (ONLY choose from these):
+${criteriaList}
+
+RULES:
+1. Choose 2-4 criteria from the list above ONLY.
+2. Higher priority should generally get higher weights.
+3. Total weight MUST equal 100.
+4. Min weight 15, max 60.
+
+OUTPUT ONLY JSON:
+{
+  "criteria": [
+    {"category":"cati", "item":"Saygı", "weight":50},
+    {"category":"egilim_sosyal", "item":"Empati", "weight":35},
+    {"category":"karakter", "item":"Ahlaklı", "weight":15}
+  ],
+  "explanation": "Pedagojik açıklama (Türkçe, 1-2 cümle, kişilik etiketi yok)"
+}`;
+      
+      let weightResult;
+      try {
+        const r2 = await fetch(CONFIG.AI_WORKER, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemPrompt: weightSystemPrompt,
+            userPrompt: `Distribute weights for: "${observation}"`,
+            jsonMode: true,
+            temperature: 0.2,
+            model: 'gemini-2.5-flash',
+            maxOutputTokens: 600
+          })
+        });
+        if (!r2.ok) throw new Error('Stage2 HTTP ' + r2.status);
+        const j2 = await r2.json();
+        const t2 = (j2.text || '').replace(/```json/g,'').replace(/```/g,'').trim();
+        weightResult = JSON.parse(t2);
+      } catch(e) {
+        console.error('Stage 2 hata, fallback:', e);
+        const top3 = allowedCriteria.slice(0, 3);
+        weightResult = {
+          criteria: top3.map((cr, i) => ({
+            category: cr.category,
+            item: cr.item,
+            weight: i === 0 ? 50 : i === 1 ? 30 : 20
+          })),
+          explanation: contextResult.developmentalNote || ''
+        };
+      }
+      
+      // ═════════════════════════════════════════════
+      // STAGE 4: VALIDATION — AI sapmasın, rule engine'i zorunla
+      // ═════════════════════════════════════════════
+      const allowedSet = new Set(allowedCriteria.map(c => c.category + '|' + c.item));
+      let validCriteria = (weightResult.criteria || []).filter(c => 
+        allowedSet.has(c.category + '|' + c.item)
+      );
+      
+      if (validCriteria.length === 0) {
+        const top3 = allowedCriteria.slice(0, 3);
+        validCriteria = top3.map((cr, i) => ({
+          category: cr.category,
+          item: cr.item,
+          weight: i === 0 ? 50 : i === 1 ? 30 : 20
+        }));
+      }
+      
+      // Normalize total to 100
+      const total = validCriteria.reduce((s,c) => s + (c.weight || 0), 0);
+      if (total !== 100 && total > 0) {
+        const ratio = 100 / total;
+        validCriteria.forEach(c => c.weight = Math.round(c.weight * ratio));
+        const newTotal = validCriteria.reduce((s,c) => s + c.weight, 0);
+        if (newTotal !== 100) {
+          const maxIdx = validCriteria.reduce((mi, c, i, a) => c.weight > a[mi].weight ? i : mi, 0);
+          validCriteria[maxIdx].weight += (100 - newTotal);
+        }
+      }
+      
+      return {
+        polarity: contextResult.valence === 'positive' ? 'positive' : (contextResult.valence === 'negative' ? 'negative' : 'neutral'),
+        scoreImpact: computedImpact,
+        label: contextResult.label || observation.slice(0, 40),
+        criteria: validCriteria,
+        explanation: weightResult.explanation || contextResult.developmentalNote || '',
+        behaviorType: behaviorType,
+        context: contextResult,
+        source: 'hybrid'
+      };
     }
   };
 
@@ -3523,6 +3858,8 @@ SADECE şu JSON formatında döndür, başka hiçbir şey yazma:
         polarity: result.polarity,
         criteria: result.criteria || [],
         explanation: result.explanation,
+        behaviorType: result.behaviorType,
+        context: result.context,
         source: 'ai',
         aiOriginal: result,
         studentId: state.currentStudent
@@ -3596,9 +3933,26 @@ SADECE şu JSON formatında döndür, başka hiçbir şey yazma:
         Toplam: ${total}% ${total !== 100 ? '(100 olmalı)' : '✓'}
       </div>`;
       
+      if (ev.context) {
+        const ctxLabels = {
+          intent: {intentional:'Kasıtlı', impulsive:'Dürtüsel', accidental:'Kazara'},
+          harm: {none:'Zarar yok', low:'Hafif', medium:'Orta', high:'Yüksek'},
+          repetition: {first_time:'İlk kez', occasional:'Ara sıra', recurring:'Tekrar eden'},
+          remorse: {shown:'Pişman', absent:'Yok', unclear:'Belirsiz'}
+        };
+        html += `<div class="card" style="margin-bottom:10px;background:rgba(20,184,166,0.05);border-color:rgba(20,184,166,0.2)">
+          <div style="font-size:11px;color:var(--teal);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">🔍 AI Bağlam Analizi</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            ${ev.context.intent ? '<span class="chip" style="background:rgba(99,102,241,0.12);color:var(--indigo)">Niyet: ' + (ctxLabels.intent[ev.context.intent] || ev.context.intent) + '</span>' : ''}
+            ${ev.context.harm ? '<span class="chip" style="background:rgba(245,158,11,0.12);color:var(--amber)">Zarar: ' + (ctxLabels.harm[ev.context.harm] || ev.context.harm) + '</span>' : ''}
+            ${ev.context.repetition ? '<span class="chip" style="background:rgba(99,102,241,0.12);color:var(--indigo)">Sıklık: ' + (ctxLabels.repetition[ev.context.repetition] || ev.context.repetition) + '</span>' : ''}
+            ${ev.context.remorse ? '<span class="chip" style="background:rgba(16,185,129,0.12);color:var(--emerald)">Pişmanlık: ' + (ctxLabels.remorse[ev.context.remorse] || ev.context.remorse) + '</span>' : ''}
+          </div>
+        </div>`;
+      }
       if (ev.explanation) {
         html += `<div class="card" style="margin-bottom:14px;background:rgba(99,102,241,0.06);border-color:rgba(99,102,241,0.2)">
-          <div style="font-size:11px;color:var(--indigo);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">🤖 AI Açıklaması</div>
+          <div style="font-size:11px;color:var(--indigo);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">🤖 Pedagojik Açıklama</div>
           <div style="font-size:12.5px;line-height:1.5">${escapeHTML(ev.explanation)}</div>
         </div>`;
       }
@@ -4259,7 +4613,7 @@ SADECE şu JSON formatında döndür, başka hiçbir şey yazma:
       </div>
       
       <div class="footer">
-        Maarif Gelişim Asistanı · v0.3.0.1 · ${new Date().toLocaleString('tr-TR')}<br>
+        Maarif Gelişim Asistanı · v0.4.0 · ${new Date().toLocaleString('tr-TR')}<br>
         Bu rapor öğretmen tarafından kaydedilen kanıta dayalı gözlemlerden oluşturulmuştur.
       </div>
       <scr` + `ipt>setTimeout(function(){window.print();},800);</scr` + `ipt>
