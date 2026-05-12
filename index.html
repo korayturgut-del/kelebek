@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0a0b0e">
-<title>Maarif · Gelişim Asistanı v0.5.0</title>
+<title>Maarif · Gelişim Asistanı v0.6.0</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>if(typeof pdfjsLib!=="undefined"){pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";}</script>
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <style>
 /* ════════════════════════════════════════════════════════
-   MAARİF v0.5.0 — Modüler, Bağımsız Uygulama
+   MAARİF v0.6.0 — Modüler, Bağımsız Uygulama
    "Banking-grade" UX · Türkiye Yüzyılı Maarif Modeli
    ═══════════════════════════════════════════════════════ */
 
@@ -1244,7 +1244,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
   <div class="login" id="login-screen">
     <div class="login-mark">Maarif</div>
     <div class="login-tagline">Gelişim Asistanı</div>
-    <div class="login-version">v0.5.0 · Türkiye Yüzyılı Maarif Modeli</div>
+    <div class="login-version">v0.6.0 · Türkiye Yüzyılı Maarif Modeli</div>
 
     <div id="google-login-target"></div>
     <div id="login-error" class="login-error hidden"></div>
@@ -1353,7 +1353,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
     </div>
 
     <div style="text-align:center;color:var(--text-3);font-size:11px;margin:32px 0 20px;letter-spacing:0.05em">
-      Maarif v0.5.0 · 11 Mayıs 2026
+      Maarif v0.6.0 · 11 Mayıs 2026
     </div>
   </div>
 
@@ -2426,6 +2426,20 @@ KURALLAR:
         impactRange: [-5, -2],
         polarity: 'negative'
       },
+      social_mocking: {
+        // Alay etme — düşene gülme, hatayla dalga geçme
+        domains: ['sosyal'],
+        allowed: [
+          {category:'egilim_sosyal', item:'Empati', priority:5, direction:'negative'},
+          {category:'cati', item:'Saygı', priority:5, direction:'negative'},
+          {category:'karakter', item:'Merhametli', priority:5, direction:'negative'},
+          {category:'egilim_sosyal', item:'Sorumluluk (Sosyal)', priority:4, direction:'negative'},
+          {category:'karakter', item:'Ahlaklı', priority:3, direction:'negative'}
+        ],
+        blocked: ['Yaratıcılık', 'Estetik', 'Bilge', 'Üretken', 'Merak', 'Oyunseverlik'],
+        impactRange: [-4, -2],
+        polarity: 'negative'
+      },
       physical_protective: {
         domains: ['sosyal', 'karakter'],
         allowed: [
@@ -2484,6 +2498,20 @@ KURALLAR:
         ],
         blocked: ['Yaratıcılık', 'Bilge', 'Merhametli', 'Estetik'],
         impactRange: [-4, -1],
+        polarity: 'negative'
+      },
+      classroom_disruption: {
+        // Sürekli konuşma, gürültü, sınıf düzenini bozma
+        domains: ['sosyal', 'akademik'],
+        allowed: [
+          {category:'egilim_entelektuel', item:'Odaklanma', priority:5, direction:'negative'},
+          {category:'cati', item:'Saygı', priority:5, direction:'negative'},
+          {category:'egilim_sosyal', item:'Sorumluluk (Sosyal)', priority:4, direction:'negative'},
+          {category:'cati', item:'Sorumluluk', priority:4, direction:'negative'},
+          {category:'egilim_benlik', item:'Öz Yeterlilik', priority:3, direction:'negative'}
+        ],
+        blocked: ['Yaratıcılık', 'Bilge', 'Merhametli', 'Estetik', 'Empati'],
+        impactRange: [-4, -2],
         polarity: 'negative'
       },
       academic_passivity: {
@@ -2787,6 +2815,13 @@ KURALLAR:
     },
 
     /* AI ile serbest yazı analizi (Hybrid: AI + Rule Engine) */
+    /* ═══════════════════════════════════════════════
+       MULTI-EVENT PIPELINE
+       Stage 0: Event Splitter  → çoklu olay tespit eder
+       Stage 1-3: Her olay için ayrı (context → rule → weight)
+       Stage 4: Merge Engine    → tek özet, ayrı kayıtlar
+       Stage 5: Validator       → güvenlik
+       ═══════════════════════════════════════════════ */
     async analyzeWithAI(observation) {
       const corrections = daily.getCorrections();
       const examples = corrections.slice(0, 5).map(c => 
@@ -2794,77 +2829,205 @@ KURALLAR:
       ).join('\n\n');
       
       // ═════════════════════════════════════════════
-      // STAGE 1: CONTEXT DETECTION (AI bağlamı analiz eder, kriter SEÇMEZ)
+      // STAGE 0: EVENT SPLITTER
+      // Tek metinden 1-N olay ayrıştır
       // ═════════════════════════════════════════════
+      const splitterPrompt = `MAARIF EVENT SPLITTER
+
+You parse a teacher's observation text into DISTINCT behavioral events.
+
+CRITICAL RULES:
+1. Each event is a SEPARATE behavior with its own pedagogical meaning.
+2. Do NOT split context (zaman/yer) into separate events. Only split DIFFERENT BEHAVIORS.
+3. If only ONE behavior is described, return ONE event.
+4. Max 5 events per observation.
+5. Each event must be a clear, standalone behavior.
+
+EXAMPLES:
+
+Input: "Bugün arkadaşına yardım etti."
+Output: 1 event (single behavior)
+
+Input: "Düşen arkadaşına güldü, ödevini yapmamış, derste sürekli konuşuyor."
+Output: 3 events (mocking + neglect + disruption — 3 DIFFERENT behaviors)
+
+Input: "Sınıfta arkadaşıyla konuşurken sürekli güldü."
+Output: 1 event (single behavior — same context)
+
+Input: "Önce kitabı paylaştı, sonra arkadaşına yardım etti, sonra sırasını verdi."
+Output: 3 events (3 distinct prosocial acts)
+
+Input: "Deney düzeneğini kurarken arkadaşına da yardım etti."
+Output: 1 event (single multi-domain behavior — academic_help)
+
+OUTPUT ONLY JSON:
+{
+  "events": [
+    {"text": "tam orijinal kısım (Türkçe)", "summary": "3-5 kelime özet"},
+    ...
+  ]
+}`;
+      
+      let splitResult;
+      try {
+        const r0 = await fetch(CONFIG.AI_WORKER, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemPrompt: splitterPrompt,
+            userPrompt: `Teacher observation: "${observation}"`,
+            jsonMode: true,
+            temperature: 0.0,  // deterministik
+            model: 'gemini-2.5-flash',
+            maxOutputTokens: 800
+          })
+        });
+        if (!r0.ok) throw new Error('Stage0 HTTP ' + r0.status);
+        const j0 = await r0.json();
+        const t0 = (j0.text || '').replace(/```json/g,'').replace(/```/g,'').trim();
+        splitResult = JSON.parse(t0);
+      } catch(e) {
+        console.warn('Stage 0 hata, fallback to single event:', e);
+        splitResult = { events: [{ text: observation, summary: observation.slice(0, 40) }] };
+      }
+      
+      const events = splitResult.events || [{ text: observation, summary: observation.slice(0, 40) }];
+      if (events.length === 0) events.push({ text: observation, summary: observation.slice(0, 40) });
+      
+      // ═════════════════════════════════════════════
+      // STAGES 1-3: HER OLAY İÇİN AYRI PIPELINE
+      // ═════════════════════════════════════════════
+      const analyzedEvents = [];
+      for (const evt of events) {
+        const result = await daily._analyzeSingleEvent(evt.text, examples);
+        if (result) {
+          analyzedEvents.push({
+            ...result,
+            originalText: evt.text,
+            summary: evt.summary
+          });
+        }
+      }
+      
+      if (analyzedEvents.length === 0) return null;
+      
+      // ═════════════════════════════════════════════
+      // STAGE 4: MERGE — özet sonuç + ayrı olaylar
+      // ═════════════════════════════════════════════
+      // Toplam puan etkisi = tüm olayların toplamı
+      const totalImpact = analyzedEvents.reduce((s, e) => s + (e.scoreImpact || 0), 0);
+      
+      // Çoklu olaylarda label birleştir
+      const combinedLabel = analyzedEvents.length === 1 
+        ? analyzedEvents[0].label 
+        : analyzedEvents.length + ' davranış: ' + analyzedEvents.map(e => e.label).join(' · ').slice(0, 80);
+      
+      // Polarity: tüm olaylar negatif/pozitif/karışık mı?
+      const allNeg = analyzedEvents.every(e => e.polarity === 'negative');
+      const allPos = analyzedEvents.every(e => e.polarity === 'positive');
+      const combinedPolarity = allNeg ? 'negative' : allPos ? 'positive' : 'mixed';
+      
+      // Tüm domain'leri birleştir
+      const allDomains = new Set();
+      analyzedEvents.forEach(e => (e.domains || []).forEach(d => allDomains.add(d)));
+      
+      // Confidence: en düşük olanı al (zincirin en zayıf halkası)
+      const minConfidence = Math.min(...analyzedEvents.map(e => e.confidence || 0.5));
+      
+      return {
+        // Çoklu olay özeti
+        isMultiEvent: analyzedEvents.length > 1,
+        eventCount: analyzedEvents.length,
+        events: analyzedEvents,         // Ayrı ayrı her olay
+        
+        // Summary (ana özetlerin birleşimi — UI için)
+        polarity: combinedPolarity,
+        scoreImpact: totalImpact,
+        label: combinedLabel,
+        criteria: analyzedEvents[0].criteria || [],  // İlk olayın kriterleri (özet için)
+        explanation: analyzedEvents.map((e,i) => 
+          (analyzedEvents.length > 1 ? `[${i+1}] ` : '') + (e.explanation || '')
+        ).filter(s => s.trim()).join(' '),
+        behaviorType: analyzedEvents[0].behaviorType,
+        context: analyzedEvents[0].context,
+        domains: Array.from(allDomains),
+        confidence: minConfidence,
+        needsReview: minConfidence < daily.CONFIDENCE_THRESHOLD,
+        source: 'hybrid-multi'
+      };
+    },
+    
+    /* Tek bir olayı analiz eden helper (eski analyzeWithAI mantığı) */
+    async _analyzeSingleEvent(observation, examples) {
+      // ─── STAGE 1: CONTEXT DETECTION ───
       const contextSystemPrompt = `MAARIF PEDAGOGICAL DECISION ENGINE — STAGE 1: CONTEXT DETECTION
 
-You are a behavior classifier. Output ONLY structured context. NO criteria selection, NO weights.
+You are a behavior classifier. Output ONLY structured context.
 
-STEP 1 — Detect behavior type (choose ONE):
+STEP 1 — Detect behavior type (ONE):
 
 DISIPLIN / SOSYAL (negatif):
-- physical_conflict     : itme, vurma, çekme, dövme (saldırgan fiziksel)
-- physical_protective   : düşmesin diye tutma, koruma (POZİTİF)
+- physical_conflict     : itme, vurma, çekme, dövme
+- physical_protective   : düşmesin diye tutma (POZİTİF)
 - verbal_conflict       : hakaret, alay, lakap, küfür
-- bullying              : sistemli zorbalık, sürekli rahatsız etme
+- social_mocking        : alay etme, gülme (başkasının düşüşüne, hatasına gülmek)
+- bullying              : sistemli zorbalık
 - disorder              : sıra/düzen bozma, eşyaya zarar
 
 AKADEMİK (negatif):
-- academic_neglect      : kitap getirmeme, ödev yapmama, hazırlıksız
-- inattention           : derste konuşma, telefon, dalmak, uyumak
-- academic_passivity    : derste çekingen, soru sormaya korkma
-- dishonesty            : kopya, yalan, kandırma (karakter+akademik)
+- academic_neglect      : kitap, ödev, hazırlıksız
+- inattention           : konuşma, telefon, dalmak
+- classroom_disruption  : sürekli konuşma, gürültü (sınıfı bozma)
+- academic_passivity    : çekingen, soru sormaktan kaçınma
+- dishonesty            : kopya, yalan
 
 AKADEMİK (pozitif):
-- active_participation  : derse aktif katılım, parmak kaldırma
-- critical_thinking     : sorgulama, analiz, mantıksal çıkarım
-- creative_work         : YARATICI ÜRÜN (gerçek sanat, özgün fikir, yenilik)
-- scientific_inquiry    : bilimsel sorgulama, deney, hipotez
-- academic_achievement  : çalışma sonucu başarı (sınav, ödev)
+- active_participation  : aktif katılım, parmak kaldırma
+- critical_thinking     : sorgulama, analiz
+- creative_work         : YARATICI ÜRÜN (gerçek)
+- scientific_inquiry    : bilimsel sorgulama, deney
+- academic_achievement  : çalışma sonucu başarı
 
 SOSYAL (pozitif):
-- prosocial             : yardım, paylaşma (genel)
-- academic_help         : AKADEMİK KONUDA yardım (deney, ders, açıklama)
-- leadership            : grup yönetme, organize etme
+- prosocial             : yardım, paylaşma
+- academic_help         : AKADEMİK YARDIM (ders, deney, açıklama)
+- leadership            : grup yönetme
 
 KARAKTER (pozitif):
-- self_correction       : telafi, özür, hatasını düzeltme
-- effort                : zorluğa rağmen çabalama, azim
+- self_correction       : telafi, özür
+- effort                : zorluğa rağmen azim
 
 HİBRİT:
-- conflict_with_repair  : çatışma + ardından telafi/özür (KARMAŞIK ama VALUABLE)
+- conflict_with_repair  : çatışma + telafi
 
 DİĞER:
-- neutral               : belirsiz, hiçbir kategoriye uymaz
+- neutral
 
-STEP 2 — Determine context:
+STEP 2:
 - valence: positive | negative | neutral | mixed
 - intent: intentional | impulsive | accidental | unclear
-- severity: low | medium | high     ← ŞİDDET SEVİYESİ (hafif dürtme=low, sinirli itme=medium, yere düşürme=high)
-- harm: none | low | medium | high  ← ZARAR SEVİYESİ
+- severity: low | medium | high
+- harm: none | low | medium | high
 - repetition: first_time | occasional | recurring | unclear
 - remorse: shown | absent | unclear
+- domains: 1-3 from ["akademik","sosyal","karakter"]
 
-STEP 3 — Domain tags (multi-domain mümkün):
-- domains: 1-3 tane seç: ["akademik", "sosyal", "karakter"]
-- Örnek: "deney düzeneğinde arkadaşına yardım etti" → ["akademik", "sosyal"]
+STEP 3 — Safety: NO personality labels. BEHAVIOR + developmental need only.
 
-STEP 4 — Safety: NEVER label personality ("problemli", "agresif", "ahlaksız"). Only describe BEHAVIOR.
+${examples ? 'TEACHER PAST CORRECTIONS:\\n' + examples + '\\n\\n' : ''}
 
-${examples ? 'ÖĞRETMEN ÖNCEKİ DÜZELTMELERİ:\\n' + examples + '\\n\\n' : ''}
-
-OUTPUT ONLY JSON, no other text:
+OUTPUT JSON:
 {
-  "behaviorType": "physical_conflict",
-  "valence": "negative",
-  "intent": "impulsive",
-  "severity": "medium",
-  "harm": "medium",
-  "repetition": "first_time",
-  "remorse": "absent",
-  "domains": ["sosyal"],
-  "label": "3-5 kelimelik özet (Türkçe)",
-  "developmentalNote": "Pedagojik gözlem (Türkçe, kişilik etiketi yok, sadece davranış ve gelişim ihtiyacı)"
+  "behaviorType": "...",
+  "valence": "...",
+  "intent": "...",
+  "severity": "...",
+  "harm": "...",
+  "repetition": "...",
+  "remorse": "...",
+  "domains": [...],
+  "label": "3-5 kelime özet",
+  "developmentalNote": "Pedagojik gözlem"
 }`;
       
       let contextResult;
@@ -2890,9 +3053,7 @@ OUTPUT ONLY JSON, no other text:
         return null;
       }
       
-      // ═════════════════════════════════════════════
-      // STAGE 2: RULE ENGINE — izin verilen kriterleri al
-      // ═════════════════════════════════════════════
+      // ─── STAGE 2: RULE ENGINE ───
       const behaviorType = contextResult.behaviorType || 'neutral';
       const allowedCriteria = daily.getAllowedCriteria(behaviorType, contextResult);
       const computedImpact = daily.computeImpact(behaviorType, contextResult);
@@ -2906,13 +3067,13 @@ OUTPUT ONLY JSON, no other text:
           explanation: contextResult.developmentalNote || '',
           behaviorType: behaviorType,
           context: contextResult,
-          source: 'hybrid'
+          domains: contextResult.domains || [],
+          confidence: 0.4,
+          needsReview: true
         };
       }
       
-      // ═════════════════════════════════════════════
-      // STAGE 3: AI ağırlık dağıtımı — SADECE izin verilen kriterler arasından
-      // ═════════════════════════════════════════════
+      // ─── STAGE 3: AI WEIGHT DISTRIBUTION ───
       const top5 = allowedCriteria.slice(0, 5);
       const criteriaList = top5.map((cr, i) => 
         `${i+1}. ${cr.item} (kategori: ${cr.category}, öncelik: ${cr.priority}, yön: ${cr.direction || 'neutral'})`
@@ -2920,8 +3081,6 @@ OUTPUT ONLY JSON, no other text:
       const blockedList = daily.getBlockedCriteria(behaviorType);
       
       const weightSystemPrompt = `MAARIF PEDAGOGICAL DECISION ENGINE — STAGE 2: WEIGHT DISTRIBUTION
-
-Distribute weights to MAARIF criteria based on context.
 
 CONTEXT:
 - Behavior: ${behaviorType}
@@ -2931,33 +3090,24 @@ CONTEXT:
 - Harm: ${contextResult.harm}
 - Domains: ${(contextResult.domains || []).join(', ')}
 
-ALLOWED CRITERIA (only choose from these — with their direction):
+ALLOWED CRITERIA (with direction, ONLY from this list):
 ${criteriaList}
 
-BLOCKED (NEVER use these): ${blockedList.join(', ') || 'none'}
+BLOCKED (NEVER use): ${blockedList.join(', ') || 'none'}
 
 RULES:
-1. Choose 2-4 criteria from the ALLOWED list ONLY.
-2. Higher priority criteria should generally get higher weights, but use judgment.
-3. Total weight MUST equal 100.
-4. Min weight 15, max 60.
-5. Provide "direction" for each criterion: "positive" (gelişiyor) | "negative" (eksiklik) | "mixed" (her ikisi de var).
-6. If domains is multi-domain, distribute across domains (don't bunch up in one).
+1. Choose 2-4 criteria from ALLOWED list ONLY.
+2. Higher priority → higher weight (use judgment).
+3. Total weight = 100 exactly.
+4. Min 15, max 60.
+5. Provide direction per criterion.
 
-EXPLANATION GUIDELINES:
-- 1-2 cümle Türkçe
-- KİŞİLİK ETİKETİ YASAK ("problemli", "agresif", "uyumsuz")
-- Davranış + gelişim ihtiyacı dili kullan
-- Müfettiş/veliye savunulabilir olmalı
-
-OUTPUT ONLY JSON:
+OUTPUT JSON:
 {
   "criteria": [
-    {"category":"cati", "item":"Saygı", "weight":50, "direction":"negative"},
-    {"category":"egilim_sosyal", "item":"Empati", "weight":35, "direction":"negative"},
-    {"category":"karakter", "item":"Ahlaklı", "weight":15, "direction":"negative"}
+    {"category":"...", "item":"...", "weight":N, "direction":"positive|negative|mixed"}
   ],
-  "explanation": "Pedagojik açıklama"
+  "explanation": "1-2 cümle Türkçe pedagojik açıklama, kişilik etiketi yok"
 }`;
       
       let weightResult;
@@ -2985,15 +3135,14 @@ OUTPUT ONLY JSON:
           criteria: top3.map((cr, i) => ({
             category: cr.category,
             item: cr.item,
-            weight: i === 0 ? 50 : i === 1 ? 30 : 20
+            weight: i === 0 ? 50 : i === 1 ? 30 : 20,
+            direction: cr.direction || (contextResult.valence === 'positive' ? 'positive' : 'negative')
           })),
           explanation: contextResult.developmentalNote || ''
         };
       }
       
-      // ═════════════════════════════════════════════
-      // STAGE 4: VALIDATION — AI sapmasın, rule engine'i zorunla
-      // ═════════════════════════════════════════════
+      // ─── STAGE 4: VALIDATION ───
       const allowedSet = new Set(allowedCriteria.map(c => c.category + '|' + c.item));
       let validCriteria = (weightResult.criteria || []).filter(c => 
         allowedSet.has(c.category + '|' + c.item)
@@ -3004,11 +3153,12 @@ OUTPUT ONLY JSON:
         validCriteria = top3.map((cr, i) => ({
           category: cr.category,
           item: cr.item,
-          weight: i === 0 ? 50 : i === 1 ? 30 : 20
+          weight: i === 0 ? 50 : i === 1 ? 30 : 20,
+          direction: cr.direction || 'negative'
         }));
       }
       
-      // Normalize total to 100
+      // Normalize to 100
       const total = validCriteria.reduce((s,c) => s + (c.weight || 0), 0);
       if (total !== 100 && total > 0) {
         const ratio = 100 / total;
@@ -3020,9 +3170,7 @@ OUTPUT ONLY JSON:
         }
       }
       
-      // Confidence score
       const confidence = daily.computeConfidence(contextResult, validCriteria, allowedCriteria);
-      const needsReview = confidence < daily.CONFIDENCE_THRESHOLD;
       
       return {
         polarity: contextResult.valence === 'positive' ? 'positive' : (contextResult.valence === 'negative' ? 'negative' : (contextResult.valence === 'mixed' ? 'mixed' : 'neutral')),
@@ -3034,9 +3182,8 @@ OUTPUT ONLY JSON:
         context: contextResult,
         domains: contextResult.domains || daily.getDomains(behaviorType),
         confidence: confidence,
-        needsReview: needsReview,
-        blocked: daily.getBlockedCriteria(behaviorType),
-        source: 'hybrid'
+        needsReview: confidence < daily.CONFIDENCE_THRESHOLD,
+        blocked: daily.getBlockedCriteria(behaviorType)
       };
     }
   };
@@ -4110,26 +4257,55 @@ OUTPUT ONLY JSON:
     async applyAI() {
       const txt = document.getElementById('ds-free').value.trim();
       if (txt.length < 6) { ui.toast('En az birkaç kelime yazın', 'error'); return; }
-      ui.toast('AI analiz ediyor...', 'info');
+      ui.toast('🔍 AI olayları ayrıştırıyor...', 'info');
       const result = await daily.analyzeWithAI(txt);
       if (!result) { ui.toast('AI yanıt vermedi', 'error'); return; }
-      state._pendingEvent = {
-        observation: txt,
-        label: result.label || txt.slice(0, 40),
-        scoreImpact: result.scoreImpact || 0,
-        polarity: result.polarity,
-        criteria: result.criteria || [],
-        explanation: result.explanation,
-        behaviorType: result.behaviorType,
-        context: result.context,
-        domains: result.domains,
-        confidence: result.confidence,
-        needsReview: result.needsReview,
-        source: 'ai',
-        aiOriginal: result,
-        studentId: state.currentStudent
-      };
-      nav.go('daily-confirm');
+      
+      // Çoklu olay tespit edildi mi?
+      if (result.isMultiEvent && result.events && result.events.length > 1) {
+        // Her olayı ayrı pendingMulti'ye yaz
+        state._pendingMulti = {
+          originalObservation: txt,
+          events: result.events.map(ev => ({
+            observation: ev.originalText,
+            label: ev.label || ev.summary,
+            scoreImpact: ev.scoreImpact || 0,
+            polarity: ev.polarity,
+            criteria: ev.criteria || [],
+            explanation: ev.explanation,
+            behaviorType: ev.behaviorType,
+            context: ev.context,
+            domains: ev.domains || [],
+            confidence: ev.confidence,
+            needsReview: ev.needsReview,
+            source: 'ai',
+            aiOriginal: ev,
+            include: true   // Öğretmen toggle ile çıkarabilir
+          })),
+          studentId: state.currentStudent
+        };
+        ui.toast(`✓ ${result.events.length} farklı davranış tespit edildi`, 'success');
+        nav.go('daily-confirm-multi');
+      } else {
+        // Tek olay - eski akış
+        state._pendingEvent = {
+          observation: txt,
+          label: result.label || txt.slice(0, 40),
+          scoreImpact: result.scoreImpact || 0,
+          polarity: result.polarity,
+          criteria: result.criteria || [],
+          explanation: result.explanation,
+          behaviorType: result.behaviorType,
+          context: result.context,
+          domains: result.domains,
+          confidence: result.confidence,
+          needsReview: result.needsReview,
+          source: 'ai',
+          aiOriginal: result,
+          studentId: state.currentStudent
+        };
+        nav.go('daily-confirm');
+      }
     },
     deleteEvent(evId) {
       if (!confirm('Bu olayı silelim mi?')) return;
@@ -4284,11 +4460,151 @@ OUTPUT ONLY JSON:
         polarity: ev.polarity || (ev.scoreImpact >= 0 ? 'positive' : 'negative'),
         criteria: ev.criteria,
         source: ev.source,
-        templateId: ev.templateId
+        templateId: ev.templateId,
+        context: ev.context,
+        domains: ev.domains,
+        confidence: ev.confidence
       });
       
       state._pendingEvent = null;
       ui.toast('✓ Olay kaydedildi', 'success');
+      nav.back();
+    }
+  };
+  
+  // ─── DAILY CONFIRM MULTI: çoklu olay onay ekranı ───
+  pages['daily-confirm-multi'] = {
+    title: 'Çoklu Olay',
+    render() {
+      const pm = state._pendingMulti;
+      if (!pm || !pm.events) return '<div class="empty">Olay yok</div>';
+      
+      const s = data.getStudent(pm.studentId);
+      const includedEvents = pm.events.filter(e => e.include);
+      const totalImpact = includedEvents.reduce((sum, e) => sum + (e.scoreImpact || 0), 0);
+      const impactColor = totalImpact >= 0 ? 'var(--emerald)' : 'var(--rose)';
+      const impactStr = (totalImpact >= 0 ? '+' : '') + totalImpact;
+      
+      let html = `<div class="card" style="margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+          <div class="student-avatar" style="width:40px;height:40px;font-size:14px">${(s.ad||'?').charAt(0).toUpperCase()}</div>
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:14px">${escapeHTML(s.ad)}</div>
+            <div style="font-size:11.5px;color:var(--text-2)">${escapeHTML(s.class)}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:${impactColor};line-height:1">${impactStr}</div>
+            <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px">Net Etki</div>
+          </div>
+        </div>
+        <div style="padding:8px 12px;background:var(--bg-2);border-radius:8px;font-size:11.5px;color:var(--text-2);font-style:italic">
+          "${escapeHTML(pm.originalObservation)}"
+        </div>
+      </div>`;
+      
+      html += `<div class="card" style="margin-bottom:12px;background:rgba(99,102,241,0.06);border-color:rgba(99,102,241,0.2)">
+        <div style="font-size:12px;color:var(--indigo);font-weight:700;margin-bottom:4px">🔍 AI ${pm.events.length} farklı davranış tespit etti</div>
+        <div style="font-size:11.5px;color:var(--text-2);line-height:1.5">Her olay AYRI kayıt olarak kaydedilecek. İstemediğinizi kapatabilirsiniz.</div>
+      </div>`;
+      
+      pm.events.forEach((ev, idx) => {
+        const evColor = (ev.scoreImpact || 0) >= 0 ? 'var(--emerald)' : 'var(--rose)';
+        const evStr = ((ev.scoreImpact || 0) >= 0 ? '+' : '') + (ev.scoreImpact || 0);
+        const opacity = ev.include ? '1' : '0.45';
+        const domain = (ev.domains || []).join(' · ') || '—';
+        
+        html += `<div class="card" style="margin-bottom:10px;opacity:${opacity};border-left:3px solid ${evColor}">
+          <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px">
+            <input type="checkbox" ${ev.include ? 'checked' : ''} 
+                   onchange="Maarif.pages['daily-confirm-multi'].toggleInclude(${idx})"
+                   style="width:22px;height:22px;accent-color:var(--indigo);cursor:pointer;flex-shrink:0;margin-top:2px">
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;justify-content:space-between;align-items:start;gap:8px;margin-bottom:4px">
+                <div style="font-weight:700;font-size:14px;line-height:1.3">${escapeHTML(ev.label)}</div>
+                <div style="font-family:var(--font-display);font-weight:800;font-size:18px;color:${evColor};flex-shrink:0">${evStr}</div>
+              </div>
+              <div style="font-size:11px;color:var(--text-3);margin-bottom:6px">${domain}${ev.confidence ? ' · Güven %' + Math.round(ev.confidence*100) : ''}</div>
+              <div style="font-size:12.5px;color:var(--text-2);font-style:italic;margin-bottom:8px;line-height:1.4">"${escapeHTML(ev.observation)}"</div>
+              
+              <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
+                ${(ev.criteria || []).map(cr => 
+                  `<span class="chip" style="font-size:10.5px">${escapeHTML(cr.item)} ${cr.weight}%</span>`
+                ).join('')}
+              </div>
+              
+              ${ev.explanation ? `<div style="font-size:11.5px;color:var(--text-3);line-height:1.5;padding:6px 8px;background:var(--bg-2);border-radius:6px">${escapeHTML(ev.explanation)}</div>` : ''}
+              
+              <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
+                <label style="font-size:11px;color:var(--text-3)">Etki:</label>
+                <input type="number" min="-10" max="10" value="${ev.scoreImpact || 0}" 
+                       onchange="Maarif.pages['daily-confirm-multi'].updateImpact(${idx}, this.value)"
+                       style="width:60px;background:var(--bg-2);border:1px solid var(--line-2);border-radius:6px;padding:4px 8px;text-align:center;font-weight:700;color:var(--text)">
+                ${ev.needsReview ? '<span style="font-size:10px;color:var(--amber);font-weight:700">⚠️ Düşük güven</span>' : ''}
+              </div>
+            </div>
+          </div>
+        </div>`;
+      });
+      
+      html += `<div style="display:flex;gap:8px;margin-top:14px">
+        <button class="btn btn-primary" onclick="Maarif.pages['daily-confirm-multi'].saveAll()" style="flex:2">
+          ✓ ${includedEvents.length} Olayı Kaydet
+        </button>
+        <button class="btn btn-secondary" onclick="Maarif.nav.back()" style="flex:1">İptal</button>
+      </div>`;
+      
+      return html;
+    },
+    toggleInclude(idx) {
+      const pm = state._pendingMulti;
+      if (!pm || !pm.events[idx]) return;
+      pm.events[idx].include = !pm.events[idx].include;
+      nav._render('daily-confirm-multi');
+    },
+    updateImpact(idx, val) {
+      const pm = state._pendingMulti;
+      if (!pm || !pm.events[idx]) return;
+      pm.events[idx].scoreImpact = parseInt(val) || 0;
+      nav._render('daily-confirm-multi');
+    },
+    saveAll() {
+      const pm = state._pendingMulti;
+      if (!pm) return;
+      const included = pm.events.filter(e => e.include);
+      if (included.length === 0) {
+        ui.toast('En az bir olay seçili olmalı', 'error');
+        return;
+      }
+      
+      included.forEach(ev => {
+        // AI öğrenme: değiştirildiyse kaydet
+        if (ev.source === 'ai' && ev.aiOriginal) {
+          const wasChanged = JSON.stringify(ev.aiOriginal.criteria) !== JSON.stringify(ev.criteria)
+                           || ev.aiOriginal.scoreImpact !== ev.scoreImpact;
+          if (wasChanged) {
+            daily.saveCorrection(ev.observation, ev.aiOriginal, {
+              criteria: ev.criteria,
+              scoreImpact: ev.scoreImpact
+            });
+          }
+        }
+        
+        daily.addEvent(pm.studentId, {
+          label: ev.label,
+          observation: ev.observation,
+          scoreImpact: ev.scoreImpact || 0,
+          polarity: ev.polarity || (ev.scoreImpact >= 0 ? 'positive' : 'negative'),
+          criteria: ev.criteria,
+          source: 'ai-split',
+          context: ev.context,
+          domains: ev.domains,
+          confidence: ev.confidence,
+          multiEventGroup: pm.originalObservation.slice(0, 80) // grup etiketi
+        });
+      });
+      
+      state._pendingMulti = null;
+      ui.toast(`✓ ${included.length} olay kaydedildi`, 'success');
       nav.back();
     }
   };
@@ -4898,7 +5214,7 @@ OUTPUT ONLY JSON:
       </div>
       
       <div class="footer">
-        Maarif Gelişim Asistanı · v0.5.0 · ${new Date().toLocaleString('tr-TR')}<br>
+        Maarif Gelişim Asistanı · v0.6.0 · ${new Date().toLocaleString('tr-TR')}<br>
         Bu rapor öğretmen tarafından kaydedilen kanıta dayalı gözlemlerden oluşturulmuştur.
       </div>
       <scr` + `ipt>setTimeout(function(){window.print();},800);</scr` + `ipt>
