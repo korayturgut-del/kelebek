@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0a0b0e">
-<title>Maarif · Gelişim Asistanı v0.6.0</title>
+<title>Maarif · Gelişim Asistanı v0.7.0</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>if(typeof pdfjsLib!=="undefined"){pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";}</script>
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <style>
 /* ════════════════════════════════════════════════════════
-   MAARİF v0.6.0 — Modüler, Bağımsız Uygulama
+   MAARİF v0.7.0 — Modüler, Bağımsız Uygulama
    "Banking-grade" UX · Türkiye Yüzyılı Maarif Modeli
    ═══════════════════════════════════════════════════════ */
 
@@ -145,7 +145,10 @@ input, textarea, select { font-family: inherit; color: inherit; }
   inset: 0;
   max-width: 480px;
   margin: 0 auto;
-  background: radial-gradient(ellipse at top, rgba(99,102,241,0.12) 0%, var(--bg) 60%);
+  background: 
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(244,114,182,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 50% 100%, rgba(99,102,241,0.10) 0%, transparent 70%),
+    var(--bg);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -156,13 +159,14 @@ input, textarea, select { font-family: inherit; color: inherit; }
 .login-mark {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 64px;
-  background: linear-gradient(135deg, #6366f1 0%, #14b8a6 100%);
+  font-size: 56px;
+  background: linear-gradient(135deg, #f472b6 0%, #6366f1 50%, #14b8a6 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   letter-spacing: -0.03em;
+  text-align: center;
 }
 .login-tagline {
   color: var(--text-2);
@@ -1242,25 +1246,28 @@ input, textarea, select { font-family: inherit; color: inherit; }
 
   <!-- ═══════ LOGIN SCREEN ═══════ -->
   <div class="login" id="login-screen">
+    <div class="login-welcome-emoji" style="font-size:42px;margin-bottom:8px">🌸</div>
     <div class="login-mark">Maarif</div>
-    <div class="login-tagline">Gelişim Asistanı</div>
-    <div class="login-version">v0.6.0 · Türkiye Yüzyılı Maarif Modeli</div>
+    <div class="login-tagline" style="font-size:14px;color:var(--text-2);line-height:1.5;text-align:center;max-width:320px;margin:8px auto 4px">
+      Öğrencinizin gelişimini ışıkla<br>kayıt altına almak için tasarlandı.
+    </div>
+    <div class="login-version" style="margin-top:18px;margin-bottom:32px">v0.7.0</div>
 
     <div id="google-login-target"></div>
     <div id="login-error" class="login-error hidden"></div>
 
     <div class="login-features">
       <div class="login-feature">
-        <div class="login-feature-icon">🌳</div>
-        <span>Çatı Değerler · 21 Eğilim · Karakter</span>
+        <div class="login-feature-icon">🌱</div>
+        <span>Her öğrencinin hikayesi değerli</span>
       </div>
       <div class="login-feature">
-        <div class="login-feature-icon">📋</div>
-        <span>Kanıt temelli süreç değerlendirmesi</span>
+        <div class="login-feature-icon">✨</div>
+        <span>Hızlı, sezgisel, akıllı</span>
       </div>
       <div class="login-feature">
-        <div class="login-feature-icon">☁️</div>
-        <span>Google Drive üzerinde güvenli</span>
+        <div class="login-feature-icon">🔒</div>
+        <span>Verileriniz sadece sizin</span>
       </div>
     </div>
   </div>
@@ -1353,7 +1360,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
     </div>
 
     <div style="text-align:center;color:var(--text-3);font-size:11px;margin:32px 0 20px;letter-spacing:0.05em">
-      Maarif v0.6.0 · 11 Mayıs 2026
+      Maarif v0.7.0 · 11 Mayıs 2026
     </div>
   </div>
 
@@ -1978,46 +1985,84 @@ Sınav kağıdındaki öğrenci bilgisini bul ve listeyle eşleştir.`;
       const questions = answerKey.questions || [];
       const totalPossible = questions.reduce((s, q) => s + (q.pts || 0), 0);
       
-      const systemPrompt = `Sen Türk eğitim sistemine hakim, deneyimli bir öğretmensin. Görseldeki yazılı sınav kağıdını dikkatlice oku ve cevap anahtarına göre puanla.
+      // Cevap anahtarı görsel mi içeriyor?
+      const answerImages = questions.filter(q => q.answerImage).map(q => q.answerImage);
+      const hasOpenEnded = questions.some(q => q.openEnded);
+      
+      const systemPrompt = `MAARIF EXAM EVALUATION ENGINE
+
+Sen Türk eğitim sistemine hakim, deneyimli bir öğretmensin. Görseldeki yazılı sınav kağıdını OKURKEN üç şey yapacaksın:
+1. Her cevabı puanla
+2. Açık uçlu sorularda BASAMAK/İŞLEM atlamasını uyar
+3. Öğrencinin yazısından Maarif Modeli süreç değerlendirmesi çıkar
 
 CEVAP ANAHTARI:
-${questions.map(q => `Soru ${q.n} (${q.pts} puan): ${q.q || '(Sorulan)'}\nDoğru cevap: ${q.a}`).join('\n\n')}
+${questions.map(q => 
+  `Soru ${q.n} (${q.pts} puan)${q.openEnded ? ' [AÇIK UÇLU — basamak takip et]' : ''}: ${q.q || '(Sorulan)'}\nDoğru cevap: ${q.a}${q.answerImage ? '\n(Görsel cevap anahtarı da eklendi)' : ''}`
+).join('\n\n')}
 
 TOPLAM: ${totalPossible} puan
 
-KURALLAR:
-- El yazısını dikkatlice oku. Belirsiz yerleri belirsiz olarak işaretle.
-- Her sorunun cevabını anahtarla karşılaştır.
-- Cevap kısmen doğruysa orantılı puan ver (örn: 10 puanlık soruda yarı doğru = 5).
-- Boş bırakılmışsa 0 ver.
-- Tamamen yanlışsa 0 ver.
-- Kısmi doğru için makul yumuşak değerlendir; ama yanlış bilgi varsa puan verme.
+PUANLAMA KURALLARI:
+- El yazısı/şekil/formül dikkatlice oku. Matematik formüllerini LaTeX/Unicode mantığıyla anla.
+- Cevap KISMEN doğruysa orantılı puan ver.
+- Boş = 0. Yanlış bilgi = 0.
 
-ÇIKTI: SADECE JSON, başka metin yok:
+${hasOpenEnded ? `AÇIK UÇLU SORULAR İÇİN ÖZEL KURAL:
+- Eğer çözüm BASAMAKLI olması gerekiyorsa (matematik, fizik, kimya hesabı):
+  - Öğrenci direkt sonucu yazmışsa, "stepsMissing": true işaretle
+  - Sonuç doğru olsa bile, basamak yoksa puanın %20-30'unu kes
+  - Feedback'te "İşlem basamakları gösterilmemiş" uyarısı ekle
+- Öğretmen düşünme sürecini değerlendirebilsin diye basamak kritik` : ''}
+
+MAARİF SÜREÇ DEĞERLENDİRMESİ (her cevap için):
+Öğrencinin cevap yazma tarzından şu gözlemleri çıkar:
+- Düzen ve estetik (yazı düzeni, tertip)
+- Sistematiklik (mantıksal akış)
+- Çaba (uzun çözüm, dolu sayfa)
+- Yaratıcılık (özgün çözüm yolu varsa)
+- Eleştirel bakış (sorgulamış mı, alternatif düşünmüş mü)
+
+ÇIKTI SADECE JSON:
 {
   "answers": [
-    {"n":1, "studentAnswer":"...öğrencinin yazdığı...", "status":"correct|partial|wrong|blank", "score":10, "maxScore":10, "feedback":"Kısa açıklama"},
-    ...
+    {
+      "n":1, 
+      "studentAnswer":"...öğrencinin yazdığı...", 
+      "status":"correct|partial|wrong|blank", 
+      "score":10, 
+      "maxScore":10, 
+      "feedback":"Kısa açıklama (TR)",
+      "stepsMissing": false,
+      "maarifObservations": ["Sistematiklik: net", "Estetik: tertipli"]
+    }
   ],
   "totalScore": 78,
   "maxScore": 100,
-  "summary": "Genel değerlendirme: 1 cümle özet"
+  "summary": "Genel değerlendirme: 1-2 cümle özet (TR)",
+  "maarifSummary": {
+    "strengths": ["Sistematiklik", "Azim ve Kararlılık"],
+    "developmentAreas": ["Estetik"],
+    "explanation": "1-2 cümle pedagojik gözlem (TR, kişilik etiketi YOK)"
+  }
 }`;
       
       const userPrompt = `Bu yazılı kağıdını oku ve cevap anahtarına göre puanla.`;
       
       try {
+        // Cevap anahtarı görselleri varsa onları da ekle (öğrenci kağıdı + anahtar görselleri)
+        const allImages = [imageDataUrl, ...answerImages];
         const r = await fetch(CONFIG.AI_WORKER, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             systemPrompt: systemPrompt,
-            userPrompt: userPrompt,
-            images: [imageDataUrl],
+            userPrompt: userPrompt + (answerImages.length > 0 ? '\n\nNOT: İlk görsel öğrenci kağıdı, sonrakiler cevap anahtarı görselleridir.' : ''),
+            images: allImages,
             jsonMode: true,
             temperature: 0.2,
             model: 'gemini-2.5-pro',
-            maxOutputTokens: 4096
+            maxOutputTokens: 6000
           })
         });
         if (!r.ok) {
@@ -2914,8 +2959,24 @@ OUTPUT ONLY JSON:
       // ═════════════════════════════════════════════
       // STAGE 4: MERGE — özet sonuç + ayrı olaylar
       // ═════════════════════════════════════════════
-      // Toplam puan etkisi = tüm olayların toplamı
-      const totalImpact = analyzedEvents.reduce((s, e) => s + (e.scoreImpact || 0), 0);
+      // ═════════ MERGE: synergy multiplier ═════════
+      // Aynı yönde birden fazla olay → kümülatif etki (2+2 ≠ 4)
+      // Çünkü çocuğun günü tamamen iyiyse/kötüyse bütün > parçalar
+      const rawTotal = analyzedEvents.reduce((s, e) => s + (e.scoreImpact || 0), 0);
+      const negCount = analyzedEvents.filter(e => (e.scoreImpact||0) < 0).length;
+      const posCount = analyzedEvents.filter(e => (e.scoreImpact||0) > 0).length;
+      
+      let synergyMult = 1.0;
+      // Aynı yönde 2+ olay varsa, etki büyür
+      if (negCount >= 3) synergyMult = 1.35;       // 3+ negatif = ciddi gün
+      else if (negCount === 2) synergyMult = 1.20; // 2 negatif = zor gün
+      if (posCount >= 3) synergyMult = Math.max(synergyMult, 1.30); // 3+ pozitif
+      else if (posCount === 2) synergyMult = Math.max(synergyMult, 1.15);
+      
+      // Karışık (hem neg hem pos) ise synergy iptal (öğrenci zaten dengeli)
+      if (negCount > 0 && posCount > 0) synergyMult = 1.0;
+      
+      const totalImpact = Math.round(rawTotal * synergyMult);
       
       // Çoklu olaylarda label birleştir
       const combinedLabel = analyzedEvents.length === 1 
@@ -3096,11 +3157,14 @@ ${criteriaList}
 BLOCKED (NEVER use): ${blockedList.join(', ') || 'none'}
 
 RULES:
-1. Choose 2-4 criteria from ALLOWED list ONLY.
-2. Higher priority → higher weight (use judgment).
+1. Choose criteria from ALLOWED list ONLY. Use as MANY as truly apply — do NOT artificially limit to 2-4.
+   - If only 1 criterion fits, use 1.
+   - If 6 criteria genuinely apply, use 6.
+   - The number must reflect the behavior's pedagogical richness.
+2. Higher priority criteria generally get higher weights (use judgment).
 3. Total weight = 100 exactly.
-4. Min 15, max 60.
-5. Provide direction per criterion.
+4. Each weight: minimum 10, maximum 60.
+5. Provide direction per criterion: "positive" | "negative" | "mixed".
 
 OUTPUT JSON:
 {
@@ -3491,18 +3555,34 @@ OUTPUT JSON:
       const host = document.getElementById('ek-questions');
       let html = '';
       state._editingQuestions.forEach((q, idx) => {
+        const hasImage = q.answerImage ? true : false;
+        const imgPreview = hasImage 
+          ? `<div style="margin-top:8px;position:relative;display:inline-block">
+              <img src="${q.answerImage}" style="max-width:100%;max-height:120px;border-radius:8px;border:1px solid var(--line-2)">
+              <button onclick="Maarif.pages['exam-key-edit'].removeImage(${idx})" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.7);color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:12px">×</button>
+            </div>` 
+          : '';
         html += `
           <div class="card" style="margin-bottom:10px;padding:12px">
             <div class="exam-key-row">
               <div class="exam-key-q-num">${q.n}</div>
               <div>
                 <input class="input" placeholder="Soru metni (opsiyonel)" value="${escapeAttr(q.q||'')}" oninput="Maarif.pages['exam-key-edit'].updateQ(${idx},'q',this.value)" style="margin-bottom:6px">
-                <textarea class="textarea" placeholder="Doğru cevap" style="min-height:60px" oninput="Maarif.pages['exam-key-edit'].updateQ(${idx},'a',this.value)">${escapeHTML(q.a||'')}</textarea>
+                <textarea class="textarea" placeholder="Doğru cevap (metin)" style="min-height:60px" oninput="Maarif.pages['exam-key-edit'].updateQ(${idx},'a',this.value)">${escapeHTML(q.a||'')}</textarea>
+                ${imgPreview}
               </div>
               <input class="exam-key-pts" type="number" min="1" max="100" value="${q.pts}" oninput="Maarif.pages['exam-key-edit'].updateQ(${idx},'pts',parseInt(this.value)||0)">
             </div>
-            <div style="text-align:right">
-              <button onclick="Maarif.pages['exam-key-edit'].removeQuestion(${idx})" style="background:none;border:none;color:var(--rose);font-size:12px;padding:4px 0">🗑️ Sil</button>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+              <input type="checkbox" id="ek-open-${idx}" ${q.openEnded ? 'checked' : ''} onchange="Maarif.pages['exam-key-edit'].updateQ(${idx},'openEnded',this.checked)">
+              <label for="ek-open-${idx}" style="font-size:11.5px;color:var(--text-2);cursor:pointer">📐 Açık uçlu (basamak/işlem gerekli) — eksik basamak uyarısı</label>
+            </div>
+            <div style="display:flex;gap:6px;justify-content:space-between;align-items:center;margin-top:8px">
+              <div style="display:flex;gap:6px">
+                <input type="file" id="qimg-${idx}" accept="image/*,application/pdf" style="display:none" onchange="Maarif.pages['exam-key-edit'].uploadImage(${idx}, this.files[0])">
+                <button onclick="document.getElementById('qimg-${idx}').click()" style="background:var(--bg-2);border:1px solid var(--line-2);border-radius:8px;padding:6px 10px;font-size:11.5px;color:var(--text-2);cursor:pointer">📷 Foto/PDF</button>
+              </div>
+              <button onclick="Maarif.pages['exam-key-edit'].removeQuestion(${idx})" style="background:none;border:none;color:var(--rose);font-size:12px;padding:4px 0;cursor:pointer">🗑️ Soruyu Sil</button>
             </div>
           </div>
         `;
@@ -3515,7 +3595,48 @@ OUTPUT JSON:
     },
     updateQ(idx, field, value) {
       state._editingQuestions[idx][field] = value;
-      if (field === 'pts') pages['exam-key-edit'].renderQuestions();
+      if (field === 'pts' || field === 'openEnded') pages['exam-key-edit'].renderQuestions();
+    },
+    async uploadImage(idx, file) {
+      if (!file) return;
+      try {
+        let dataUrl;
+        if (file.type === 'application/pdf') {
+          // PDF: ilk sayfayı görsele çevir
+          if (typeof pdfjsLib === 'undefined') {
+            ui.error('PDF.js yüklenmemiş, sayfayı yenileyin');
+            return;
+          }
+          ui.toast('PDF işleniyor...', 'info');
+          const arrayBuf = await file.arrayBuffer();
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuf }).promise;
+          const page = await pdf.getPage(1);
+          const viewport = page.getViewport({ scale: 1.5 });
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+          dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        } else {
+          dataUrl = await new Promise((res, rej) => {
+            const r = new FileReader();
+            r.onload = () => res(r.result);
+            r.onerror = rej;
+            r.readAsDataURL(file);
+          });
+          // Image enhance
+          dataUrl = await exam.enhanceImage(dataUrl);
+        }
+        state._editingQuestions[idx].answerImage = dataUrl;
+        pages['exam-key-edit'].renderQuestions();
+        ui.toast('✓ Görsel cevap eklendi', 'success');
+      } catch(e) {
+        ui.error('Yükleme hatası: ' + e.message);
+      }
+    },
+    removeImage(idx) {
+      delete state._editingQuestions[idx].answerImage;
+      pages['exam-key-edit'].renderQuestions();
     },
     addQuestion() {
       const nextN = state._editingQuestions.length + 1;
@@ -3925,17 +4046,26 @@ OUTPUT JSON:
             </div>
           </div>
           
+          ${grade.maarifSummary ? `<div style="background:rgba(20,184,166,0.06);border:1px solid rgba(20,184,166,0.2);border-radius:10px;padding:10px 12px;margin-bottom:8px">
+            <div style="font-size:10.5px;color:var(--teal);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">🌳 Maarif Süreç Gözlemi</div>
+            ${grade.maarifSummary.strengths && grade.maarifSummary.strengths.length > 0 ? '<div style="font-size:11.5px;margin-bottom:3px"><b style="color:var(--emerald)">Güçlü:</b> ' + grade.maarifSummary.strengths.join(', ') + '</div>' : ''}
+            ${grade.maarifSummary.developmentAreas && grade.maarifSummary.developmentAreas.length > 0 ? '<div style="font-size:11.5px;margin-bottom:3px"><b style="color:var(--amber)">Gelişim alanı:</b> ' + grade.maarifSummary.developmentAreas.join(', ') + '</div>' : ''}
+            ${grade.maarifSummary.explanation ? '<div style="font-size:11px;color:var(--text-2);font-style:italic;margin-top:4px">' + escapeHTML(grade.maarifSummary.explanation) + '</div>' : ''}
+          </div>` : ''}
+          
           <details style="font-size:12px">
             <summary style="cursor:pointer;color:var(--indigo);font-weight:600;font-size:12px">Cevap dökümünü göster (${(grade.answers||[]).length} soru)</summary>
             <div style="margin-top:8px">
               ${(grade.answers || []).map(a => `
                 <div class="exam-q-answer ${a.status}">
                   <div class="exam-q-header">
-                    <span class="exam-q-num">Soru ${a.n}</span>
+                    <span class="exam-q-num">Soru ${a.n}${a.stepsMissing ? ' ⚠️' : ''}</span>
                     <span class="exam-q-score" style="color:${a.status==='correct'?'var(--emerald)':a.status==='partial'?'var(--amber)':'var(--rose)'}">${a.score}/${a.maxScore}</span>
                   </div>
                   <div class="exam-q-text">"${escapeHTML((a.studentAnswer||'(boş)').slice(0,140))}"</div>
                   ${a.feedback ? '<div style="font-size:11px;color:var(--text-3);margin-top:4px">▸ ' + escapeHTML(a.feedback) + '</div>' : ''}
+                  ${a.stepsMissing ? '<div style="font-size:11px;color:var(--amber);margin-top:4px;font-weight:600">⚠️ İşlem basamakları gösterilmemiş</div>' : ''}
+                  ${a.maarifObservations && a.maarifObservations.length > 0 ? '<div style="font-size:10.5px;color:var(--teal);margin-top:4px">🌳 ' + a.maarifObservations.join(' · ') + '</div>' : ''}
                 </div>
               `).join('')}
             </div>
@@ -4481,9 +4611,20 @@ OUTPUT JSON:
       
       const s = data.getStudent(pm.studentId);
       const includedEvents = pm.events.filter(e => e.include);
-      const totalImpact = includedEvents.reduce((sum, e) => sum + (e.scoreImpact || 0), 0);
+      const rawTotal = includedEvents.reduce((sum, e) => sum + (e.scoreImpact || 0), 0);
+      const negC = includedEvents.filter(e => (e.scoreImpact||0) < 0).length;
+      const posC = includedEvents.filter(e => (e.scoreImpact||0) > 0).length;
+      let synMult = 1.0;
+      if (negC >= 3) synMult = 1.35;
+      else if (negC === 2) synMult = 1.20;
+      if (posC >= 3) synMult = Math.max(synMult, 1.30);
+      else if (posC === 2) synMult = Math.max(synMult, 1.15);
+      if (negC > 0 && posC > 0) synMult = 1.0;
+      const totalImpact = Math.round(rawTotal * synMult);
       const impactColor = totalImpact >= 0 ? 'var(--emerald)' : 'var(--rose)';
       const impactStr = (totalImpact >= 0 ? '+' : '') + totalImpact;
+      const synergyNote = synMult > 1.0 ? 
+        `<div style="font-size:10.5px;color:var(--amber);font-weight:600;margin-top:3px">⚡ Kümülatif etki ×${synMult.toFixed(2)} (${rawTotal} → ${totalImpact})</div>` : '';
       
       let html = `<div class="card" style="margin-bottom:14px">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
@@ -4495,6 +4636,7 @@ OUTPUT JSON:
           <div style="text-align:right">
             <div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:${impactColor};line-height:1">${impactStr}</div>
             <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px">Net Etki</div>
+            ${synergyNote}
           </div>
         </div>
         <div style="padding:8px 12px;background:var(--bg-2);border-radius:8px;font-size:11.5px;color:var(--text-2);font-style:italic">
@@ -4576,8 +4718,20 @@ OUTPUT JSON:
         return;
       }
       
-      included.forEach(ev => {
-        // AI öğrenme: değiştirildiyse kaydet
+      // Synergy hesapla
+      const rawTotal = included.reduce((sum, e) => sum + (e.scoreImpact || 0), 0);
+      const negC = included.filter(e => (e.scoreImpact||0) < 0).length;
+      const posC = included.filter(e => (e.scoreImpact||0) > 0).length;
+      let synMult = 1.0;
+      if (negC >= 3) synMult = 1.35;
+      else if (negC === 2) synMult = 1.20;
+      if (posC >= 3) synMult = Math.max(synMult, 1.30);
+      else if (posC === 2) synMult = Math.max(synMult, 1.15);
+      if (negC > 0 && posC > 0) synMult = 1.0;
+      
+      const groupId = 'grp_' + Date.now();
+      included.forEach((ev, idx) => {
+        // AI öğrenme
         if (ev.source === 'ai' && ev.aiOriginal) {
           const wasChanged = JSON.stringify(ev.aiOriginal.criteria) !== JSON.stringify(ev.criteria)
                            || ev.aiOriginal.scoreImpact !== ev.scoreImpact;
@@ -4589,17 +4743,26 @@ OUTPUT JSON:
           }
         }
         
+        // Synergy'yi son olaya ekle (toplam doğru olsun)
+        let adjustedImpact = ev.scoreImpact || 0;
+        if (synMult > 1.0 && idx === included.length - 1) {
+          const synBonus = Math.round(rawTotal * (synMult - 1.0));
+          adjustedImpact += synBonus;
+        }
+        
         daily.addEvent(pm.studentId, {
           label: ev.label,
           observation: ev.observation,
-          scoreImpact: ev.scoreImpact || 0,
-          polarity: ev.polarity || (ev.scoreImpact >= 0 ? 'positive' : 'negative'),
+          scoreImpact: adjustedImpact,
+          polarity: ev.polarity || (adjustedImpact >= 0 ? 'positive' : 'negative'),
           criteria: ev.criteria,
           source: 'ai-split',
           context: ev.context,
           domains: ev.domains,
           confidence: ev.confidence,
-          multiEventGroup: pm.originalObservation.slice(0, 80) // grup etiketi
+          multiEventGroup: groupId,
+          multiEventOriginal: pm.originalObservation.slice(0, 120),
+          synergyMultiplier: synMult > 1.0 ? synMult : null
         });
       });
       
@@ -5214,7 +5377,7 @@ OUTPUT JSON:
       </div>
       
       <div class="footer">
-        Maarif Gelişim Asistanı · v0.6.0 · ${new Date().toLocaleString('tr-TR')}<br>
+        Maarif Gelişim Asistanı · v0.7.0 · ${new Date().toLocaleString('tr-TR')}<br>
         Bu rapor öğretmen tarafından kaydedilen kanıta dayalı gözlemlerden oluşturulmuştur.
       </div>
       <scr` + `ipt>setTimeout(function(){window.print();},800);</scr` + `ipt>
