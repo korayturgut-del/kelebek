@@ -4,11 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0a0b0e">
-<title>Maarif · Gelişim Asistanı v0.1.0</title>
+<title>Maarif · Gelişim Asistanı v0.2.0</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>if(typeof pdfjsLib!=="undefined"){pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";}</script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <style>
 /* ════════════════════════════════════════════════════════
-   MAARİF v0.1.0 — Modüler, Bağımsız Uygulama
+   MAARİF v0.2.0 — Modüler, Bağımsız Uygulama
    "Banking-grade" UX · Türkiye Yüzyılı Maarif Modeli
    ═══════════════════════════════════════════════════════ */
 
@@ -760,6 +763,214 @@ input, textarea, select { font-family: inherit; color: inherit; }
   box-shadow: 0 1px 0 rgba(255,255,255,0.05);
 }
 
+
+/* ════════ EXAM (YAZILI OKUMA) MODÜLÜ ════════ */
+.exam-camera-area {
+  background: #000;
+  border-radius: var(--r);
+  aspect-ratio: 3/4;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.exam-camera-area video,
+.exam-camera-area canvas,
+.exam-camera-area img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.exam-camera-overlay {
+  position: absolute;
+  inset: 12px;
+  border: 2px dashed rgba(255,255,255,0.4);
+  border-radius: 8px;
+  pointer-events: none;
+}
+.exam-shutter-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 14px 0;
+}
+.exam-shutter {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #fff;
+  border: 5px solid var(--bg-2);
+  box-shadow: 0 0 0 2px #fff;
+  transition: transform 0.1s;
+}
+.exam-shutter:active { transform: scale(0.92); }
+.exam-action-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg-2);
+  border: 1px solid var(--line-2);
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  color: var(--text);
+}
+.exam-photo-thumb {
+  position: relative;
+  width: 80px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid var(--line-2);
+}
+.exam-photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.exam-photo-thumb-del {
+  position: absolute;
+  top: 4px; right: 4px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.7);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  color: #fff;
+}
+.exam-progress-bar {
+  height: 6px;
+  background: var(--bg-2);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 14px 0;
+}
+.exam-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--indigo), var(--teal));
+  transition: width 0.4s;
+}
+.exam-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  margin-bottom: 8px;
+  font-size: 13.5px;
+}
+.exam-step-icon {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--bg-2);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.exam-step.done .exam-step-icon { background: rgba(16,185,129,0.15); color: var(--emerald); }
+.exam-step.active .exam-step-icon { background: rgba(99,102,241,0.15); color: var(--indigo); }
+.exam-step.error .exam-step-icon { background: rgba(244,63,94,0.15); color: var(--rose); }
+.exam-key-row {
+  display: grid;
+  grid-template-columns: 44px 1fr 80px;
+  gap: 10px;
+  align-items: start;
+  margin-bottom: 10px;
+}
+.exam-key-q-num {
+  background: var(--bg-2);
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  padding: 12px 0;
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--indigo);
+}
+.exam-key-pts {
+  background: var(--bg-1);
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  padding: 12px 8px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text);
+  width: 80px;
+}
+.exam-result-card {
+  background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(20,184,166,0.05));
+  border: 1px solid var(--line-2);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.exam-result-score {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 36px;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--emerald), var(--teal));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.exam-q-answer {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.exam-q-answer.correct { border-left: 3px solid var(--emerald); }
+.exam-q-answer.partial { border-left: 3px solid var(--amber); }
+.exam-q-answer.wrong   { border-left: 3px solid var(--rose); }
+.exam-q-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.exam-q-num {
+  font-weight: 700;
+  color: var(--indigo);
+  font-size: 12px;
+}
+.exam-q-score {
+  font-weight: 700;
+  font-size: 14px;
+}
+.exam-q-text {
+  color: var(--text-2);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.exam-batch-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  margin-bottom: 8px;
+}
+.exam-batch-status {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.exam-batch-status.pending { background: var(--bg-2); color: var(--text-3); }
+.exam-batch-status.processing { background: rgba(99,102,241,0.15); color: var(--indigo); }
+.exam-batch-status.done { background: rgba(16,185,129,0.15); color: var(--emerald); }
+.exam-batch-status.error { background: rgba(244,63,94,0.15); color: var(--rose); }
+
 /* ════════ PRINT (for reports) ════════ */
 @media print {
   body { background: #fff; color: #1a1a1a; }
@@ -800,7 +1011,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
   <div class="login" id="login-screen">
     <div class="login-mark">Maarif</div>
     <div class="login-tagline">Gelişim Asistanı</div>
-    <div class="login-version">v0.1.0 · Türkiye Yüzyılı Maarif Modeli</div>
+    <div class="login-version">v0.2.0 · Türkiye Yüzyılı Maarif Modeli</div>
 
     <div id="google-login-target"></div>
     <div id="login-error" class="login-error hidden"></div>
@@ -862,6 +1073,14 @@ input, textarea, select { font-family: inherit; color: inherit; }
         </div>
         <div class="menu-chev">›</div>
       </div>
+      <div class="menu-item" onclick="Maarif.nav.go('exam-start')">
+        <div class="menu-icon rose">📷</div>
+        <div class="menu-text">
+          <div class="menu-title">Yazılı Sınav Tara (AI)</div>
+          <div class="menu-sub">Foto/PDF yükle · AI puanlasın</div>
+        </div>
+        <div class="menu-chev">›</div>
+      </div>
       <div class="menu-item" onclick="Maarif.nav.go('reports')">
         <div class="menu-icon amber">📊</div>
         <div class="menu-text">
@@ -893,7 +1112,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
     </div>
 
     <div style="text-align:center;color:var(--text-3);font-size:11px;margin:32px 0 20px;letter-spacing:0.05em">
-      Maarif v0.1.0 · 11 Mayıs 2026
+      Maarif v0.2.0 · 11 Mayıs 2026
     </div>
   </div>
 
@@ -1325,6 +1544,420 @@ SADECE şu JSON formatını döndür, başka hiçbir şey yazma:
     }
   };
 
+
+  // ═══════════════════════════════════════════════════════════
+  // EXAM MODULE — Yazılı Sınav AI Okuma
+  // ═══════════════════════════════════════════════════════════
+  const exam = {
+    session: null,   // Aktif sınav oturumu
+    
+    /* ── ANSWER KEY YÖNETİMİ ── */
+    getKeys() {
+      try {
+        return JSON.parse(localStorage.getItem('maarif_exam_keys') || '{}');
+      } catch(e) { return {}; }
+    },
+    saveKey(name, key) {
+      const keys = exam.getKeys();
+      keys[name] = { ...key, updatedAt: new Date().toISOString() };
+      localStorage.setItem('maarif_exam_keys', JSON.stringify(keys));
+    },
+    deleteKey(name) {
+      const keys = exam.getKeys();
+      delete keys[name];
+      localStorage.setItem('maarif_exam_keys', JSON.stringify(keys));
+    },
+    
+    /* ── SESSION ── */
+    startSession(answerKey, mode) {
+      exam.session = {
+        key: answerKey,        // {name, questions:[{n,q,a,pts}]}
+        mode: mode,            // "single" veya "batch"
+        photos: [],            // [{id, dataUrl, blob}]
+        results: [],           // [{photoId, studentMatch, transcript, scores, annotated}]
+        startedAt: new Date().toISOString()
+      };
+    },
+    addPhoto(dataUrl, blob) {
+      if (!exam.session) return;
+      const id = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+      exam.session.photos.push({ id, dataUrl, blob });
+      return id;
+    },
+    removePhoto(id) {
+      if (!exam.session) return;
+      exam.session.photos = exam.session.photos.filter(p => p.id !== id);
+    },
+    
+    /* ── KAMERA ── */
+    async openCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: 'environment' },
+            width:  { ideal: 1920 },
+            height: { ideal: 2560 }
+          },
+          audio: false
+        });
+        return stream;
+      } catch(e) {
+        ui.error('Kamera açılamadı: ' + e.message);
+        return null;
+      }
+    },
+    
+    /* ── PDF AYIRMA (PDF.js) ── */
+    async pdfToImages(file) {
+      // pdfjsLib global olarak yüklü olmalı
+      if (typeof pdfjsLib === 'undefined') {
+        // pdfjs ESM module ile yüklü, alternatif yöntem
+        const arrayBuf = await file.arrayBuffer();
+        // Fallback: pdf-lib ile parse et (resim çıkaramaz ama)
+        ui.error('PDF.js yüklenmemiş. Lütfen sayfayı yenileyin.');
+        return [];
+      }
+      const arrayBuf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuf }).promise;
+      const images = [];
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 2.0 });
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d');
+        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        images.push(dataUrl);
+      }
+      return images;
+    },
+    
+    /* ── GÖRÜNTÜ İYİLEŞTİRME ── */
+    async enhanceImage(dataUrl) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = 2048;
+          let { width, height } = img;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round(height * (maxDim / width));
+              width = maxDim;
+            } else {
+              width = Math.round(width * (maxDim / height));
+              height = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Hafif kontrast iyileştirme
+          const imageData = ctx.getImageData(0, 0, width, height);
+          const d = imageData.data;
+          const contrast = 1.15;
+          const intercept = 128 * (1 - contrast);
+          for (let i = 0; i < d.length; i += 4) {
+            d[i]   = Math.max(0, Math.min(255, d[i]   * contrast + intercept));
+            d[i+1] = Math.max(0, Math.min(255, d[i+1] * contrast + intercept));
+            d[i+2] = Math.max(0, Math.min(255, d[i+2] * contrast + intercept));
+          }
+          ctx.putImageData(imageData, 0, 0);
+          resolve(canvas.toDataURL('image/jpeg', 0.88));
+        };
+        img.onerror = () => resolve(dataUrl);
+        img.src = dataUrl;
+      });
+    },
+    
+    /* ── AI: ÖĞRENCİ EŞLEŞTİRME ── */
+    async detectStudent(imageDataUrl) {
+      // Mevcut tüm öğrencileri topla
+      const allStudents = [];
+      for (const cls in state.db.classes) {
+        state.db.classes[cls].forEach(s => {
+          allStudents.push({ id: s.id, ad: s.ad, no: s.no, sinif: cls });
+        });
+      }
+      
+      const systemPrompt = `Sen bir OCR uzmanısın. Görseldeki sınav kağıdından öğrenci bilgilerini (ad-soyad, sınıf, numara) okuyup verilen listeyle eşleştireceksin.
+
+KURALLAR:
+- Adı sınav kağıdının üst kısmından oku.
+- Mevcut listede yakın bir eşleşme varsa o öğrencinin id'sini döndür.
+- Birden fazla benzer varsa en yüksek güvenli olanı seç.
+- Hiç eşleşme yoksa null döndür ve okunan adı yaz.
+
+ÇIKTI: SADECE JSON, başka metin yok:
+{"studentId":"st_xxx","matchedName":"Mehmet Yılmaz","confidence":0.95,"rawName":"Mehmet Y","rawClass":"5/A","rawNo":"123"}
+veya eşleşmezse:
+{"studentId":null,"rawName":"OkunanAd","rawClass":"Sınıf","rawNo":"No","confidence":0,"reason":"Listede yok"}`;
+      
+      const userPrompt = `Mevcut öğrenci listesi (JSON):
+${JSON.stringify(allStudents.slice(0, 200))}
+
+Sınav kağıdındaki öğrenci bilgisini bul ve listeyle eşleştir.`;
+      
+      try {
+        const r = await fetch(CONFIG.AI_WORKER, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemPrompt: systemPrompt,
+            userPrompt: userPrompt,
+            images: [imageDataUrl],
+            jsonMode: true,
+            temperature: 0.1,
+            model: 'gemini-2.5-pro'
+          })
+        });
+        if (!r.ok) {
+          const e = await r.json().catch(()=>({}));
+          throw new Error(e.error || 'HTTP ' + r.status);
+        }
+        const json = await r.json();
+        const text = (json.text || '').replace(/```json/g,'').replace(/```/g,'').trim();
+        return JSON.parse(text);
+      } catch(e) {
+        console.error('detectStudent hata:', e);
+        return { studentId: null, rawName: '', confidence: 0, error: e.message };
+      }
+    },
+    
+    /* ── AI: SINAV PUANLAMA ── */
+    async gradeExam(imageDataUrl, answerKey) {
+      const questions = answerKey.questions || [];
+      const totalPossible = questions.reduce((s, q) => s + (q.pts || 0), 0);
+      
+      const systemPrompt = `Sen Türk eğitim sistemine hakim, deneyimli bir öğretmensin. Görseldeki yazılı sınav kağıdını dikkatlice oku ve cevap anahtarına göre puanla.
+
+CEVAP ANAHTARI:
+${questions.map(q => `Soru ${q.n} (${q.pts} puan): ${q.q || '(Sorulan)'}\nDoğru cevap: ${q.a}`).join('\n\n')}
+
+TOPLAM: ${totalPossible} puan
+
+KURALLAR:
+- El yazısını dikkatlice oku. Belirsiz yerleri belirsiz olarak işaretle.
+- Her sorunun cevabını anahtarla karşılaştır.
+- Cevap kısmen doğruysa orantılı puan ver (örn: 10 puanlık soruda yarı doğru = 5).
+- Boş bırakılmışsa 0 ver.
+- Tamamen yanlışsa 0 ver.
+- Kısmi doğru için makul yumuşak değerlendir; ama yanlış bilgi varsa puan verme.
+
+ÇIKTI: SADECE JSON, başka metin yok:
+{
+  "answers": [
+    {"n":1, "studentAnswer":"...öğrencinin yazdığı...", "status":"correct|partial|wrong|blank", "score":10, "maxScore":10, "feedback":"Kısa açıklama"},
+    ...
+  ],
+  "totalScore": 78,
+  "maxScore": 100,
+  "summary": "Genel değerlendirme: 1 cümle özet"
+}`;
+      
+      const userPrompt = `Bu yazılı kağıdını oku ve cevap anahtarına göre puanla.`;
+      
+      try {
+        const r = await fetch(CONFIG.AI_WORKER, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemPrompt: systemPrompt,
+            userPrompt: userPrompt,
+            images: [imageDataUrl],
+            jsonMode: true,
+            temperature: 0.2,
+            model: 'gemini-2.5-pro',
+            maxOutputTokens: 4096
+          })
+        });
+        if (!r.ok) {
+          const e = await r.json().catch(()=>({}));
+          throw new Error(e.error || 'HTTP ' + r.status);
+        }
+        const json = await r.json();
+        const text = (json.text || '').replace(/```json/g,'').replace(/```/g,'').trim();
+        return JSON.parse(text);
+      } catch(e) {
+        console.error('gradeExam hata:', e);
+        return { error: e.message };
+      }
+    },
+    
+    /* ── PDF İŞARETLEME (pdf-lib) ── */
+    async annotatePDF(imageDataUrl, gradeResult, studentInfo) {
+      if (typeof PDFLib === 'undefined') {
+        ui.error('PDF kütüphanesi yüklenmedi');
+        return null;
+      }
+      const { PDFDocument, rgb, StandardFonts } = PDFLib;
+      
+      // Image bilgilerini al
+      const img = await new Promise((res, rej) => {
+        const i = new Image();
+        i.onload = () => res(i);
+        i.onerror = rej;
+        i.src = imageDataUrl;
+      });
+      
+      const pdfDoc = await PDFDocument.create();
+      const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+      const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+      
+      // A4 boyutu için scale
+      const pageWidth = 595;   // A4 width in pts
+      const pageHeight = 842;  // A4 height in pts
+      
+      // Görseli sayfaya sığdır
+      const imgAspect = img.width / img.height;
+      let drawW, drawH;
+      if (imgAspect > pageWidth / pageHeight) {
+        drawW = pageWidth - 40;
+        drawH = drawW / imgAspect;
+      } else {
+        drawH = pageHeight - 140;
+        drawW = drawH * imgAspect;
+      }
+      
+      const page = pdfDoc.addPage([pageWidth, pageHeight]);
+      
+      // Üst başlık bandı
+      page.drawRectangle({
+        x: 0, y: pageHeight - 80, width: pageWidth, height: 80,
+        color: rgb(0.95, 0.95, 1)
+      });
+      page.drawText(`${studentInfo.ad || '?'} - ${studentInfo.sinif || ''}`, {
+        x: 20, y: pageHeight - 35, size: 14, font: fontBold, color: rgb(0.1, 0.1, 0.3)
+      });
+      const scoreText = `${gradeResult.totalScore}/${gradeResult.maxScore}`;
+      const scoreSize = 28;
+      const scoreWidth = fontBold.widthOfTextAtSize(scoreText, scoreSize);
+      page.drawText(scoreText, {
+        x: pageWidth - scoreWidth - 20, y: pageHeight - 50,
+        size: scoreSize, font: fontBold,
+        color: gradeResult.totalScore / gradeResult.maxScore >= 0.7 ? rgb(0.05, 0.5, 0.2) : (gradeResult.totalScore / gradeResult.maxScore >= 0.45 ? rgb(0.8, 0.5, 0) : rgb(0.7, 0.1, 0.1))
+      });
+      page.drawText('PUAN', {
+        x: pageWidth - 70, y: pageHeight - 68,
+        size: 8, font: font, color: rgb(0.4, 0.4, 0.5)
+      });
+      
+      // Görseli yerleştir
+      const imgBytes = await fetch(imageDataUrl).then(r => r.arrayBuffer());
+      let pdfImg;
+      try {
+        pdfImg = await pdfDoc.embedJpg(imgBytes);
+      } catch {
+        pdfImg = await pdfDoc.embedPng(imgBytes);
+      }
+      page.drawImage(pdfImg, {
+        x: (pageWidth - drawW) / 2,
+        y: 50,
+        width: drawW,
+        height: Math.min(drawH, pageHeight - 140)
+      });
+      
+      // 2. sayfa: Detaylı cevap dökümü
+      const detailPage = pdfDoc.addPage([pageWidth, pageHeight]);
+      detailPage.drawText('CEVAP DEĞERLENDİRMESİ', {
+        x: 20, y: pageHeight - 40, size: 16, font: fontBold, color: rgb(0.1, 0.1, 0.3)
+      });
+      detailPage.drawText(`${studentInfo.ad || ''} · ${studentInfo.sinif || ''} · ${new Date().toLocaleDateString('tr-TR')}`, {
+        x: 20, y: pageHeight - 60, size: 10, font: font, color: rgb(0.4, 0.4, 0.5)
+      });
+      
+      let yPos = pageHeight - 100;
+      (gradeResult.answers || []).forEach(ans => {
+        if (yPos < 80) {
+          // Yeni sayfa
+          const np = pdfDoc.addPage([pageWidth, pageHeight]);
+          yPos = pageHeight - 40;
+        }
+        const statusColor = ans.status === 'correct' ? rgb(0.05, 0.5, 0.2) :
+                            ans.status === 'partial' ? rgb(0.8, 0.5, 0) :
+                            ans.status === 'blank' ? rgb(0.5, 0.5, 0.5) :
+                            rgb(0.7, 0.1, 0.1);
+        detailPage.drawRectangle({
+          x: 20, y: yPos - 4, width: 4, height: 60, color: statusColor
+        });
+        detailPage.drawText(`Soru ${ans.n}`, {
+          x: 32, y: yPos + 40, size: 11, font: fontBold, color: rgb(0.2, 0.2, 0.4)
+        });
+        detailPage.drawText(`${ans.score}/${ans.maxScore} puan`, {
+          x: pageWidth - 120, y: yPos + 40, size: 11, font: fontBold, color: statusColor
+        });
+        const ansText = (ans.studentAnswer || '(boş)').slice(0, 110);
+        detailPage.drawText('Cevap: ' + ansText, {
+          x: 32, y: yPos + 22, size: 9, font: font, color: rgb(0.2, 0.2, 0.3),
+          maxWidth: pageWidth - 60
+        });
+        const fb = (ans.feedback || '').slice(0, 130);
+        if (fb) {
+          detailPage.drawText('▸ ' + fb, {
+            x: 32, y: yPos + 6, size: 8, font: font, color: rgb(0.45, 0.45, 0.55),
+            maxWidth: pageWidth - 60
+          });
+        }
+        yPos -= 76;
+      });
+      
+      // Özet
+      if (gradeResult.summary && yPos > 120) {
+        detailPage.drawText('ÖZET', {
+          x: 20, y: yPos - 10, size: 11, font: fontBold, color: rgb(0.1, 0.1, 0.3)
+        });
+        detailPage.drawText((gradeResult.summary || '').slice(0, 200), {
+          x: 20, y: yPos - 30, size: 9, font: font, color: rgb(0.3, 0.3, 0.4),
+          maxWidth: pageWidth - 40
+        });
+      }
+      
+      const pdfBytes = await pdfDoc.save();
+      return new Blob([pdfBytes], { type: 'application/pdf' });
+    },
+    
+    /* ── DRIVE'A KAYDET ── */
+    async saveResultToDrive(pdfBlob, filename) {
+      return new Promise((resolve, reject) => {
+        auth.ensureToken(async () => {
+          try {
+            const metadata = { name: filename, mimeType: 'application/pdf' };
+            const form = new FormData();
+            form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+            form.append('file', pdfBlob);
+            const r = await fetch(
+              'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',
+              { method: 'POST', headers: { Authorization: 'Bearer ' + state.accessToken }, body: form }
+            );
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const result = await r.json();
+            resolve(result);
+          } catch(e) { reject(e); }
+        });
+      });
+    },
+    
+    /* ── ÖĞRENCİ KAYDINA EKLE ── */
+    saveToStudent(studentId, slot, examResult) {
+      // slot: yazili1 veya yazili2
+      const existing = data.getAssessment(studentId, slot) || {};
+      data.saveAssessment(studentId, slot, {
+        ...existing,
+        score: examResult.totalScore,
+        maxScore: examResult.maxScore,
+        observation: existing.observation || examResult.summary || '',
+        examGrading: examResult,   // Detaylı puan dökümü
+        examAnnotatedPdfId: examResult.driveFileId || null,
+        examProcessedAt: new Date().toISOString(),
+        criteria: existing.criteria || [{ category: 'cati', item: 'Sorumluluk', weight: 100 }]
+      });
+    }
+  };
+
   // ═══════════════ NAVIGATION ═══════════════
   const nav = {
     go(page, params = {}) {
@@ -1519,6 +2152,624 @@ SADECE şu JSON formatını döndür, başka hiçbir şey yazma:
     nav.go('report');
   };
 
+
+  // ─── EXAM START (giriş ekranı) ───
+  pages['exam-start'] = {
+    title: 'Yazılı Tara',
+    render() {
+      return `
+        <div class="text-sm" style="margin-bottom:14px">
+          <b style="color:var(--text)">AI destekli yazılı sınav okuma.</b><br>
+          Cevap anahtarınızı seçin veya yeni anahtar oluşturun, sonra fotoğraf yükleyin.
+        </div>
+        
+        <div class="section-label" style="margin:8px 4px 8px">Cevap Anahtarı</div>
+        <div id="exam-keys-list"></div>
+        
+        <button class="btn btn-primary mt-3" onclick="Maarif.pages['exam-key-edit'].open('')">+ Yeni Cevap Anahtarı</button>
+      `;
+    },
+    afterRender() {
+      pages['exam-start'].refreshKeys();
+    },
+    refreshKeys() {
+      const keys = exam.getKeys();
+      const names = Object.keys(keys);
+      const host = document.getElementById('exam-keys-list');
+      if (names.length === 0) {
+        host.innerHTML = '<div class="text-xs" style="padding:14px;background:var(--bg-1);border:1px dashed var(--line-2);border-radius:10px;text-align:center">Henüz kaydedilmiş anahtar yok</div>';
+        return;
+      }
+      let html = '';
+      names.forEach(name => {
+        const k = keys[name];
+        const qCount = (k.questions || []).length;
+        const totalPts = (k.questions || []).reduce((s,q)=>s+(q.pts||0),0);
+        html += `<div class="card card-clickable" onclick="Maarif.pages['exam-capture'].open('${escapeAttr(name)}')">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="menu-icon rose" style="width:38px;height:38px;font-size:14px">📋</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:600;font-size:14px">${escapeHTML(name)}</div>
+              <div style="font-size:11px;color:var(--text-3)">${qCount} soru · ${totalPts} puan</div>
+            </div>
+            <button onclick="event.stopPropagation();Maarif.pages['exam-key-edit'].open('${escapeAttr(name)}')" style="background:var(--bg-2);border:1px solid var(--line-2);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--text-2)">✏️</button>
+            <div class="menu-chev">›</div>
+          </div>
+        </div>`;
+      });
+      host.innerHTML = html;
+    }
+  };
+  
+  // ─── EXAM KEY EDITOR ───
+  pages['exam-key-edit'] = {
+    title: 'Cevap Anahtarı',
+    open(keyName) {
+      state._editingKey = keyName || '';
+      nav.go('exam-key-edit');
+    },
+    render() {
+      const keyName = state._editingKey;
+      const existing = keyName ? (exam.getKeys()[keyName] || { questions: [] }) : { questions: [] };
+      const questions = existing.questions || [];
+      
+      let html = `
+        <div class="input-group">
+          <label class="input-label">Anahtar Adı</label>
+          <input class="input" id="ek-name" placeholder="Örn: 5. Sınıf Türkçe 1. Yazılı" value="${escapeAttr(keyName)}">
+        </div>
+        
+        <div class="section-label" style="margin:18px 4px 8px">Sorular</div>
+        <div id="ek-questions"></div>
+        
+        <button class="btn btn-secondary mt-2" onclick="Maarif.pages['exam-key-edit'].addQuestion()">+ Soru Ekle</button>
+        
+        <div class="mt-4 flex gap-2">
+          <button class="btn btn-primary" onclick="Maarif.pages['exam-key-edit'].save()">💾 Kaydet</button>
+        </div>
+        ${keyName ? `<button class="btn btn-danger mt-2" onclick="Maarif.pages['exam-key-edit'].delete()">🗑️ Bu Anahtarı Sil</button>` : ''}
+      `;
+      return html;
+    },
+    afterRender() {
+      const keyName = state._editingKey;
+      const existing = keyName ? (exam.getKeys()[keyName] || { questions: [] }) : { questions: [] };
+      state._editingQuestions = existing.questions || [];
+      if (state._editingQuestions.length === 0) {
+        state._editingQuestions.push({ n: 1, q: '', a: '', pts: 10 });
+      }
+      pages['exam-key-edit'].renderQuestions();
+    },
+    renderQuestions() {
+      const host = document.getElementById('ek-questions');
+      let html = '';
+      state._editingQuestions.forEach((q, idx) => {
+        html += `
+          <div class="card" style="margin-bottom:10px;padding:12px">
+            <div class="exam-key-row">
+              <div class="exam-key-q-num">${q.n}</div>
+              <div>
+                <input class="input" placeholder="Soru metni (opsiyonel)" value="${escapeAttr(q.q||'')}" oninput="Maarif.pages['exam-key-edit'].updateQ(${idx},'q',this.value)" style="margin-bottom:6px">
+                <textarea class="textarea" placeholder="Doğru cevap" style="min-height:60px" oninput="Maarif.pages['exam-key-edit'].updateQ(${idx},'a',this.value)">${escapeHTML(q.a||'')}</textarea>
+              </div>
+              <input class="exam-key-pts" type="number" min="1" max="100" value="${q.pts}" oninput="Maarif.pages['exam-key-edit'].updateQ(${idx},'pts',parseInt(this.value)||0)">
+            </div>
+            <div style="text-align:right">
+              <button onclick="Maarif.pages['exam-key-edit'].removeQuestion(${idx})" style="background:none;border:none;color:var(--rose);font-size:12px;padding:4px 0">🗑️ Sil</button>
+            </div>
+          </div>
+        `;
+      });
+      const total = state._editingQuestions.reduce((s,q) => s + (q.pts||0), 0);
+      html += `<div class="card" style="background:var(--bg-2);text-align:center;padding:10px 16px;font-weight:700">
+        Toplam: ${total} puan${total !== 100 ? ' (genellikle 100 olur)' : ''}
+      </div>`;
+      host.innerHTML = html;
+    },
+    updateQ(idx, field, value) {
+      state._editingQuestions[idx][field] = value;
+      if (field === 'pts') pages['exam-key-edit'].renderQuestions();
+    },
+    addQuestion() {
+      const nextN = state._editingQuestions.length + 1;
+      state._editingQuestions.push({ n: nextN, q: '', a: '', pts: 10 });
+      pages['exam-key-edit'].renderQuestions();
+    },
+    removeQuestion(idx) {
+      if (state._editingQuestions.length <= 1) {
+        ui.toast('En az 1 soru olmalı', 'error');
+        return;
+      }
+      state._editingQuestions.splice(idx, 1);
+      state._editingQuestions.forEach((q, i) => q.n = i + 1);
+      pages['exam-key-edit'].renderQuestions();
+    },
+    save() {
+      const name = document.getElementById('ek-name').value.trim();
+      if (!name) { ui.toast('Anahtar adı boş olamaz', 'error'); return; }
+      const questions = state._editingQuestions.filter(q => q.a && q.a.trim());
+      if (questions.length === 0) { ui.toast('En az 1 sorunun cevabı olmalı', 'error'); return; }
+      
+      const oldName = state._editingKey;
+      if (oldName && oldName !== name) exam.deleteKey(oldName);
+      exam.saveKey(name, { questions: questions });
+      ui.toast('✓ Anahtar kaydedildi', 'success');
+      nav.back();
+    },
+    delete() {
+      if (!confirm('Bu cevap anahtarını silmek istediğinize emin misiniz?')) return;
+      exam.deleteKey(state._editingKey);
+      ui.toast('✓ Silindi', 'success');
+      nav.back();
+    }
+  };
+  
+  // ─── EXAM CAPTURE (fotoğraf/dosya yükleme) ───
+  pages['exam-capture'] = {
+    title: 'Sınav Yükle',
+    open(keyName) {
+      const keys = exam.getKeys();
+      if (!keys[keyName]) { ui.toast('Anahtar bulunamadı', 'error'); return; }
+      exam.startSession({ name: keyName, ...keys[keyName] }, 'single');
+      nav.go('exam-capture');
+    },
+    render() {
+      if (!exam.session) return '<div class="empty">Önce bir anahtar seçin</div>';
+      const keyName = exam.session.key.name;
+      const photoCount = exam.session.photos.length;
+      
+      return `
+        <div class="card" style="margin-bottom:14px">
+          <div class="text-xs" style="margin-bottom:2px">SEÇİLEN ANAHTAR</div>
+          <div style="font-weight:600;font-size:14px">📋 ${escapeHTML(keyName)}</div>
+        </div>
+        
+        <div class="section-label" style="margin:8px 4px 8px">Yükleme Seçenekleri</div>
+        
+        <div class="card card-clickable" onclick="Maarif.pages['exam-capture'].cameraStart()">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="menu-icon teal" style="font-size:18px">📷</div>
+            <div style="flex:1">
+              <div style="font-weight:600;font-size:14px">Kamera ile Çek</div>
+              <div style="font-size:11.5px;color:var(--text-2)">Telefondan yazılı fotoğrafı çek</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card card-clickable" onclick="document.getElementById('exam-file-input').click()">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="menu-icon indigo" style="font-size:18px">🖼️</div>
+            <div style="flex:1">
+              <div style="font-weight:600;font-size:14px">Fotoğraf Yükle</div>
+              <div style="font-size:11.5px;color:var(--text-2)">Galeriden 1 veya daha fazla foto</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card card-clickable" onclick="document.getElementById('exam-pdf-input').click()">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="menu-icon amber" style="font-size:18px">📄</div>
+            <div style="flex:1">
+              <div style="font-weight:600;font-size:14px">PDF Yükle</div>
+              <div style="font-size:11.5px;color:var(--text-2)">Çoklu sayfa, her sayfa = 1 sınav</div>
+            </div>
+          </div>
+        </div>
+        
+        <input type="file" id="exam-file-input" accept="image/*" multiple style="display:none" onchange="Maarif.pages['exam-capture'].onFiles(this.files)">
+        <input type="file" id="exam-pdf-input" accept="application/pdf" style="display:none" onchange="Maarif.pages['exam-capture'].onPDF(this.files[0])">
+        
+        <div class="section-label" style="margin:18px 4px 8px">Yüklenenler (<span id="exam-photo-count">${photoCount}</span>)</div>
+        <div id="exam-photos-host" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px"></div>
+        
+        <button class="btn btn-primary" id="exam-process-btn" onclick="Maarif.pages['exam-capture'].process()" ${photoCount === 0 ? 'style="opacity:0.5"' : ''}>
+          🚀 AI ile İşle (${photoCount} sınav)
+        </button>
+      `;
+    },
+    afterRender() {
+      pages['exam-capture'].renderPhotos();
+    },
+    renderPhotos() {
+      const host = document.getElementById('exam-photos-host');
+      const photos = exam.session ? exam.session.photos : [];
+      if (photos.length === 0) {
+        host.innerHTML = '<div class="text-xs" style="padding:20px;background:var(--bg-1);border:1px dashed var(--line-2);border-radius:10px;text-align:center;width:100%">Henüz foto yüklenmedi</div>';
+      } else {
+        let html = '';
+        photos.forEach(p => {
+          html += `<div class="exam-photo-thumb">
+            <img src="${p.dataUrl}" alt="">
+            <div class="exam-photo-thumb-del" onclick="Maarif.pages['exam-capture'].removePhoto('${p.id}')">×</div>
+          </div>`;
+        });
+        host.innerHTML = html;
+      }
+      document.getElementById('exam-photo-count').textContent = photos.length;
+      const btn = document.getElementById('exam-process-btn');
+      if (btn) {
+        btn.style.opacity = photos.length === 0 ? '0.5' : '1';
+        btn.disabled = photos.length === 0;
+        btn.textContent = '🚀 AI ile İşle (' + photos.length + ' sınav)';
+      }
+    },
+    async onFiles(files) {
+      for (const f of files) {
+        const dataUrl = await readFileAsDataURL(f);
+        const enhanced = await exam.enhanceImage(dataUrl);
+        exam.addPhoto(enhanced, f);
+      }
+      pages['exam-capture'].renderPhotos();
+      ui.toast('✓ ' + files.length + ' foto eklendi', 'success');
+    },
+    async onPDF(file) {
+      if (!file) return;
+      ui.toast('PDF okunuyor...', 'info');
+      try {
+        // PDF.js global mı?
+        if (typeof window.pdfjsLib === 'undefined' && typeof pdfjsLib === 'undefined') {
+          ui.error('PDF.js yüklenmemiş. Lütfen sayfayı yenileyin.');
+          return;
+        }
+        const images = await exam.pdfToImages(file);
+        for (const img of images) {
+          const enhanced = await exam.enhanceImage(img);
+          exam.addPhoto(enhanced, null);
+        }
+        pages['exam-capture'].renderPhotos();
+        ui.toast('✓ ' + images.length + ' sayfa eklendi', 'success');
+      } catch(e) {
+        ui.error('PDF okunamadı: ' + e.message);
+      }
+    },
+    removePhoto(id) {
+      exam.removePhoto(id);
+      pages['exam-capture'].renderPhotos();
+    },
+    cameraStart() {
+      nav.go('exam-camera');
+    },
+    async process() {
+      if (!exam.session || exam.session.photos.length === 0) return;
+      nav.go('exam-process');
+    }
+  };
+  
+  // ─── EXAM CAMERA (canlı kamera) ───
+  pages['exam-camera'] = {
+    title: 'Kamera',
+    render() {
+      return `
+        <div class="exam-camera-area">
+          <video id="exam-video" autoplay playsinline></video>
+          <div class="exam-camera-overlay"></div>
+        </div>
+        <div class="exam-shutter-row">
+          <button class="exam-action-btn" onclick="Maarif.nav.back()">✕</button>
+          <button class="exam-shutter" onclick="Maarif.pages['exam-camera'].snap()"></button>
+          <button class="exam-action-btn" onclick="Maarif.pages['exam-camera'].finish()">✓</button>
+        </div>
+        <canvas id="exam-canvas" style="display:none"></canvas>
+        <div class="text-xs" style="text-align:center;margin-top:8px">Yazılı kağıdını çerçeveye sığdır, ışık iyi olsun</div>
+      `;
+    },
+    async afterRender() {
+      const video = document.getElementById('exam-video');
+      const stream = await exam.openCamera();
+      if (stream) {
+        video.srcObject = stream;
+        pages['exam-camera']._stream = stream;
+      }
+    },
+    async snap() {
+      const video = document.getElementById('exam-video');
+      const canvas = document.getElementById('exam-canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      const enhanced = await exam.enhanceImage(dataUrl);
+      exam.addPhoto(enhanced, null);
+      ui.toast('✓ Foto eklendi (' + exam.session.photos.length + ')', 'success');
+    },
+    finish() {
+      // Kamerayı kapat
+      if (pages['exam-camera']._stream) {
+        pages['exam-camera']._stream.getTracks().forEach(t => t.stop());
+        pages['exam-camera']._stream = null;
+      }
+      nav.back();
+    }
+  };
+  
+  // ─── EXAM PROCESS (AI işleme) ───
+  pages['exam-process'] = {
+    title: 'İşleniyor...',
+    render() {
+      if (!exam.session) return '<div class="empty">Oturum yok</div>';
+      const photos = exam.session.photos;
+      let html = `
+        <div class="text-sm" style="margin-bottom:14px">
+          AI ${photos.length} sınav kağıdını okuyup puanlıyor. Bu işlem 30-90 saniye sürebilir.
+        </div>
+        <div class="exam-progress-bar"><div class="exam-progress-fill" id="exam-prog-fill" style="width:0%"></div></div>
+        <div id="exam-prog-text" style="text-align:center;margin-bottom:14px;font-size:13px;color:var(--text-2)">Başlatılıyor...</div>
+        <div id="exam-batch-list"></div>
+      `;
+      return html;
+    },
+    afterRender() {
+      pages['exam-process'].run();
+    },
+    async run() {
+      const photos = exam.session.photos;
+      const key = exam.session.key;
+      const host = document.getElementById('exam-batch-list');
+      
+      // Liste hazırla
+      let html = '';
+      photos.forEach((p, i) => {
+        html += `<div class="exam-batch-item" id="ebi-${p.id}">
+          <div class="exam-batch-status pending" id="ebs-${p.id}">${i+1}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:600;font-size:13px" id="ebn-${p.id}">Sıra ${i+1}</div>
+            <div class="text-xs" id="ebd-${p.id}">Bekliyor</div>
+          </div>
+        </div>`;
+      });
+      host.innerHTML = html;
+      
+      exam.session.results = [];
+      
+      for (let i = 0; i < photos.length; i++) {
+        const photo = photos[i];
+        await pages['exam-process'].processSingle(photo, i, photos.length);
+      }
+      
+      // Tüm bittikten sonra review sayfasına git
+      setTimeout(() => nav.go('exam-review'), 800);
+    },
+    async processSingle(photo, idx, total) {
+      const statusEl = document.getElementById('ebs-' + photo.id);
+      const nameEl = document.getElementById('ebn-' + photo.id);
+      const descEl = document.getElementById('ebd-' + photo.id);
+      const progFill = document.getElementById('exam-prog-fill');
+      const progText = document.getElementById('exam-prog-text');
+      
+      const stepProgress = (step, txt) => {
+        const total_steps = total * 3;
+        const done = idx * 3 + step;
+        progFill.style.width = Math.round(done / total_steps * 100) + '%';
+        progText.textContent = '(' + (idx+1) + '/' + total + ') ' + txt;
+        descEl.textContent = txt;
+      };
+      
+      try {
+        statusEl.className = 'exam-batch-status processing';
+        statusEl.innerHTML = '<div class="spinner" style="width:14px;height:14px"></div>';
+        
+        // Adım 1: Öğrenci eşleştirme
+        stepProgress(0, 'Öğrenci tanınıyor...');
+        const studentMatch = await exam.detectStudent(photo.dataUrl);
+        nameEl.textContent = studentMatch.matchedName || studentMatch.rawName || 'Tanınamadı';
+        
+        // Adım 2: Puanlama
+        stepProgress(1, 'Cevaplar okunuyor ve puanlanıyor...');
+        const gradeResult = await exam.gradeExam(photo.dataUrl, exam.session.key);
+        if (gradeResult.error) throw new Error(gradeResult.error);
+        
+        // Adım 3: İşaretli PDF üret
+        stepProgress(2, 'İşaretli PDF oluşturuluyor...');
+        const studentInfo = studentMatch.studentId 
+          ? data.getStudent(studentMatch.studentId) 
+          : { ad: studentMatch.rawName || '?', sinif: studentMatch.rawClass || '?' };
+        const annotatedPdf = await exam.annotatePDF(photo.dataUrl, gradeResult, studentInfo);
+        
+        // Sonuç kaydet
+        exam.session.results.push({
+          photoId: photo.id,
+          dataUrl: photo.dataUrl,
+          studentMatch: studentMatch,
+          gradeResult: gradeResult,
+          annotatedPdf: annotatedPdf
+        });
+        
+        statusEl.className = 'exam-batch-status done';
+        statusEl.textContent = '✓';
+        descEl.textContent = (gradeResult.totalScore || 0) + '/' + (gradeResult.maxScore || 100) + ' puan';
+      } catch(e) {
+        console.error('İşleme hatası (' + photo.id + '):', e);
+        statusEl.className = 'exam-batch-status error';
+        statusEl.textContent = '✗';
+        descEl.textContent = 'Hata: ' + e.message;
+        exam.session.results.push({
+          photoId: photo.id,
+          dataUrl: photo.dataUrl,
+          error: e.message
+        });
+      }
+    }
+  };
+  
+  // ─── EXAM REVIEW (öğretmen onayı) ───
+  pages['exam-review'] = {
+    title: 'Onayla & Kaydet',
+    render() {
+      if (!exam.session || exam.session.results.length === 0) return '<div class="empty">Sonuç yok</div>';
+      const results = exam.session.results;
+      const success = results.filter(r => !r.error).length;
+      const failed = results.length - success;
+      
+      let html = `
+        <div class="exam-result-card">
+          <div style="font-size:11px;color:var(--text-2);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.1em">İşleme Tamamlandı</div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-family:var(--font-display);font-weight:800;font-size:24px">${success}/${results.length}</div>
+              <div style="font-size:11.5px;color:var(--text-2)">başarılı${failed ? ' · ' + failed + ' hatalı' : ''}</div>
+            </div>
+            <div style="font-size:11px;color:var(--text-2)">${escapeHTML(exam.session.key.name)}</div>
+          </div>
+        </div>
+        
+        <div class="section-label" style="margin:14px 4px 8px">Sonuçlar — Öğretmen Onayı</div>
+        <div class="text-xs" style="margin:0 4px 14px">Her sonuç için öğrenci eşleştirmesini ve puanı kontrol edin, sonra "Hepsini Kaydet"e basın.</div>
+        
+        <div id="exam-review-list"></div>
+        
+        <button class="btn btn-primary mt-3" onclick="Maarif.pages['exam-review'].saveAll()">💾 Hepsini Kaydet (Drive + Öğrenci Profili)</button>
+      `;
+      return html;
+    },
+    afterRender() {
+      pages['exam-review'].renderList();
+    },
+    renderList() {
+      const host = document.getElementById('exam-review-list');
+      const results = exam.session.results;
+      let html = '';
+      
+      // Tüm öğrencileri al (manuel seçim için)
+      const allStudents = [];
+      for (const cls in state.db.classes) {
+        state.db.classes[cls].forEach(s => {
+          allStudents.push({ id: s.id, label: s.ad + ' · ' + cls + (s.no ? ' · No:' + s.no : '') });
+        });
+      }
+      const studentOptions = '<option value="">— Öğrenci Seç —</option>' +
+        allStudents.map(s => '<option value="' + s.id + '">' + escapeHTML(s.label) + '</option>').join('');
+      
+      results.forEach((r, idx) => {
+        if (r.error) {
+          html += `<div class="card" style="border-left:3px solid var(--rose);margin-bottom:10px">
+            <div style="font-weight:600;font-size:13px;margin-bottom:4px">Sıra ${idx+1} · HATA</div>
+            <div class="text-xs" style="color:var(--rose)">${escapeHTML(r.error)}</div>
+          </div>`;
+          return;
+        }
+        const matched = r.studentMatch.studentId;
+        const grade = r.gradeResult;
+        const pct = Math.round((grade.totalScore / grade.maxScore) * 100);
+        const pctColor = pct >= 70 ? 'var(--emerald)' : pct >= 45 ? 'var(--amber)' : 'var(--rose)';
+        
+        html += `<div class="card" style="margin-bottom:10px;border-left:3px solid ${pctColor}">
+          <div style="display:flex;gap:12px;margin-bottom:10px">
+            <img src="${r.dataUrl}" style="width:60px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--line-2)" onclick="Maarif.pages['exam-review'].showImage('${r.photoId}')">
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:4px">
+                <div style="font-weight:700;font-size:13px;color:${pctColor}">${grade.totalScore}/${grade.maxScore}</div>
+                <div style="font-size:11px;color:var(--text-3)">${(r.studentMatch.confidence * 100).toFixed(0)}% güven</div>
+              </div>
+              
+              <select class="select" id="ervm-${r.photoId}" style="margin-bottom:6px;font-size:12px;padding:8px 10px" onchange="Maarif.pages['exam-review'].setStudent('${r.photoId}',this.value)">
+                ${studentOptions.replace('value="' + matched + '"', 'value="' + matched + '" selected')}
+              </select>
+              
+              <div class="text-xs" style="margin-bottom:6px">
+                <b>AI okudu:</b> "${escapeHTML(r.studentMatch.rawName || '?')}" 
+                ${r.studentMatch.rawClass ? '· ' + escapeHTML(r.studentMatch.rawClass) : ''}
+              </div>
+              
+              <select class="select" id="ervs-${r.photoId}" style="font-size:12px;padding:8px 10px">
+                <option value="yazili1">📝 Yazılı 1 olarak kaydet</option>
+                <option value="yazili2">📝 Yazılı 2 olarak kaydet</option>
+              </select>
+            </div>
+          </div>
+          
+          <details style="font-size:12px">
+            <summary style="cursor:pointer;color:var(--indigo);font-weight:600;font-size:12px">Cevap dökümünü göster (${(grade.answers||[]).length} soru)</summary>
+            <div style="margin-top:8px">
+              ${(grade.answers || []).map(a => `
+                <div class="exam-q-answer ${a.status}">
+                  <div class="exam-q-header">
+                    <span class="exam-q-num">Soru ${a.n}</span>
+                    <span class="exam-q-score" style="color:${a.status==='correct'?'var(--emerald)':a.status==='partial'?'var(--amber)':'var(--rose)'}">${a.score}/${a.maxScore}</span>
+                  </div>
+                  <div class="exam-q-text">"${escapeHTML((a.studentAnswer||'(boş)').slice(0,140))}"</div>
+                  ${a.feedback ? '<div style="font-size:11px;color:var(--text-3);margin-top:4px">▸ ' + escapeHTML(a.feedback) + '</div>' : ''}
+                </div>
+              `).join('')}
+            </div>
+          </details>
+        </div>`;
+      });
+      host.innerHTML = html;
+    },
+    setStudent(photoId, studentId) {
+      const r = exam.session.results.find(r => r.photoId === photoId);
+      if (r) r.studentMatch.studentId = studentId || null;
+    },
+    showImage(photoId) {
+      const r = exam.session.results.find(r => r.photoId === photoId);
+      if (!r) return;
+      ui.openSheet('Sınav Kağıdı', '<img src="' + r.dataUrl + '" style="width:100%;border-radius:8px">');
+    },
+    async saveAll() {
+      const results = exam.session.results.filter(r => !r.error);
+      if (results.length === 0) { ui.toast('Kaydedilecek sonuç yok', 'error'); return; }
+      
+      // Eşleşmemiş olanları kontrol et
+      const unmatched = results.filter(r => !r.studentMatch.studentId);
+      if (unmatched.length > 0) {
+        if (!confirm(unmatched.length + ' sonuçta öğrenci eşleştirmesi yok. Yine de devam edelim mi? (Eşleşmeyenler sadece Drive\'a kaydedilir, öğrenci profiline işlenmez)')) return;
+      }
+      
+      let saved = 0;
+      let failed = 0;
+      ui.toast('Kaydediliyor...', 'info');
+      
+      for (const r of results) {
+        try {
+          // 1. Annotated PDF'i Drive'a yükle
+          const studentInfo = r.studentMatch.studentId 
+            ? data.getStudent(r.studentMatch.studentId) 
+            : { ad: r.studentMatch.rawName || 'bilinmiyor', sinif: r.studentMatch.rawClass || '' };
+          const filename = 'Maarif_Sinav_' + (studentInfo.ad || 'X').replace(/\s+/g, '_') + '_' + 
+                           (exam.session.key.name || '').replace(/\s+/g, '_') + '_' + 
+                           Date.now() + '.pdf';
+          
+          let driveFileId = null;
+          if (r.annotatedPdf) {
+            try {
+              const uploadRes = await exam.saveResultToDrive(r.annotatedPdf, filename);
+              driveFileId = uploadRes.id;
+            } catch(e) { console.warn('Drive kaydetme atlandı:', e.message); }
+          }
+          
+          // 2. Öğrenci profiline kaydet (eğer eşleşmişse)
+          if (r.studentMatch.studentId) {
+            const slot = document.getElementById('ervs-' + r.photoId).value || 'yazili1';
+            exam.saveToStudent(r.studentMatch.studentId, slot, {
+              ...r.gradeResult,
+              driveFileId: driveFileId,
+              examKeyName: exam.session.key.name,
+              processedAt: new Date().toISOString()
+            });
+          }
+          saved++;
+        } catch(e) {
+          console.error('Kayıt hatası:', e);
+          failed++;
+        }
+      }
+      
+      ui.toast('✓ ' + saved + ' kaydedildi' + (failed ? ' · ' + failed + ' hata' : ''), 'success');
+      exam.session = null;
+      setTimeout(() => nav.go('home'), 1200);
+    }
+  };
+  
+  /* ── Util ── */
+  function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result);
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+  }
   // ─── ASSESSMENT FORM ───
   pages.assess = {
     open(type) {
@@ -1956,7 +3207,7 @@ SADECE şu JSON formatını döndür, başka hiçbir şey yazma:
 
   // ═══════════════ PUBLIC API ═══════════════
   return {
-    auth, data, drive, ai, nav, pages, ui, state,
+    auth, data, drive, ai, exam, nav, pages, ui, state,
     CONFIG, MAARIF_CRITERIA
   };
 })();
