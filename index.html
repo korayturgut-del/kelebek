@@ -1526,9 +1526,6 @@ input, textarea, select, [contenteditable] {
 }
 
 
-<!-- ============================================================ -->
-
-
 </style>
 <style>
 
@@ -11681,11 +11678,14 @@ function doLogout(){
 }
 
 // Google Auth başlat
+let _gsiInitialized = false;
 function initGoogleAuth(){
   if(typeof google === 'undefined' || !google.accounts){
     setTimeout(initGoogleAuth, 200);
     return;
   }
+  if(_gsiInitialized) return;
+  _gsiInitialized = true;
 
   // Session kontrolü
   const saved = sessionStorage.getItem('kelebek_user');
