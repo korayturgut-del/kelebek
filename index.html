@@ -2760,10 +2760,22 @@ MAARİF SÜREÇ DEĞERLENDİRMESİ (her cevap için):
         impactRange: [2, 4],
         polarity: 'positive'
       },
-      academic_help: {
+     academic_help: {
         // Birine akademik konuda yardım etti — multi-domain!
         domains: ['sosyal', 'akademik'],
-        allowed// MODULE: NAV — Sayfa yönlendirme
+        allowed: [
+          {category:'egilim_sosyal', item:'Empati', priority:5, direction:'positive'},
+          {category:'cati', item:'Sorumluluk', priority:4, direction:'positive'}
+        ],
+        blocked: ['Estetik', 'Vatansever'],
+        impactRange: [2, 4],
+        polarity: 'positive'
+      }
+    }
+  };
+
+  // ═══════════════════════════════════════════════
+  // MODULE: NAV — Sayfa yönlendirme
   // ═══════════════════════════════════════════════
   const nav = {
     go(page, params = {}) {
