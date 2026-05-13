@@ -19,7 +19,7 @@
   MODULE: AUTH     : auth = { init, onCredential, unlock, logout, ensureToken }
   MODULE: DATA     : data = { LS_KEY, loadLocal, saveLocal, addClass, addStudent, ... }
   MODULE: DRIVE    : drive = { save, loadList, loadFile }
-  MODULE: AI       : ai = { suggestCriteria } — eski, kullanılmıyor
+  MODULE: AI       : KALDIRILDI (v0.7.2) - yerine daily.analyzeWithAI ve exam.gradeStudentPaper
   MODULE: DAILY    : daily = { RULES, getAllowedCriteria, normalizeWeights, analyzeWithAI, ... }
   MODULE: EXAM     : exam = { openCamera, pdfToImages, detectStudent, gradeExam, annotatePDF }
   MODULE: NAV      : nav = { go, back, _render }
@@ -1372,7 +1372,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
 
     <div class="section-label">Veri</div>
     <div class="menu-list">
-      <div class="menu-item" onclick="Maarif.drive.save()">
+      <div class="menu-item" onclick="Maarif.flow.driveSave()">
         <div class="menu-icon emerald">☁️</div>
         <div class="menu-text">
           <div class="menu-title">Drive'a Yedekle</div>
@@ -1380,7 +1380,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
         </div>
         <div class="menu-chev">›</div>
       </div>
-      <div class="menu-item" onclick="Maarif.drive.loadList()">
+      <div class="menu-item" onclick="Maarif.flow.driveLoadList()">
         <div class="menu-icon rose">⬇️</div>
         <div class="menu-text">
           <div class="menu-title">Drive'dan Yükle</div>
@@ -1684,156 +1684,98 @@ const Maarif = (function() {
   // ═══════════════════════════════════════════════
   // MODULE: DRIVE — Google Drive backup/restore
   // ═══════════════════════════════════════════════
+  // KURAL: Bu modül UI çağırmaz, sadece veri işler ve Promise döndürür.
+  //        UI bildirimleri (toast/error) çağıran taraf (pages) tarafından yapılır.
+  // ═══════════════════════════════════════════════
   const drive = {
+    // İç yardımcı: token'ı Promise tabanlı al (callback dünyasından kurtar)
+    async _withToken() {
+      return new Promise((resolve, reject) => {
+        try {
+          auth.ensureToken(() => {
+            if (state.accessToken) resolve(state.accessToken);
+            else reject(new Error('Token alınamadı'));
+          });
+        } catch (e) { reject(e); }
+      });
+    },
+
+    /** Yedeği Drive'a kaydeder. Başarılıysa true, hata varsa Error fırlatır. */
     async save() {
-      auth.ensureToken(async () => {
-        ui.toast('Drive\'a kaydediliyor...', 'info');
-        try {
-          const filename = CONFIG.BACKUP_FILENAME + '_' + formatDate(new Date()) + '.maarif.json';
-          const payload = {
-            type: 'maarif-backup',
-            version: CONFIG.APP_VERSION,
-            timestamp: new Date().toISOString(),
-            user: state.user.email,
-            data: state.db
-          };
-          const result = await drive._uploadJSON(filename, payload);
-          if (result.ok) {
-            state.db.lastSync = new Date().toISOString();
-            data.saveLocal();
-            ui.toast('✓ Drive\'a kaydedildi', 'success');
-            ui.refreshStats();
-          } else {
-            ui.error('Drive kayıt hatası: HTTP ' + result.status);
-          }
-        } catch(e) {
-          ui.error('Kayıt hatası: ' + e.message);
-        }
-      });
+      const token = await drive._withToken();
+      const filename = CONFIG.BACKUP_FILENAME + '_' + formatDate(new Date()) + '.maarif.json';
+      const payload = {
+        type: 'maarif-backup',
+        version: CONFIG.APP_VERSION,
+        timestamp: new Date().toISOString(),
+        user: state.user ? state.user.email : null,
+        data: state.db
+      };
+      const result = await drive._uploadJSON(filename, payload, token);
+      if (!result.ok) {
+        throw new Error('Drive kayıt hatası: HTTP ' + result.status);
+      }
+      // Local state'i güncelle (DATA modülünün işi, ama bu modül kendi sonucu için yapıyor)
+      state.db.lastSync = new Date().toISOString();
+      data.saveLocal();
+      return { ok: true, filename: filename, syncedAt: state.db.lastSync };
     },
 
+    /** Drive'daki yedek listesini döner. Boşsa [] döner. */
     async loadList() {
-      auth.ensureToken(async () => {
-        try {
-          const q = encodeURIComponent("name contains '.maarif.json'");
-          const r = await fetch(
-            'https://www.googleapis.com/drive/v3/files?q=' + q + '&orderBy=modifiedTime desc&pageSize=20&fields=files(id,name,modifiedTime)',
-            { headers: { Authorization: 'Bearer ' + state.accessToken } }
-          );
-          if (!r.ok) {
-            if (r.status === 403) {
-              ui.error('Drive API etkin değil. Google Cloud Console → APIs → Drive API → Enable');
-            } else {
-              ui.error('Drive listesi alınamadı: HTTP ' + r.status);
-            }
-            return;
-          }
-          const json = await r.json();
-          if (!json.files || json.files.length === 0) {
-            ui.toast('Drive\'da yedek bulunamadı', 'error');
-            return;
-          }
-          drive._showFileSheet(json.files);
-        } catch(e) {
-          ui.error('Drive okuma hatası: ' + e.message);
+      const token = await drive._withToken();
+      const q = encodeURIComponent("name contains '.maarif.json'");
+      const r = await fetch(
+        'https://www.googleapis.com/drive/v3/files?q=' + q + '&orderBy=modifiedTime desc&pageSize=20&fields=files(id,name,modifiedTime)',
+        { headers: { Authorization: 'Bearer ' + token } }
+      );
+      if (!r.ok) {
+        if (r.status === 403) {
+          throw new Error('Drive API etkin değil. Google Cloud Console → APIs → Drive API → Enable');
         }
-      });
+        throw new Error('Drive listesi alınamadı: HTTP ' + r.status);
+      }
+      const json = await r.json();
+      return json.files || [];
     },
 
+    /** Belirtilen dosyayı yükler ve state.db'yi günceller. Yedek değilse null döner. */
     async loadFile(fileId) {
-      auth.ensureToken(async () => {
-        try {
-          ui.toast('Yedek yükleniyor...', 'info');
-          const r = await fetch(
-            'https://www.googleapis.com/drive/v3/files/' + fileId + '?alt=media',
-            { headers: { Authorization: 'Bearer ' + state.accessToken } }
-          );
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          const json = await r.json();
-          if (json.type !== 'maarif-backup') {
-            if (!confirm('Bu Maarif yedeği değil. Yine de yükleyelim mi?')) return;
-          }
-          state.db = json.data;
-          data.saveLocal();
-          ui.toast('✓ Yedek yüklendi', 'success');
-          ui.closeSheet();
-          ui.refreshStats();
-          nav.go('home');
-        } catch(e) {
-          ui.error('Yükleme hatası: ' + e.message);
-        }
-      });
+      const token = await drive._withToken();
+      const r = await fetch(
+        'https://www.googleapis.com/drive/v3/files/' + fileId + '?alt=media',
+        { headers: { Authorization: 'Bearer ' + token } }
+      );
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const json = await r.json();
+      if (json.type !== 'maarif-backup') {
+        // Yedek formatı uymuyorsa karar çağıran tarafa kalsın
+        return { ok: false, reason: 'not-a-maarif-backup', json: json };
+      }
+      state.db = json.data;
+      data.saveLocal();
+      return { ok: true, loadedAt: new Date().toISOString() };
     },
 
-    _showFileSheet(files) {
-      let html = '';
-      files.forEach(f => {
-        const date = f.modifiedTime ? new Date(f.modifiedTime).toLocaleString('tr-TR') : '';
-        html += `<div class="card card-clickable" onclick="Maarif.drive.loadFile('${f.id}')">
-          <div style="font-weight:600;font-size:13.5px;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHTML(f.name)}</div>
-          <div style="font-size:11px;color:var(--text-3)">${date}</div>
-        </div>`;
-      });
-      ui.openSheet('Drive Yedekleri', html);
-    },
-
-    async _uploadJSON(filename, payload) {
+    async _uploadJSON(filename, payload, token) {
       const metadata = { name: filename, mimeType: 'application/json' };
       const form = new FormData();
       form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
       form.append('file', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
       const r = await fetch(
         'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',
-        { method: 'POST', headers: { Authorization: 'Bearer ' + state.accessToken }, body: form }
+        { method: 'POST', headers: { Authorization: 'Bearer ' + token }, body: form }
       );
       return { ok: r.ok, status: r.status };
     }
   };
 
   // ═══════════════════════════════════════════════
-  // MODULE: AI (legacy) — eski, kullanılmıyor (daily.analyzeWithAI kullanılıyor)
+  // MODULE: AI — KALDIRILDI (v0.7.2)
   // ═══════════════════════════════════════════════
-  const ai = {
-    async suggestCriteria(observation, assessType) {
-      const systemPrompt = `Sen Türkiye Yüzyılı Maarif Modeli felsefesini bilen bir pedagoji uzmanısın.
-
-Görevin: Öğretmenin yazdığı bir gözlemi/performans olayını analiz et ve Maarif Modeli kriterlerine göre dağıt.
-
-KRİTERLER:
-- Çatı Değerler: Adalet, Saygı, Sorumluluk
-- Entelektüel Eğilimler: Merak, Yaratıcılık, Eleştirel Bakış, Odaklanma
-- Sosyal Eğilimler: Empati, Girişkenlik, Güven, Oyunseverlik
-- Benlik Eğilimleri: Azim ve Kararlılık, Öz Yeterlilik, Bağımsızlık
-- Karakter: Bilge, Ahlaklı, Merhametli, Estetik, Üretken, Vatansever
-
-PUAN DAĞITIMI: Toplamı 100 olacak şekilde, en uygun 2-4 kritere yüzde olarak dağıt.
-
-SADECE şu JSON formatını döndür, başka hiçbir şey yazma:
-{"suggestions":[{"category":"egilim_sosyal","item":"Empati","weight":40,"reason":"Arkadaşına yardım etti"},{"category":"cati","item":"Adalet","weight":30,"reason":"Paylaşım yaptı"}]}`;
-
-      const userPrompt = `Değerlendirme türü: ${assessType}\nÖğretmen gözlemi: "${observation}"\n\nBu olayı Maarif kriterlerine dağıt.`;
-
-      try {
-        const r = await fetch(CONFIG.AI_WORKER, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            systemPrompt: systemPrompt,
-            userPrompt: userPrompt,
-            jsonMode: true,
-            temperature: 0.3
-          })
-        });
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        const json = await r.json();
-        const text = (json.text || '').replace(/```json/g, '').replace(/```/g, '').trim();
-        return JSON.parse(text);
-      } catch(e) {
-        console.error('AI hata:', e);
-        return null;
-      }
-    }
-  };
+  // Eski 'ai.suggestCriteria' fonksiyonu kullanılmıyordu.
+  // Yerine 'daily.analyzeWithAI' ve 'exam.gradeStudentPaper' kullanılıyor.
+  // Eğer eski bir koddan referans gelirse, daily veya exam modülüne yönlendirin.
 
 
   // ═══════════════════════════════════════════════════════════
@@ -5000,18 +4942,24 @@ OUTPUT JSON:
       const btn = document.getElementById('ai-btn');
       btn.innerHTML = '<span class="spinner"></span> Düşünüyor...';
       btn.disabled = true;
-      const result = await ai.suggestCriteria(obs, state.currentAssessType);
+
+      // Yeni AI sistemi (daily.analyzeWithAI) — eski ai.suggestCriteria kaldırıldı
+      const result = await daily.analyzeWithAI(obs).catch(e => {
+        console.error('AI hatası:', e);
+        return null;
+      });
+
       btn.innerHTML = '🤖 AI Kriter Öner';
       btn.disabled = false;
-      if (!result || !result.suggestions) {
+      if (!result || !result.criteria || !result.criteria.length) {
         ui.toast('AI önerisi alınamadı', 'error');
         return;
       }
-      // Apply suggestions
-      const selected = result.suggestions.map(s => ({
-        category: s.category,
-        item: s.item,
-        weight: s.weight
+      // Apply suggestions — yeni format {item, weight} → eski format {category, item, weight}
+      const selected = result.criteria.map(c => ({
+        category: c.category || 'auto',
+        item: c.item,
+        weight: c.weight
       }));
       pages['assess-form'].renderCriteria(selected);
       ui.toast('✓ AI önerileri uygulandı', 'success');
@@ -5518,9 +5466,73 @@ OUTPUT JSON:
     boot();
   }
 
+  // ═══════════════════════════════════════════════
+  // FLOW: UI ↔ DRIVE bağlayıcısı (Ana Akış)
+  // ═══════════════════════════════════════════════
+  // KURAL: drive modülü UI çağırmaz. UI ↔ veri bağlantısı burada yapılır.
+  const flow = {
+    async driveSave() {
+      ui.toast("Drive'a kaydediliyor...", 'info');
+      try {
+        const result = await drive.save();
+        ui.toast("✓ Drive'a kaydedildi", 'success');
+        ui.refreshStats();
+        return result;
+      } catch (e) {
+        ui.error(e.message || 'Drive kayıt hatası');
+      }
+    },
+
+    async driveLoadList() {
+      try {
+        const files = await drive.loadList();
+        if (!files.length) {
+          ui.toast("Drive'da yedek bulunamadı", 'error');
+          return;
+        }
+        let html = '';
+        files.forEach(f => {
+          const date = f.modifiedTime ? new Date(f.modifiedTime).toLocaleString('tr-TR') : '';
+          html += `<div class="card card-clickable" onclick="Maarif.flow.driveLoadFile('${f.id}')">
+            <div style="font-weight:600;font-size:13.5px;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHTML(f.name)}</div>
+            <div style="font-size:11px;color:var(--text-3)">${date}</div>
+          </div>`;
+        });
+        ui.openSheet('Drive Yedekleri', html);
+      } catch (e) {
+        ui.error(e.message || 'Drive okuma hatası');
+      }
+    },
+
+    async driveLoadFile(fileId) {
+      ui.toast('Yedek yükleniyor...', 'info');
+      try {
+        const result = await drive.loadFile(fileId);
+        if (!result.ok) {
+          // Maarif yedeği değil — onay iste
+          if (result.reason === 'not-a-maarif-backup') {
+            if (!confirm('Bu Maarif yedeği değil. Yine de yükleyelim mi?')) return;
+            state.db = result.json;
+            data.saveLocal();
+          } else {
+            ui.error('Yedek yüklenemedi');
+            return;
+          }
+        }
+        ui.toast('✓ Yedek yüklendi', 'success');
+        ui.closeSheet();
+        ui.refreshStats();
+        nav.go('home');
+      } catch (e) {
+        ui.error(e.message || 'Yükleme hatası');
+      }
+    }
+  };
+
+
   // ═══════════════ PUBLIC API ═══════════════
   return {
-    auth, data, drive, ai, exam, daily, nav, pages, ui, state,
+    auth, data, drive, exam, daily, nav, pages, ui, state, flow,
     CONFIG, MAARIF_CRITERIA
   };
 })();
