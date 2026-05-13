@@ -1483,54 +1483,79 @@ const Maarif = (function() {
   };
 
   // ═══════════════════════════════════════════════
+  // MODULE: AUTH
+// ═══════════════════════════════════════════════
   // MODULE: AUTH — Google login + Drive token
   // ═══════════════════════════════════════════════
   const auth = {
     init() {
+      // Eğer Google scripti henüz yüklenmediyse bekle
       if (typeof google === 'undefined' || !google.accounts) {
-        setTimeout(() => auth.init(), 200);
+        setTimeout(() => auth.init(), 300);
         return;
       }
       if (state.initialized) return;
       state.initialized = true;
 
-      // Restore session
+      // Kayıtlı oturumu kontrol et
       const saved = sessionStorage.getItem('maarif_user');
       if (saved) {
         try {
           state.user = JSON.parse(saved);
           auth.unlock();
-        } catch(e) {}
+        } catch(e) {
+          console.warn('Oturum okuma hatası:', e);
+        }
       }
 
-      // Google ID for login
-      google.accounts.id.initialize({
-        client_id: CONFIG.CLIENT_ID,
-        callback: auth.onCredential,
-        auto_select: false,
-        cancel_on_tap_outside: true
-      });
-      google.accounts.id.renderButton(
-        document.getElementById('google-login-target'),
-        { theme: 'filled_blue', size: 'large', shape: 'pill', text: 'continue_with', width: 280 }
-      );
+      try {
+        // Google ID başlat
+        google.accounts.id.initialize({
+          client_id: CONFIG.CLIENT_ID,
+          callback: auth.onCredential,
+          auto_select: false,
+          cancel_on_tap_outside: true
+        });
+        
+        // Butonu Ekrana Çiz
+        const target = document.getElementById('google-login-target');
+        if (target) {
+          google.accounts.id.renderButton(
+            target,
+            { theme: 'filled_blue', size: 'large', shape: 'pill', text: 'continue_with', width: 280 }
+          );
+        } else {
+          console.error('Google login target div bulunamadı!');
+        }
+      } catch(err) {
+        console.error('Google Butonu Çizilemedi:', err);
+        const errDiv = document.getElementById('login-error');
+        if (errDiv) {
+          errDiv.textContent = 'Google Giriş sistemi yüklenemedi. Tarayıcınızın reklam/izleyici engelleyicisini kapatıp sayfayı yenileyin.';
+          errDiv.classList.remove('hidden');
+        }
+      }
 
-      // OAuth token client for Drive
-      state.tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: CONFIG.CLIENT_ID,
-        scope: CONFIG.DRIVE_SCOPES,
-        callback: (resp) => {
-          if (resp.access_token) {
-            state.accessToken = resp.access_token;
-            sessionStorage.setItem('maarif_token', resp.access_token);
-            if (state.tokenClient._pending) {
-              const cb = state.tokenClient._pending;
-              state.tokenClient._pending = null;
-              cb();
+      // Drive Token Sistemi
+      try {
+        state.tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: CONFIG.CLIENT_ID,
+          scope: CONFIG.DRIVE_SCOPES,
+          callback: (resp) => {
+            if (resp.access_token) {
+              state.accessToken = resp.access_token;
+              sessionStorage.setItem('maarif_token', resp.access_token);
+              if (state.tokenClient._pending) {
+                const cb = state.tokenClient._pending;
+                state.tokenClient._pending = null;
+                cb();
+              }
             }
           }
-        }
-      });
+        });
+      } catch(err) {
+        console.error('Google Token Client başlatılamadı:', err);
+      }
     },
 
     onCredential(response) {
@@ -1543,6 +1568,7 @@ const Maarif = (function() {
         };
         sessionStorage.setItem('maarif_user', JSON.stringify(state.user));
         auth.unlock();
+        
         // Drive token al
         setTimeout(() => {
           if (state.tokenClient && !state.accessToken) {
@@ -1550,19 +1576,30 @@ const Maarif = (function() {
           }
         }, 800);
       } catch(e) {
-        ui.error('Giriş başarısız: ' + e.message);
+        const errDiv = document.getElementById('login-error');
+        if(errDiv) {
+          errDiv.textContent = 'Giriş başarısız: ' + e.message;
+          errDiv.classList.remove('hidden');
+        }
       }
     },
 
     unlock() {
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('user-name').textContent = state.user.name;
+      const loginScreen = document.getElementById('login-screen');
+      if (loginScreen) loginScreen.style.display = 'none';
+      
+      const userNameEl = document.getElementById('user-name');
+      if (userNameEl) userNameEl.textContent = state.user.name;
+      
       const av = document.getElementById('user-avatar');
-      if (state.user.picture) {
-        av.innerHTML = '<img src="' + state.user.picture + '" alt="">';
-      } else {
-        av.textContent = (state.user.name || 'M').charAt(0).toUpperCase();
+      if (av) {
+        if (state.user.picture) {
+          av.innerHTML = '<img src="' + state.user.picture + '" alt="">';
+        } else {
+          av.textContent = (state.user.name || 'M').charAt(0).toUpperCase();
+        }
       }
+      
       data.loadLocal();
       ui.refreshStats();
     },
@@ -1581,16 +1618,13 @@ const Maarif = (function() {
         return;
       }
       if (!state.tokenClient) {
-        ui.error('Google sistemi hazır değil. Sayfayı yenileyin.');
+        ui.error('Google sistemi hazır değil. Lütfen sayfayı yenileyin.');
         return;
       }
       state.tokenClient._pending = callback;
       state.tokenClient.requestAccessToken({ prompt: '' });
     }
-  };
-
-  // ═══════════════════════════════════════════════
-  // MODULE: DATA — Local DB (classes, students, assessments)
+  };// MODULE: DATA — Local DB (classes, students, assessments)
   // ═══════════════════════════════════════════════
   const data = {
     LS_KEY: 'maarif_db_v1',
