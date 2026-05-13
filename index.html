@@ -2475,7 +2475,7 @@ MAARİF SÜREÇ DEĞERLENDİRMESİ (her cevap için):
       data.saveLocal();
     },
     
-    /* Süreç puanı durumu */
+   /* Süreç puanı durumu */
     getStatus(score) {
       // 100 üzerinden değerlendir
       if (score >= 110) return { label: 'Yerleşmiş+', color: 'var(--emerald)', pct: 100 };
@@ -2485,6 +2485,52 @@ MAARİF SÜREÇ DEĞERLENDİRMESİ (her cevap için):
       return                  { label: 'Yoğun Destek',    color: 'var(--rose)',  pct: Math.max(0, score) };
     },
     
+    /* ── EKSİK OLAN AI ANALİZ FONKSİYONU ── */
+    async analyzeWithAI(text) {
+      const systemPrompt = `Sen Türkiye Yüzyılı Maarif Modeli felsefesini bilen bir pedagoji uzmanısın.
+Öğretmenin yazdığı serbest metin gözlemini analiz et.
+Olay tek bir davranış mı, yoksa birden çok farklı davranış mı (isMultiEvent) tespit et.
+SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
+{
+  "isMultiEvent": false,
+  "label": "Olayın çok kısa özeti (örn: Arkadaşına yardım etti)",
+  "scoreImpact": 3,
+  "polarity": "positive",
+  "explanation": "Maarif modeline göre 1 cümlelik pedagojik açıklama",
+  "confidence": 0.9,
+  "needsReview": false,
+  "domains": ["sosyal"],
+  "context": { "intent": "intentional", "severity": "medium", "harm": "none" },
+  "criteria": [
+    { "category": "egilim_sosyal", "item": "Empati", "weight": 60 },
+    { "category": "cati", "item": "Sorumluluk", "weight": 40 }
+  ],
+  "events": []
+}
+ÖNEMLİ KATEGORİLER: cati, egilim_entelektuel, egilim_sosyal, egilim_benlik, karakter. (Puan ağırlıkları toplamı 100 olmalı).`;
+
+      try {
+        const r = await fetch(CONFIG.AI_WORKER, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemPrompt: systemPrompt,
+            userPrompt: text,
+            jsonMode: true,
+            temperature: 0.1,
+            model: 'gemini-2.5-flash' // Günlük analizler için en hızlısı
+          })
+        });
+        
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const json = await r.json();
+        const responseText = (json.text || '').replace(/```json/g, '').replace(/```/g, '').trim();
+        return JSON.parse(responseText);
+      } catch(e) {
+        console.error('AI analiz hatası:', e);
+        return null;
+      }
+    },
 
     /* ═══════════════════════════════════════════════
        RULE ENGINE — Behavior → Allowed Criteria mapping
