@@ -3943,18 +3943,36 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
     applyQuick(templateId) {
       const tpl = daily.getTemplates().find(t => t.id === templateId);
       if (!tpl) return;
-      // Onay sayfasına git
-      state._pendingEvent = {
-        templateId: tpl.id,
-        label: tpl.label,
-        emoji: tpl.emoji,
-        scoreImpact: tpl.impact,
-        polarity: tpl.polarity,
-        criteria: tpl.criteria.slice(),
-        source: 'quick',
-        studentId: state.currentStudent
-      };
-      nav.go('daily-confirm');
+      
+      // 1. KADEMELİ PUAN (ISRAR) KONTROLÜ
+      // Öğrencinin geçmişinde bu olay kaç kere var bakıyoruz
+      const pastEvents = daily.getEvents(state.currentStudent).filter(e => e.templateId === templateId || e.label.includes(tpl.label));
+      const count = pastEvents.length;
+      
+      // İlk seferde etki 1, ikinci seferde 2, üçüncü ve sonrasında max 3. Negatifse eksi (-) yap.
+      let dynamicImpact = tpl.polarity === 'positive' ? Math.min(3, count + 1) : -Math.min(3, count + 1);
+      let israrNotu = count > 0 ? ` (Bu davranışı ${count + 1}. kez sergiliyor. Puan etkisi: ${dynamicImpact})` : " (İlk kez sergiliyor. Puan etkisi: " + dynamicImpact + ")";
+
+      ui.toast('🤖 Hızlı kayıt AI ile zenginleştiriliyor...', 'info');
+      
+      // 2. HIZLI KAYDI AI'A GÖNDERME
+      const prompt = `Öğrenci şu davranışı yaptı: "${tpl.label}".${israrNotu} Bunu pedagojik olarak kısaca analiz et ve uygun kriterleri seç.`;
+      
+      daily.analyzeWithAI(prompt).then(result => {
+        state._pendingEvent = {
+          templateId: tpl.id,
+          label: tpl.label + (count > 0 ? ` (${count + 1}. Tekrar)` : ""),
+          emoji: tpl.emoji,
+          scoreImpact: dynamicImpact, // Kademeli puanı zorla
+          polarity: tpl.polarity,
+          criteria: result && result.criteria ? result.criteria : tpl.criteria.slice(),
+          explanation: result ? result.explanation : "Öğrencinin bu eylemi süreç puanına " + dynamicImpact + " etki etmiştir.",
+          source: 'quick-ai',
+          studentId: state.currentStudent,
+          needsReview: true // Kademeli sistem çalıştığı için öğretmen onay ekranında görsün
+        };
+        Maarif.nav.go('daily-confirm');
+      });
     },
     async applyAI() {
       const txt = document.getElementById('ds-free').value.trim();
@@ -3963,37 +3981,44 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       const result = await daily.analyzeWithAI(txt);
       if (!result) { ui.toast('AI yanıt vermedi', 'error'); return; }
       
-      // Çoklu olay tespit edildi mi?
       if (result.isMultiEvent && result.events && result.events.length > 1) {
-        // Her olayı ayrı pendingMulti'ye yaz
         state._pendingMulti = {
           originalObservation: txt,
-          events: result.events.map(ev => ({
-            observation: ev.originalText,
-            label: ev.label || ev.summary,
-            scoreImpact: ev.scoreImpact || 0,
-            polarity: ev.polarity,
-            criteria: ev.criteria || [],
-            explanation: ev.explanation,
-            behaviorType: ev.behaviorType,
-            context: ev.context,
-            domains: ev.domains || [],
-            confidence: ev.confidence,
-            needsReview: ev.needsReview,
-            source: 'ai',
-            aiOriginal: ev,
-            include: true   // Öğretmen toggle ile çıkarabilir
-          })),
+          events: result.events.map(ev => {
+            // ÇOKLU OLAY İÇİN KADEMELİ PUAN (ISRAR)
+            const evCount = daily.getEvents(state.currentStudent).filter(e => e.label.includes(ev.label || ev.summary)).length;
+            let evImpact = ev.polarity === 'positive' ? Math.min(3, evCount + 1) : -Math.min(3, evCount + 1);
+            
+            return {
+              observation: ev.originalText,
+              label: (ev.label || ev.summary) + (evCount > 0 ? ` (${evCount + 1}. Tekrar)` : ""),
+              scoreImpact: evImpact, // Kademeli etki
+              polarity: ev.polarity,
+              criteria: ev.criteria || [],
+              explanation: ev.explanation,
+              behaviorType: ev.behaviorType,
+              context: ev.context,
+              domains: ev.domains || [],
+              confidence: ev.confidence,
+              needsReview: true,
+              source: 'ai',
+              aiOriginal: ev,
+              include: true
+            };
+          }),
           studentId: state.currentStudent
         };
         ui.toast(`✓ ${result.events.length} farklı davranış tespit edildi`, 'success');
-        nav.go('daily-confirm-multi');
+        Maarif.nav.go('daily-confirm-multi');
       } else {
-        // Tek olay - eski akış
+        // TEK SERBEST YAZIM İÇİN KADEMELİ PUAN
+        const evCount = daily.getEvents(state.currentStudent).filter(e => e.label.includes(result.label)).length;
+        let singleImpact = result.polarity === 'positive' ? Math.min(3, evCount + 1) : -Math.min(3, evCount + 1);
+
         state._pendingEvent = {
           observation: txt,
-          label: result.label || txt.slice(0, 40),
-          scoreImpact: result.scoreImpact || 0,
+          label: result.label + (evCount > 0 ? ` (${evCount + 1}. Tekrar)` : ""),
+          scoreImpact: singleImpact,
           polarity: result.polarity,
           criteria: result.criteria || [],
           explanation: result.explanation,
@@ -4001,7 +4026,7 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
           context: result.context,
           domains: result.domains,
           confidence: result.confidence,
-          needsReview: result.needsReview,
+          needsReview: true,
           source: 'ai',
           aiOriginal: result,
           studentId: state.currentStudent
@@ -4010,10 +4035,10 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       }
     },
     deleteEvent(evId) {
-      if (!confirm('Bu olayı silelim mi?')) return;
+      if (!confirm('Bu olayı silelim mi? (Silseniz bile AI bu kararı öğrenmez, sadece puan geri alınır)')) return;
       daily.deleteEvent(state.currentStudent, evId);
       ui.toast('✓ Silindi', 'success');
-      nav._render('daily-student');
+      Maarif.nav._render('daily-student');
     }
   };
   
