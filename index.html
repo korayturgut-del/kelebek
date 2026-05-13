@@ -2053,8 +2053,8 @@ Sınav kağıdındaki öğrenci bilgisini bul ve listeyle eşleştir.`;
       }
     },
     
-    /* ── AI: SINAV PUANLAMA ── */
-    async gradeExam(imageDataUrl, answerKey) {
+    /* ── AI: SINAV PUANLAMA (Çift Model OCR) ── */
+    async gradeExam(imageDataUrl, answerKey, blankExamImage) {
       const questions = answerKey.questions || [];
       const totalPossible = questions.reduce((s, q) => s + (q.pts || 0), 0);
       
@@ -2062,80 +2062,44 @@ Sınav kağıdındaki öğrenci bilgisini bul ve listeyle eşleştir.`;
       const answerImages = questions.filter(q => q.answerImage).map(q => q.answerImage);
       const hasOpenEnded = questions.some(q => q.openEnded);
       
-      const systemPrompt = `MAARIF EXAM EVALUATION ENGINE
-
-Sen Türk eğitim sistemine hakim, deneyimli bir öğretmensin. Görseldeki yazılı sınav kağıdını OKURKEN üç şey yapacaksın:
-1. Her cevabı puanla
-2. Açık uçlu sorularda BASAMAK/İŞLEM atlamasını uyar
-3. Öğrencinin yazısından Maarif Modeli süreç değerlendirmesi çıkar
-
-CEVAP ANAHTARI:
-${questions.map(q => 
-  `Soru ${q.n} (${q.pts} puan)${q.openEnded ? ' [AÇIK UÇLU — basamak takip et]' : ''}: ${q.q || '(Sorulan)'}\nDoğru cevap: ${q.a}${q.answerImage ? '\n(Görsel cevap anahtarı da eklendi)' : ''}`
-).join('\n\n')}
-
-TOPLAM: ${totalPossible} puan
-
-PUANLAMA KURALLARI:
-- El yazısı/şekil/formül dikkatlice oku. Matematik formüllerini LaTeX/Unicode mantığıyla anla.
-- Cevap KISMEN doğruysa orantılı puan ver.
-- Boş = 0. Yanlış bilgi = 0.
-
-${hasOpenEnded ? `AÇIK UÇLU SORULAR İÇİN ÖZEL KURAL:
-- Eğer çözüm BASAMAKLI olması gerekiyorsa (matematik, fizik, kimya hesabı):
-  - Öğrenci direkt sonucu yazmışsa, "stepsMissing": true işaretle
-  - Sonuç doğru olsa bile, basamak yoksa puanın %20-30'unu kes
-  - Feedback'te "İşlem basamakları gösterilmemiş" uyarısı ekle
-- Öğretmen düşünme sürecini değerlendirebilsin diye basamak kritik` : ''}
-
-MAARİF SÜREÇ DEĞERLENDİRMESİ (her cevap için):
-Öğrencinin cevap yazma tarzından şu gözlemleri çıkar:
-- Düzen ve estetik (yazı düzeni, tertip)
-- Sistematiklik (mantıksal akış)
-- Çaba (uzun çözüm, dolu sayfa)
-- Yaratıcılık (özgün çözüm yolu varsa)
-- Eleştirel bakış (sorgulamış mı, alternatif düşünmüş mü)
-
-ÇIKTI SADECE JSON:
-{
-  "answers": [
-    {
-      "n":1, 
-      "studentAnswer":"...öğrencinin yazdığı...", 
-      "status":"correct|partial|wrong|blank", 
-      "score":10, 
-      "maxScore":10, 
-      "feedback":"Kısa açıklama (TR)",
-      "stepsMissing": false,
-      "maarifObservations": ["Sistematiklik: net", "Estetik: tertipli"]
-    }
-  ],
-  "totalScore": 78,
-  "maxScore": 100,
-  "summary": "Genel değerlendirme: 1-2 cümle özet (TR)",
-  "maarifSummary": {
-    "strengths": ["Sistematiklik", "Azim ve Kararlılık"],
-    "developmentAreas": ["Estetik"],
-    "explanation": "1-2 cümle pedagojik gözlem (TR, kişilik etiketi YOK)"
-  }
-}`;
+      const systemPrompt = 'MAARIF EXAM OCR & GRADING ENGINE\n\nSen Türk eğitim sisteminde uzman bir sınav değerlendirme motorusun. El yazısı ile yazılmış sınav kağıdını MÜKEMMELiyet düzeyinde oku.\n\nEL YAZISI OKUMA KURALLARI:\n- Türkçe karakter hassasiyeti: ç, ş, ğ, ü, ö, ı dikkatli oku\n- Matematik: formüller, denklemler, grafikler, geometrik şekiller dikkatlice analiz et\n- Fizik/Kimya: birim, formül, sembol doğru oku\n- Bulanık veya silik yazıları en iyi tahminle oku, confidence belirt\n- Sayfa kenarındaki notları, silinmiş/üzeri çizilmiş yazıları ayırt et\n- Kalem kayması, eğik yazı, birbirine yapışık harflere dikkat et\n\nCEVAP ANAHTARI:\n' +
+        questions.map(q => 
+          'Soru ' + q.n + ' (' + q.pts + ' puan)' + (q.openEnded ? ' [AÇIK UÇLU — basamak/işlem takip et]' : '') + ': ' + (q.q || '(Sorulan)') + '\nDoğru cevap: ' + q.a + (q.answerImage ? '\n(Görsel cevap anahtarı da eklendi)' : '')
+        ).join('\n\n') +
+        '\n\nTOPLAM: ' + totalPossible + ' puan\n\nSÜREÇ ODAKLI PUANLAMA KURALLARI:\n- Tam puan = cevap ve işlem doğru\n- KISMI PUAN VER: Soru 10 puan ise 0-10 arası herhangi bir değer verilebilir (4, 6, 7 gibi)\n- Boş = 0\n- Doğru sonuç AMA işlem basamağı eksik = puanın %70\'i\n- Yanlış sonuç AMA doğru yaklaşım/başlangıç = puanın %20-40\'ı\n- Yaratıcı/alternatif çözüm doğruysa tam puan\n- El yazısı okunamıyorsa "okunamadı" yaz, 0 puan\n' +
+        (hasOpenEnded ? '\nAÇIK UÇLU SORULAR İÇİN ÖZEL KURAL:\n- Çözüm BASAMAKLI olması gerekiyorsa:\n  - Öğrenci direkt sonucu yazmışsa, "stepsMissing": true işaretle\n  - Sonuç doğru olsa bile, basamak yoksa puanın %20-30\'unu kes\n  - Feedback\'te "İşlem basamakları gösterilmemiş" uyarısı ekle\n' : '') +
+        '\nÇIKTI SADECE JSON:\n{"answers":[{"n":1,"studentAnswer":"...öğrencinin yazdığı TAM METİN...","status":"correct|partial|wrong|blank","score":7,"maxScore":10,"feedback":"Kısa açıklama (TR)","stepsMissing":false}],"totalScore":78,"maxScore":' + totalPossible + ',"summary":"Genel değerlendirme: 1-2 cümle özet (TR)","ocrConfidence":0.9}';
       
-      const userPrompt = `Bu yazılı kağıdını oku ve cevap anahtarına göre puanla.`;
+      const userPrompt = 'Bu yazılı kağıdını dikkatle oku. Her harfi, her formülü, her şekli analiz et. Cevap anahtarına göre süreç odaklı puanla.';
       
       try {
-        // Cevap anahtarı görselleri varsa onları da ekle (öğrenci kağıdı + anahtar görselleri)
-        const allImages = [imageDataUrl, ...answerImages];
+        // Görsel dizisi: öğrenci kağıdı + (varsa boş kağıt referansı) + cevap anahtarı görselleri
+        const allImages = [imageDataUrl];
+        if (blankExamImage) allImages.push(blankExamImage);
+        allImages.push(...answerImages);
+        
+        let imageNote = '';
+        if (blankExamImage && answerImages.length > 0) {
+          imageNote = '\n\nNOT: 1. görsel öğrencinin dolu kağıdı, 2. görsel BOŞ sınav kağıdı (referans), sonrakiler cevap anahtarı görselleridir.';
+        } else if (blankExamImage) {
+          imageNote = '\n\nNOT: 1. görsel öğrencinin dolu kağıdı, 2. görsel BOŞ sınav kağıdı (referans — soru pozisyonlarını karşılaştır).';
+        } else if (answerImages.length > 0) {
+          imageNote = '\n\nNOT: İlk görsel öğrenci kağıdı, sonrakiler cevap anahtarı görselleridir.';
+        }
+        
+        // ÇİFT MODEL OKUMA: Önce Pro ile oku, sonucu kontrol et
         const r = await fetch(CONFIG.AI_WORKER, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             systemPrompt: systemPrompt,
-            userPrompt: userPrompt + (answerImages.length > 0 ? '\n\nNOT: İlk görsel öğrenci kağıdı, sonrakiler cevap anahtarı görselleridir.' : ''),
+            userPrompt: userPrompt + imageNote,
             images: allImages,
             jsonMode: true,
-            temperature: 0.2,
+            temperature: 0.1,
             model: 'gemini-2.5-pro',
-            maxOutputTokens: 6000
+            maxOutputTokens: 8000,
+            useMultiModel: true  // Worker'a çift model kullanmasını söyle
           })
         });
         if (!r.ok) {
@@ -2235,37 +2199,53 @@ MAARİF SÜREÇ DEĞERLENDİRMESİ (her cevap için):
       
       let yPos = pageHeight - 100;
       (gradeResult.answers || []).forEach(ans => {
-        if (yPos < 80) {
-          // Yeni sayfa
-          const np = pdfDoc.addPage([pageWidth, pageHeight]);
+        if (yPos < 100) {
+          // Yeni sayfa ekle
           yPos = pageHeight - 40;
         }
-        const statusColor = ans.status === 'correct' ? rgb(0.05, 0.5, 0.2) :
-                            ans.status === 'partial' ? rgb(0.8, 0.5, 0) :
+        const statusColor = ans.status === 'correct' ? rgb(0.05, 0.6, 0.25) :
+                            ans.status === 'partial' ? rgb(0.9, 0.55, 0) :
                             ans.status === 'blank' ? rgb(0.5, 0.5, 0.5) :
-                            rgb(0.7, 0.1, 0.1);
+                            rgb(0.8, 0.1, 0.1);
+        // Sol kenarlık
         detailPage.drawRectangle({
-          x: 20, y: yPos - 4, width: 4, height: 60, color: statusColor
+          x: 20, y: yPos - 4, width: 4, height: 70, color: statusColor
         });
+        // Soru numarası
         detailPage.drawText(`Soru ${ans.n}`, {
-          x: 32, y: yPos + 40, size: 11, font: fontBold, color: rgb(0.2, 0.2, 0.4)
+          x: 32, y: yPos + 48, size: 12, font: fontBold, color: rgb(0.2, 0.2, 0.4)
         });
-        detailPage.drawText(`${ans.score}/${ans.maxScore} puan`, {
-          x: pageWidth - 120, y: yPos + 40, size: 11, font: fontBold, color: statusColor
+        // Puan (büyük ve renkli)
+        const scoreStr = `${ans.score}/${ans.maxScore}`;
+        detailPage.drawText(scoreStr, {
+          x: pageWidth - 120, y: yPos + 48, size: 14, font: fontBold, color: statusColor
         });
+        // Durum etiketi
+        const statusLabels = {correct:'✓ DOĞRU', partial:'◐ KISMI', wrong:'✗ YANLIŞ', blank:'○ BOŞ'};
+        detailPage.drawText(statusLabels[ans.status] || ans.status, {
+          x: pageWidth - 120, y: yPos + 32, size: 8, font: font, color: statusColor
+        });
+        // Öğrencinin cevabı
         const ansText = (ans.studentAnswer || '(boş)').slice(0, 110);
         detailPage.drawText('Cevap: ' + ansText, {
-          x: 32, y: yPos + 22, size: 9, font: font, color: rgb(0.2, 0.2, 0.3),
-          maxWidth: pageWidth - 60
+          x: 32, y: yPos + 28, size: 9, font: font, color: rgb(0.2, 0.2, 0.3),
+          maxWidth: pageWidth - 160
         });
+        // Feedback
         const fb = (ans.feedback || '').slice(0, 130);
         if (fb) {
           detailPage.drawText('▸ ' + fb, {
-            x: 32, y: yPos + 6, size: 8, font: font, color: rgb(0.45, 0.45, 0.55),
+            x: 32, y: yPos + 10, size: 8, font: font, color: rgb(0.45, 0.45, 0.55),
             maxWidth: pageWidth - 60
           });
         }
-        yPos -= 76;
+        // İşlem basamağı uyarısı
+        if (ans.stepsMissing) {
+          detailPage.drawText('⚠ İşlem basamakları gösterilmemiş', {
+            x: 32, y: yPos - 6, size: 8, font: fontBold, color: rgb(0.9, 0.55, 0)
+          });
+        }
+        yPos -= 86;
       });
       
       // Özet
@@ -2315,8 +2295,7 @@ MAARİF SÜREÇ DEĞERLENDİRMESİ (her cevap için):
         observation: existing.observation || examResult.summary || '',
         examGrading: examResult,   // Detaylı puan dökümü
         examAnnotatedPdfId: examResult.driveFileId || null,
-        examProcessedAt: new Date().toISOString(),
-        criteria: existing.criteria || [{ category: 'cati', item: 'Sorumluluk', weight: 100 }]
+        examProcessedAt: new Date().toISOString()
       });
     }
   };
@@ -3257,6 +3236,7 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       if (!exam.session) return '<div class="empty">Önce bir anahtar seçin</div>';
       const keyName = exam.session.key.name;
       const photoCount = exam.session.photos.length;
+      const hasBlank = exam.session.blankExam ? true : false;
       
       return `
         <div class="card" style="margin-bottom:14px">
@@ -3264,14 +3244,27 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
           <div style="font-weight:600;font-size:14px">📋 ${escapeHTML(keyName)}</div>
         </div>
         
-        <div class="section-label" style="margin:8px 4px 8px">Yükleme Seçenekleri</div>
+        <!-- BOŞ SINAV KAĞIDI -->
+        <div class="section-label" style="margin:8px 4px 8px">1️⃣ Boş Sınav Kağıdı (Opsiyonel)</div>
+        <div class="text-xs" style="margin:0 4px 10px;color:var(--text-2)">Boş sınav kağıdını çekin. AI bu kağıdı referans alarak dolu kağıtları daha doğru okur.</div>
+        
+        <div id="blank-exam-host" style="margin-bottom:14px">
+          ${hasBlank ? 
+            '<div class="card" style="display:flex;align-items:center;gap:12px"><img src="' + exam.session.blankExam + '" style="width:60px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--line-2)"><div style="flex:1"><div style="font-weight:600;font-size:13px;color:var(--emerald)">✓ Boş kağıt yüklendi</div><div style="font-size:11px;color:var(--text-2)">AI referans olarak kullanacak</div></div><button onclick="Maarif.pages[\'exam-capture\'].removeBlank()" style="background:var(--bg-2);border:1px solid var(--line-2);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--rose)">Kaldır</button></div>' :
+            '<div style="display:flex;gap:8px"><button class="btn btn-secondary" style="flex:1;font-size:12px" onclick="document.getElementById(\'blank-file-input\').click()">📷 Fotoğraf/Galeri</button><button class="btn btn-secondary" style="flex:1;font-size:12px" onclick="Maarif.pages[\'exam-capture\'].cameraBlank()">📸 Kamera</button></div>'
+          }
+        </div>
+        <input type="file" id="blank-file-input" accept="image/*" style="display:none" onchange="Maarif.pages['exam-capture'].onBlankFile(this.files[0])">
+        
+        <!-- DOLU SINAV KAĞITLARI -->
+        <div class="section-label" style="margin:8px 4px 8px">2️⃣ Dolu Sınav Kağıtları</div>
         
         <div class="card card-clickable" onclick="Maarif.pages['exam-capture'].cameraStart()">
           <div style="display:flex;align-items:center;gap:12px">
             <div class="menu-icon teal" style="font-size:18px">📷</div>
             <div style="flex:1">
               <div style="font-weight:600;font-size:14px">Kamera ile Çek</div>
-              <div style="font-size:11.5px;color:var(--text-2)">Telefondan yazılı fotoğrafı çek</div>
+              <div style="font-size:11.5px;color:var(--text-2)">Sınav kağıtlarını tek tek çek</div>
             </div>
           </div>
         </div>
@@ -3333,6 +3326,24 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
         btn.textContent = '🚀 AI ile İşle (' + photos.length + ' sınav)';
       }
     },
+    // BOŞ KAĞIT İŞLEMLERİ
+    async onBlankFile(file) {
+      if (!file) return;
+      const dataUrl = await readFileAsDataURL(file);
+      const enhanced = await exam.enhanceImage(dataUrl);
+      exam.session.blankExam = enhanced;
+      nav._render('exam-capture');
+      ui.toast('✓ Boş sınav kağıdı yüklendi', 'success');
+    },
+    cameraBlank() {
+      state._blankCameraMode = true;
+      nav.go('exam-camera');
+    },
+    removeBlank() {
+      if (exam.session) exam.session.blankExam = null;
+      nav._render('exam-capture');
+    },
+    // DOLU KAĞIT İŞLEMLERİ
     async onFiles(files) {
       for (const f of files) {
         const dataUrl = await readFileAsDataURL(f);
@@ -3346,7 +3357,6 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       if (!file) return;
       ui.toast('PDF okunuyor...', 'info');
       try {
-        // PDF.js global mı?
         if (typeof window.pdfjsLib === 'undefined' && typeof pdfjsLib === 'undefined') {
           ui.error('PDF.js yüklenmemiş. Lütfen sayfayı yenileyin.');
           return;
@@ -3367,6 +3377,7 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       pages['exam-capture'].renderPhotos();
     },
     cameraStart() {
+      state._blankCameraMode = false;
       nav.go('exam-camera');
     },
     async process() {
@@ -3410,6 +3421,16 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       ctx.drawImage(video, 0, 0);
       const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
       const enhanced = await exam.enhanceImage(dataUrl);
+      
+      // Boş kağıt modu mu?
+      if (state._blankCameraMode) {
+        exam.session.blankExam = enhanced;
+        state._blankCameraMode = false;
+        ui.toast('✓ Boş sınav kağıdı çekildi', 'success');
+        pages['exam-camera'].finish();
+        return;
+      }
+      
       exam.addPhoto(enhanced, null);
       ui.toast('✓ Foto eklendi (' + exam.session.photos.length + ')', 'success');
     },
@@ -3494,9 +3515,9 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
         const studentMatch = await exam.detectStudent(photo.dataUrl);
         nameEl.textContent = studentMatch.matchedName || studentMatch.rawName || 'Tanınamadı';
         
-        // Adım 2: Puanlama
+        // Adım 2: Puanlama (boş kağıt varsa referans olarak gönder)
         stepProgress(1, 'Cevaplar okunuyor ve puanlanıyor...');
-        const gradeResult = await exam.gradeExam(photo.dataUrl, exam.session.key);
+        const gradeResult = await exam.gradeExam(photo.dataUrl, exam.session.key, exam.session.blankExam || null);
         if (gradeResult.error) throw new Error(gradeResult.error);
         
         // Adım 3: İşaretli PDF üret
@@ -3598,8 +3619,16 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
             <img src="${r.dataUrl}" style="width:60px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--line-2)" onclick="Maarif.pages['exam-review'].showImage('${r.photoId}')">
             <div style="flex:1;min-width:0">
               <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:4px">
-                <div style="font-weight:700;font-size:13px;color:${pctColor}">${grade.totalScore}/${grade.maxScore}</div>
-                <div style="font-size:11px;color:var(--text-3)">${(r.studentMatch.confidence * 100).toFixed(0)}% güven</div>
+                <div>
+                  <div style="font-size:11px;color:var(--text-3)">AI Puanı:</div>
+                  <div style="font-weight:700;font-size:13px;color:${pctColor}">${grade.totalScore}/${grade.maxScore}</div>
+                </div>
+                <div style="text-align:right">
+                  <div style="font-size:11px;color:var(--text-3)">Öğretmen Puanı:</div>
+                  <input type="number" min="0" max="${grade.maxScore}" value="${grade.totalScore}" 
+                    id="erv-score-${r.photoId}"
+                    style="width:60px;background:var(--bg-2);border:1px solid var(--line-2);border-radius:6px;padding:4px 6px;text-align:center;font-size:14px;font-weight:700;color:var(--text)">
+                </div>
               </div>
               
               <select class="select" id="ervm-${r.photoId}" style="margin-bottom:6px;font-size:12px;padding:8px 10px" onchange="Maarif.pages['exam-review'].setStudent('${r.photoId}',this.value)">
@@ -3618,13 +3647,6 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
             </div>
           </div>
           
-          ${grade.maarifSummary ? `<div style="background:rgba(20,184,166,0.06);border:1px solid rgba(20,184,166,0.2);border-radius:10px;padding:10px 12px;margin-bottom:8px">
-            <div style="font-size:10.5px;color:var(--teal);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">🌳 Maarif Süreç Gözlemi</div>
-            ${grade.maarifSummary.strengths && grade.maarifSummary.strengths.length > 0 ? '<div style="font-size:11.5px;margin-bottom:3px"><b style="color:var(--emerald)">Güçlü:</b> ' + grade.maarifSummary.strengths.join(', ') + '</div>' : ''}
-            ${grade.maarifSummary.developmentAreas && grade.maarifSummary.developmentAreas.length > 0 ? '<div style="font-size:11.5px;margin-bottom:3px"><b style="color:var(--amber)">Gelişim alanı:</b> ' + grade.maarifSummary.developmentAreas.join(', ') + '</div>' : ''}
-            ${grade.maarifSummary.explanation ? '<div style="font-size:11px;color:var(--text-2);font-style:italic;margin-top:4px">' + escapeHTML(grade.maarifSummary.explanation) + '</div>' : ''}
-          </div>` : ''}
-          
           <details style="font-size:12px">
             <summary style="cursor:pointer;color:var(--indigo);font-weight:600;font-size:12px">Cevap dökümünü göster (${(grade.answers||[]).length} soru)</summary>
             <div style="margin-top:8px">
@@ -3637,7 +3659,6 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
                   <div class="exam-q-text">"${escapeHTML((a.studentAnswer||'(boş)').slice(0,140))}"</div>
                   ${a.feedback ? '<div style="font-size:11px;color:var(--text-3);margin-top:4px">▸ ' + escapeHTML(a.feedback) + '</div>' : ''}
                   ${a.stepsMissing ? '<div style="font-size:11px;color:var(--amber);margin-top:4px;font-weight:600">⚠️ İşlem basamakları gösterilmemiş</div>' : ''}
-                  ${a.maarifObservations && a.maarifObservations.length > 0 ? '<div style="font-size:10.5px;color:var(--teal);margin-top:4px">🌳 ' + a.maarifObservations.join(' · ') + '</div>' : ''}
                 </div>
               `).join('')}
             </div>
@@ -3690,8 +3711,12 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
           // 2. Öğrenci profiline kaydet (eğer eşleşmişse)
           if (r.studentMatch.studentId) {
             const slot = document.getElementById('ervs-' + r.photoId).value || 'yazili1';
+            // Öğretmenin düzenlediği puanı al
+            const teacherScoreEl = document.getElementById('erv-score-' + r.photoId);
+            const teacherScore = teacherScoreEl ? parseInt(teacherScoreEl.value) : r.gradeResult.totalScore;
             exam.saveToStudent(r.studentMatch.studentId, slot, {
               ...r.gradeResult,
+              totalScore: isNaN(teacherScore) ? r.gradeResult.totalScore : teacherScore,
               driveFileId: driveFileId,
               examKeyName: exam.session.key.name,
               processedAt: new Date().toISOString()
@@ -3944,18 +3969,18 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       const tpl = daily.getTemplates().find(t => t.id === templateId);
       if (!tpl) return;
       
-      // 1. KADEMELİ PUAN (ISRAR) KONTROLÜ
-      // Öğrencinin geçmişinde bu olay kaç kere var bakıyoruz
+      // KADEMELİ PUAN: 1'den başlar, her tekrarda +0.25 artar
       const pastEvents = daily.getEvents(state.currentStudent).filter(e => e.templateId === templateId || e.label.includes(tpl.label));
       const count = pastEvents.length;
       
-      // İlk seferde etki 1, ikinci seferde 2, üçüncü ve sonrasında max 3. Negatifse eksi (-) yap.
-      let dynamicImpact = tpl.polarity === 'positive' ? Math.min(3, count + 1) : -Math.min(3, count + 1);
+      // İlk: 1, İkinci: 1.25, Üçüncü: 1.50, Dördüncü: 1.75, Beşinci+: max 3
+      let dynamicImpact = Math.min(3, 1 + (count * 0.25));
+      dynamicImpact = Math.round(dynamicImpact * 100) / 100; // Kesir düzelt
+      if (tpl.polarity === 'negative') dynamicImpact = -dynamicImpact;
       let israrNotu = count > 0 ? ` (Bu davranışı ${count + 1}. kez sergiliyor. Puan etkisi: ${dynamicImpact})` : " (İlk kez sergiliyor. Puan etkisi: " + dynamicImpact + ")";
 
       ui.toast('🤖 Hızlı kayıt AI ile zenginleştiriliyor...', 'info');
       
-      // 2. HIZLI KAYDI AI'A GÖNDERME
       const prompt = `Öğrenci şu davranışı yaptı: "${tpl.label}".${israrNotu} Bunu pedagojik olarak kısaca analiz et ve uygun kriterleri seç.`;
       
       daily.analyzeWithAI(prompt).then(result => {
@@ -3963,13 +3988,13 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
           templateId: tpl.id,
           label: tpl.label + (count > 0 ? ` (${count + 1}. Tekrar)` : ""),
           emoji: tpl.emoji,
-          scoreImpact: dynamicImpact, // Kademeli puanı zorla
+          scoreImpact: dynamicImpact,
           polarity: tpl.polarity,
           criteria: result && result.criteria ? result.criteria : tpl.criteria.slice(),
           explanation: result ? result.explanation : "Öğrencinin bu eylemi süreç puanına " + dynamicImpact + " etki etmiştir.",
           source: 'quick-ai',
           studentId: state.currentStudent,
-          needsReview: true // Kademeli sistem çalıştığı için öğretmen onay ekranında görsün
+          needsReview: true
         };
         Maarif.nav.go('daily-confirm');
       });
@@ -3985,14 +4010,16 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
         state._pendingMulti = {
           originalObservation: txt,
           events: result.events.map(ev => {
-            // ÇOKLU OLAY İÇİN KADEMELİ PUAN (ISRAR)
+            // ÇOKLU OLAY İÇİN KADEMELİ PUAN
             const evCount = daily.getEvents(state.currentStudent).filter(e => e.label.includes(ev.label || ev.summary)).length;
-            let evImpact = ev.polarity === 'positive' ? Math.min(3, evCount + 1) : -Math.min(3, evCount + 1);
+            let evImpact = Math.min(3, 1 + (evCount * 0.25));
+            evImpact = Math.round(evImpact * 100) / 100;
+            if (ev.polarity === 'negative') evImpact = -evImpact;
             
             return {
               observation: ev.originalText,
               label: (ev.label || ev.summary) + (evCount > 0 ? ` (${evCount + 1}. Tekrar)` : ""),
-              scoreImpact: evImpact, // Kademeli etki
+              scoreImpact: evImpact,
               polarity: ev.polarity,
               criteria: ev.criteria || [],
               explanation: ev.explanation,
@@ -4013,7 +4040,9 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       } else {
         // TEK SERBEST YAZIM İÇİN KADEMELİ PUAN
         const evCount = daily.getEvents(state.currentStudent).filter(e => e.label.includes(result.label)).length;
-        let singleImpact = result.polarity === 'positive' ? Math.min(3, evCount + 1) : -Math.min(3, evCount + 1);
+        let singleImpact = Math.min(3, 1 + (evCount * 0.25));
+        singleImpact = Math.round(singleImpact * 100) / 100;
+        if (result.polarity === 'negative') singleImpact = -singleImpact;
 
         state._pendingEvent = {
           observation: txt,
@@ -4090,9 +4119,17 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
                  style="width:54px;background:var(--bg-2);border:1px solid var(--line-2);border-radius:6px;padding:4px 6px;text-align:center;font-size:12px;color:var(--text);font-weight:700"
                  oninput="Maarif.pages['daily-confirm'].updateWeight(${idx}, this.value)">
           <span style="font-size:11px;color:var(--text-3)">%</span>
+          <button onclick="Maarif.pages['daily-confirm'].removeCriteria(${idx})" style="background:none;border:none;color:var(--rose);font-size:14px;padding:2px 6px;cursor:pointer" title="Kriteri kaldır">✕</button>
         </div>`;
       });
       html += `</div>`;
+      
+      // KRİTER EKLEME BUTONU
+      html += `<div style="margin-bottom:12px">
+        <button class="btn btn-secondary" style="font-size:12px;padding:8px 14px" onclick="Maarif.pages['daily-confirm'].showAddCriteria()">+ Kriter Ekle</button>
+        <div id="add-criteria-panel" style="display:none;margin-top:10px;background:var(--bg-1);border:1px solid var(--line-2);border-radius:10px;padding:12px;max-height:300px;overflow-y:auto">
+        </div>
+      </div>`;
       
       // Toplam ağırlık göstergesi
       const total = (ev.criteria || []).reduce((s,c) => s + (c.weight||0), 0);
@@ -4161,18 +4198,68 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       ev.criteria[idx].weight = parseInt(val) || 0;
       nav._render('daily-confirm');
     },
+    removeCriteria(idx) {
+      const ev = state._pendingEvent;
+      if (!ev || !ev.criteria) return;
+      ev.criteria.splice(idx, 1);
+      nav._render('daily-confirm');
+    },
+    showAddCriteria() {
+      const panel = document.getElementById('add-criteria-panel');
+      if (panel.style.display === 'none') {
+        const ev = state._pendingEvent;
+        const existing = (ev.criteria || []).map(c => c.category + '|' + c.item);
+        let html = '';
+        for (const [groupKey, group] of Object.entries(MAARIF_CRITERIA)) {
+          const available = group.items.filter(item => !existing.includes(groupKey + '|' + item));
+          if (available.length === 0) continue;
+          html += `<div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin:8px 0 4px;font-weight:700">${group.emoji} ${group.label}</div>`;
+          available.forEach(item => {
+            html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;transition:background 0.15s" 
+                          onclick="Maarif.pages['daily-confirm'].addCriteria('${groupKey}','${escapeAttr(item)}')"
+                          onmousedown="this.style.background='var(--bg-3)'" onmouseup="this.style.background=''">
+              <span style="color:var(--emerald);font-size:14px">+</span>
+              <span style="font-size:12px">${item}</span>
+            </div>`;
+          });
+        }
+        panel.innerHTML = html;
+        panel.style.display = 'block';
+      } else {
+        panel.style.display = 'none';
+      }
+    },
+    addCriteria(category, item) {
+      const ev = state._pendingEvent;
+      if (!ev) return;
+      if (!ev.criteria) ev.criteria = [];
+      // Zaten var mı kontrol et
+      if (ev.criteria.some(c => c.category === category && c.item === item)) return;
+      ev.criteria.push({ category: category, item: item, weight: 20 });
+      nav._render('daily-confirm');
+    },
     save() {
       const ev = state._pendingEvent;
       if (!ev) return;
       const newImpact = parseInt(document.getElementById('confirm-impact').value);
       if (!isNaN(newImpact)) ev.scoreImpact = newImpact;
       
-      // AI ise ve öğretmen değiştirmişse, learning'e kaydet
-      if (ev.source === 'ai' && ev.aiOriginal) {
+      // AI veya quick-ai ise ve öğretmen değiştirmişse, learning'e kaydet
+      if ((ev.source === 'ai' || ev.source === 'quick-ai') && ev.aiOriginal) {
         const wasChanged = JSON.stringify(ev.aiOriginal.criteria) !== JSON.stringify(ev.criteria)
                          || ev.aiOriginal.scoreImpact !== ev.scoreImpact;
         if (wasChanged) {
-          daily.saveCorrection(ev.observation, ev.aiOriginal, {
+          daily.saveCorrection(ev.observation || ev.label, ev.aiOriginal, {
+            criteria: ev.criteria,
+            scoreImpact: ev.scoreImpact
+          });
+        }
+      } else if (ev.source === 'quick-ai' && !ev.aiOriginal) {
+        // quick-ai'dan gelen ama aiOriginal yoksa, orijinali şu anki hali kabul et
+        // Öğretmen kriter ekleme/çıkarma yaptıysa bunu da öğrenmeye kaydet
+        const originalCriteria = daily.getTemplates().find(t => t.id === ev.templateId);
+        if (originalCriteria && JSON.stringify(originalCriteria.criteria) !== JSON.stringify(ev.criteria)) {
+          daily.saveCorrection(ev.label, { criteria: originalCriteria.criteria }, {
             criteria: ev.criteria,
             scoreImpact: ev.scoreImpact
           });
@@ -4459,21 +4546,43 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
         <b style="color:var(--text)">${escapeHTML(student.ad)}</b> · ${escapeHTML(student.class)}
       </div>`;
 
-      // Yazılı için ek alan: Öz değerlendirme + puan
       if (isYazili) {
-        html += `<div class="input-group">
-          <label class="input-label">📍 Öğrencinin Öz Değerlendirmesi (sınav öncesi tahmini)</label>
-          <textarea class="textarea" id="af-self" placeholder="Öğrenci sınav öncesi kendi performans tahminini yazsın: 'Konuya hazırım, 80 alabilirim' gibi...">${escapeHTML(existing.selfAssessment || '')}</textarea>
-        </div>
-        <div class="input-group">
-          <label class="input-label">Puan (100 üzerinden)</label>
-          <input type="number" class="input" id="af-score" min="0" max="100" value="${existing.score || ''}" placeholder="0-100">
+        // YAZILI: Sadece puan + gözlem + fotoğraf çekme. Maarif kriterleri YOK.
+        html += `<div class="card" style="margin-bottom:14px;background:rgba(99,102,241,0.06);border-color:rgba(99,102,241,0.2)">
+          <div style="font-size:11px;color:var(--indigo);font-weight:700;margin-bottom:6px">📝 YAZILI SINAV DEĞERLENDİRMESİ</div>
+          <div style="font-size:11.5px;color:var(--text-2);line-height:1.5">Yazılı sınavlarda Maarif kriter değerlendirmesi yapılmaz. Sadece puan ve öğretmen gözlemi kaydedilir. AI ile sınav kağıdı tarama için Ana Sayfa → Yazılı Tara özelliğini kullanın.</div>
         </div>`;
+        
+        html += `<div class="input-group">
+          <label class="input-label">Puan (100 üzerinden)</label>
+          <input type="number" class="input" id="af-score" min="0" max="100" value="${existing.score || ''}" placeholder="0-100" style="font-size:18px;font-weight:700;text-align:center">
+        </div>`;
+
+        html += `<div class="input-group">
+          <label class="input-label">🧐 Öğretmen Gözlemi & Notları</label>
+          <textarea class="textarea" id="af-observation" placeholder="Sınav sırasında ve sonrasında öğrenci hakkındaki gözlemler...">${escapeHTML(existing.observation || '')}</textarea>
+        </div>`;
+
+        // Sınav sonucu varsa göster
+        if (existing.examGrading) {
+          const eg = existing.examGrading;
+          html += `<div class="card" style="margin-bottom:14px;background:rgba(16,185,129,0.06);border-color:rgba(16,185,129,0.2)">
+            <div style="font-size:11px;color:var(--emerald);font-weight:700;margin-bottom:4px">✅ AI Sınav Taraması Yapılmış</div>
+            <div style="font-size:13px;font-weight:700">${eg.totalScore || '?'}/${eg.maxScore || 100} puan</div>
+            <div style="font-size:11px;color:var(--text-3);margin-top:4px">${eg.summary ? escapeHTML(eg.summary.slice(0,120)) : ''}</div>
+          </div>`;
+        }
+
+        html += `<button class="btn btn-primary mt-4" onclick="Maarif.pages['assess-form'].saveYazili()">💾 Kaydet</button>
+        ${existing.score != null ? '<button class="btn btn-danger mt-2" onclick="Maarif.pages[\'assess-form\'].clear()">🗑️ Bu Değerlendirmeyi Sil</button>' : ''}`;
+        
+        return html;
       }
 
+      // PERFORMANS / ETKİNLİK / PROJE: Kriter seçimi AÇIK
       html += `<div class="input-group">
-        <label class="input-label">${isYazili ? '🧐 Öğretmen Gözlemi & Notları' : '🧐 Gözlem / Olay Anlatımı'}</label>
-        <textarea class="textarea" id="af-observation" placeholder="${isYazili ? 'Sınav sırasında ve sonrasında öğrenci hakkındaki gözlemler...' : 'Olayı anlat: ne yaptı, nasıl yaptı, kimlere etki etti...'}">${escapeHTML(existing.observation || '')}</textarea>
+        <label class="input-label">🧐 Gözlem / Olay Anlatımı</label>
+        <textarea class="textarea" id="af-observation" placeholder="Olayı anlat: ne yaptı, nasıl yaptı, kimlere etki etti...">${escapeHTML(existing.observation || '')}</textarea>
       </div>
 
       <div class="flex gap-2 mt-3">
@@ -4493,6 +4602,8 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       return html;
     },
     afterRender() {
+      const type = state.currentAssessType;
+      if (type.startsWith('yazili')) return; // Yazılıda kriter yok
       const existing = data.getAssessment(state.currentStudent, state.currentAssessType) || {};
       pages['assess-form'].renderCriteria(existing.criteria || []);
     },
@@ -4533,21 +4644,37 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       const btn = document.getElementById('ai-btn');
       btn.innerHTML = '<span class="spinner"></span> Düşünüyor...';
       btn.disabled = true;
-      const result = await ai.suggestCriteria(obs, state.currentAssessType);
+      
+      const result = await daily.analyzeWithAI('Değerlendirme türü: ' + state.currentAssessType + '. Öğretmen gözlemi: "' + obs + '". Bu olayı Maarif kriterlerine dağıt.');
+      
       btn.innerHTML = '🤖 AI Kriter Öner';
       btn.disabled = false;
-      if (!result || !result.suggestions) {
+      if (!result || !result.criteria) {
         ui.toast('AI önerisi alınamadı', 'error');
         return;
       }
-      // Apply suggestions
-      const selected = result.suggestions.map(s => ({
-        category: s.category,
-        item: s.item,
-        weight: s.weight
-      }));
-      pages['assess-form'].renderCriteria(selected);
-      ui.toast('✓ AI önerileri uygulandı', 'success');
+      // AI'ın orijinal önerisini sakla (öğrenme için)
+      state._assessAiOriginal = JSON.parse(JSON.stringify(result.criteria));
+      pages['assess-form'].renderCriteria(result.criteria);
+      ui.toast('✓ AI önerileri uygulandı — düzenleyip kaydedin', 'success');
+    },
+    saveYazili() {
+      const type = state.currentAssessType;
+      const score = parseInt(document.getElementById('af-score').value);
+      if (isNaN(score) || score < 0 || score > 100) {
+        ui.toast('0-100 arası puan girin', 'error');
+        return;
+      }
+      const observation = (document.getElementById('af-observation').value || '').trim();
+      const existing = data.getAssessment(state.currentStudent, type) || {};
+      data.saveAssessment(state.currentStudent, type, {
+        ...existing,
+        score: score,
+        observation: observation,
+        date: new Date().toISOString()
+      });
+      ui.toast('✓ Yazılı puanı kaydedildi', 'success');
+      nav.back();
     },
     save() {
       const observation = document.getElementById('af-observation').value.trim();
@@ -4556,7 +4683,6 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
         return;
       }
       const type = state.currentAssessType;
-      const isYazili = type.startsWith('yazili');
       const items = document.querySelectorAll('.criteria-item.selected');
       const criteria = [];
       items.forEach(el => {
@@ -4575,15 +4701,25 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       if (totalWeight !== 100) {
         if (!confirm('Toplam ağırlık 100 değil (' + totalWeight + '). Yine de kaydedeyim mi?')) return;
       }
+      
+      // AI ÖĞRENMESİ: Eğer AI öneri yaptıysa ve öğretmen değiştirdiyse, öğrenme verisi kaydet
+      if (state._assessAiOriginal) {
+        const wasChanged = JSON.stringify(state._assessAiOriginal) !== JSON.stringify(criteria);
+        if (wasChanged) {
+          daily.saveCorrection(
+            type + ': ' + observation,
+            { criteria: state._assessAiOriginal },
+            { criteria: criteria }
+          );
+        }
+        state._assessAiOriginal = null;
+      }
+      
       const payload = {
         observation: observation,
         criteria: criteria,
         date: new Date().toISOString()
       };
-      if (isYazili) {
-        payload.score = parseInt(document.getElementById('af-score').value) || null;
-        payload.selfAssessment = document.getElementById('af-self').value.trim();
-      }
       data.saveAssessment(state.currentStudent, type, payload);
       ui.toast('✓ Kaydedildi', 'success');
       nav.back();
