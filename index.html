@@ -145,6 +145,18 @@ input, textarea, select { font-family: inherit; color: inherit; }
   gap: 12px;
   min-height: 56px;
 }
+.topbar-home {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 16px;
+  color: var(--text-2);
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.topbar-home:active { background: var(--bg-2); color: var(--text); }
 .topbar-back {
   width: 38px;
   height: 38px;
@@ -255,79 +267,78 @@ input, textarea, select { font-family: inherit; color: inherit; }
 
 /* ════════ HOME SCREEN ════════ */
 .home-hero {
-  padding: 28px 20px 8px;
+  padding: 16px 16px 6px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
 }
 .user-avatar {
-  width: 48px;
-  height: 48px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--indigo), var(--teal));
   display: grid;
   place-items: center;
   font-weight: 700;
   color: #fff;
-  font-size: 17px;
+  font-size: 14px;
   overflow: hidden;
   flex-shrink: 0;
 }
 .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .user-greet {
-  font-size: 13px;
-  color: var(--text-2);
-  margin-bottom: 2px;
+  font-size: 11px;
+  color: var(--text-3);
+  margin-bottom: 0;
 }
 .user-name {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 17px;
+  font-size: 14px;
   letter-spacing: -0.01em;
 }
-.logout-btn {
+.home-actions {
   margin-left: auto;
-  width: 38px;
-  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.home-action-btn {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--text-2);
+  font-size: 16px;
+  transition: background 0.15s, color 0.15s;
+}
+.home-action-btn:active { background: var(--bg-2); color: var(--text); }
+.logout-btn {
+  width: 34px;
+  height: 34px;
   display: grid;
   place-items: center;
   border-radius: 50%;
   color: var(--text-3);
-  font-size: 18px;
+  font-size: 16px;
   transition: background 0.15s;
 }
 .logout-btn:active { background: var(--bg-2); color: var(--text); }
 
-.stats-strip {
-  margin: 20px 16px;
-  background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(20,184,166,0.05));
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  padding: 18px 16px;
-  display: grid;
-  grid-template-columns: 1fr 1px 1fr;
+/* stats-strip kaldırıldı, badge'ler menu-item içine taşındı */
+.menu-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 16px;
-}
-.stat-divider { background: var(--line); height: 32px; align-self: center; }
-.stat-cell { text-align: center; }
-.stat-num {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 28px;
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, var(--text) 0%, var(--text-2) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-.stat-lbl {
+  gap: 3px;
+  background: var(--bg-2);
+  border: 1px solid var(--line-2);
+  border-radius: 20px;
+  padding: 2px 8px;
   font-size: 11px;
+  font-weight: 700;
   color: var(--text-2);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-weight: 600;
-  margin-top: 2px;
+  flex-shrink: 0;
 }
 
 .section-label {
@@ -1307,26 +1318,21 @@ input, textarea, select { font-family: inherit; color: inherit; }
   <div class="screen" id="screen-home" style="position:relative;transform:none">
     <div class="home-hero">
       <div class="user-avatar" id="user-avatar">M</div>
-      <div>
+      <div style="flex:1;min-width:0">
         <div class="user-greet">Merhaba,</div>
         <div class="user-name" id="user-name">Öğretmen</div>
       </div>
-      <button class="logout-btn" onclick="Maarif.auth.logout()" title="Çıkış">⏻</button>
-    </div>
-
-    <div class="stats-strip">
-      <div class="stat-cell">
-        <div class="stat-num" id="stat-classes">0</div>
-        <div class="stat-lbl">Sınıf</div>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="stat-cell">
-        <div class="stat-num" id="stat-students">0</div>
-        <div class="stat-lbl">Öğrenci</div>
+      <div class="home-actions">
+        <button class="home-action-btn" onclick="Maarif.drive.save()" title="Buluta Yedekle">☁️</button>
+        <button class="home-action-btn" onclick="Maarif.drive.loadList()" title="Buluttan Yükle">⬇️</button>
+        <button class="home-action-btn" onclick="Maarif.pages.home.exportLocal()" title="Telefona Kaydet">💾</button>
+        <button class="logout-btn" onclick="Maarif.auth.logout()" title="Çıkış">⏻</button>
       </div>
     </div>
 
-    <div class="section-label">Çalışma Alanı</div>
+    <div id="home-sync-info" style="margin:4px 16px 0;font-size:10px;color:var(--text-3);text-align:right"></div>
+
+    <div class="section-label" style="margin-top:14px">Çalışma Alanı</div>
     <div class="menu-list">
       <div class="menu-item" onclick="Maarif.nav.go('daily-classes')">
         <div class="menu-icon emerald">⚡</div>
@@ -1342,6 +1348,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
           <div class="menu-title">Sınıflar & Öğrenciler</div>
           <div class="menu-sub">Sınıf ekle, öğrenci yönet</div>
         </div>
+        <div class="menu-badge"><span id="stat-classes">0</span> sınıf · <span id="stat-students">0</span> öğrenci</div>
         <div class="menu-chev">›</div>
       </div>
       <div class="menu-item" onclick="Maarif.nav.go('assess-select')">
@@ -1370,34 +1377,15 @@ input, textarea, select { font-family: inherit; color: inherit; }
       </div>
     </div>
 
-    <div class="section-label">Veri</div>
-    <div class="menu-list">
-      <div class="menu-item" onclick="Maarif.drive.save()">
-        <div class="menu-icon emerald">☁️</div>
-        <div class="menu-text">
-          <div class="menu-title">Drive'a Yedekle</div>
-          <div class="menu-sub" id="last-sync">Henüz yedek alınmadı</div>
-        </div>
-        <div class="menu-chev">›</div>
-      </div>
-      <div class="menu-item" onclick="Maarif.drive.loadList()">
-        <div class="menu-icon rose">⬇️</div>
-        <div class="menu-text">
-          <div class="menu-title">Drive'dan Yükle</div>
-          <div class="menu-sub">Önceki yedeği geri getir</div>
-        </div>
-        <div class="menu-chev">›</div>
-      </div>
-    </div>
-
-    <div style="text-align:center;color:var(--text-3);font-size:11px;margin:32px 0 20px;letter-spacing:0.05em">
-      Maarif v0.7.1 · 11 Mayıs 2026
+    <div style="text-align:center;color:var(--text-3);font-size:10px;margin:28px 0 20px;letter-spacing:0.05em">
+      Maarif v0.7.2 · 14 Mayıs 2026
     </div>
   </div>
 
   <!-- ═══════ GENERIC SCREEN (re-used) ═══════ -->
   <div class="screen" id="screen-page">
     <div class="topbar">
+      <button class="topbar-home" onclick="Maarif.nav.goHome()" title="Ana Sayfa">🏠</button>
       <button class="topbar-back" onclick="Maarif.nav.back()">‹</button>
       <div class="topbar-title" id="page-title">Sayfa</div>
       <button class="topbar-action hidden" id="page-action" onclick="Maarif.nav.onAction()">+</button>
@@ -2808,6 +2796,11 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       nav._render(page, params);
     },
 
+    goHome() {
+      state.nav = ['home'];
+      nav._render('home');
+    },
+
     back() {
       if (state.nav.length <= 1) return;
       state.nav.pop();
@@ -2860,6 +2853,31 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
   // MODULE: PAGES — Tüm sayfa render fonksiyonları
   // ═══════════════════════════════════════════════
   const pages = {};
+
+  // ─── HOME PAGE helpers ───
+  pages.home = {
+    exportLocal() {
+      try {
+        const payload = {
+          type: 'maarif-backup',
+          version: CONFIG.APP_VERSION,
+          timestamp: new Date().toISOString(),
+          user: state.user ? state.user.email : 'local',
+          data: state.db
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Maarif_Yedek_' + formatDate(new Date()) + '.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        ui.toast('✓ Dosya indirildi', 'success');
+      } catch(e) {
+        ui.error('İndirme hatası: ' + e.message);
+      }
+    }
+  };
 
   // ─── CLASSES PAGE ───
   pages.classes = {
@@ -5008,8 +5026,19 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       }
     },
     veliReport() {
+      // Doğrudan PDF üretmek yerine önce onay/düzenleme ekranına git
+      nav.go('veli-report-preview');
+    },
+  };
+
+  // ─── VELİ RAPORU TASLAK/ONAY EKRANI ───
+  pages['veli-report-preview'] = {
+    title: 'Veli Raporu Taslağı',
+    render() {
       const s = data.getStudent(state.currentStudent);
-      if (!s) return;
+      if (!s) return '<div class="empty">Öğrenci bulunamadı</div>';
+      document.getElementById('page-title').textContent = 'Veli Raporu · ' + s.ad;
+      
       const assess = state.db.assessments[s.id] || {};
       const score = daily.getProcessScore(s.id);
       const status = daily.getStatus(score);
@@ -5017,107 +5046,235 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       const negCount = events.filter(e => (e.scoreImpact||0) < 0).length;
       const posCount = events.filter(e => (e.scoreImpact||0) > 0).length;
       
-      // Aggregate top criteria
+      // Top criteria
       const agg = {};
       Object.values(assess).forEach(a => {
         if (a.criteria) a.criteria.forEach(c => {
-          const k = c.item;
-          agg[k] = (agg[k]||0) + (c.weight||0);
+          agg[c.item] = (agg[c.item]||0) + (c.weight||0);
         });
       });
       events.forEach(ev => {
         if (ev.criteria) ev.criteria.forEach(c => {
-          const k = c.item;
-          agg[k] = (agg[k]||0) + (c.weight||0) * Math.abs(ev.scoreImpact||1) / 10;
+          agg[c.item] = (agg[c.item]||0) + (c.weight||0) * Math.abs(ev.scoreImpact||1) / 10;
         });
       });
       const topCriteria = Object.entries(agg).sort((a,b) => b[1]-a[1]).slice(0,5);
       
-      // Yazılı/performans puanları
+      const yazili1 = assess.yazili1 && assess.yazili1.score != null ? assess.yazili1.score : null;
+      const yazili2 = assess.yazili2 && assess.yazili2.score != null ? assess.yazili2.score : null;
+      const perf1 = assess.performans1;
+      const perf2 = assess.performans2;
+      const etkinlik = assess.etkinlik;
+      const proje = assess.proje;
+      
+      // Default öğretmen notu
+      let defaultNote = '';
+      if (score >= 110) defaultNote = s.ad.split(' ')[0] + ', sınıf içinde son derece olumlu davranışlar sergilemekte. Karakter gelişimi ve süreç odaklı çabası takdire şayan.';
+      else if (score >= 90) defaultNote = s.ad.split(' ')[0] + ', derslere katılım ve sosyal gelişim açısından olumlu bir yolda ilerliyor.';
+      else if (score >= 70) defaultNote = s.ad.split(' ')[0] + ' için gelişim sürecinde bazı alanlarda destek gerekiyor. Birlikte çalışarak potansiyelini ortaya çıkarabiliriz.';
+      else defaultNote = s.ad.split(' ')[0] + ' için süreç odaklı yoğun bir desteğe ihtiyaç var. En kısa zamanda görüşmek isterim.';
+      
+      // Önceki özel not varsa onu göster
+      state._veliReportNote = state._veliReportNote || defaultNote;
+      state._veliReportDate = state._veliReportDate || new Date().toLocaleDateString('tr-TR');
+      
+      let html = `
+        <!-- ÖĞRENCİ KÜNYESİ -->
+        <div class="card" style="margin-bottom:14px;background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(20,184,166,0.05))">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div class="student-avatar" style="width:48px;height:48px;font-size:18px">${(s.ad||'?').charAt(0).toUpperCase()}</div>
+            <div style="flex:1">
+              <div style="font-weight:700;font-size:16px">${escapeHTML(s.ad)}</div>
+              <div style="font-size:12px;color:var(--text-2)">${escapeHTML(s.class)} ${s.no ? '· No: ' + escapeHTML(s.no) : ''}</div>
+            </div>
+            <div style="text-align:center;padding:8px 12px;background:var(--bg-2);border-radius:10px">
+              <div style="font-weight:800;font-size:22px;color:${status.color}">${score}</div>
+              <div style="font-size:9px;color:var(--text-3);text-transform:uppercase">${status.label}</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- RAPOR TARİHİ -->
+        <div class="input-group" style="margin-bottom:14px">
+          <label class="input-label">📅 Değerlendirme Tarihi (opsiyonel)</label>
+          <input class="input" id="vr-date" value="${escapeAttr(state._veliReportDate)}" placeholder="gg.aa.yyyy">
+        </div>
+        
+        <!-- MEVCUT KAYITLAR -->
+        <div class="section-label" style="margin:8px 4px">📋 Mevcut Kayıtlar</div>
+        <div class="text-xs" style="margin:0 4px 10px;color:var(--text-2)">Kronolojik sırada — rapora dahil edilecek veriler:</div>`;
+      
+      // Yazılılar
+      if (yazili1 != null || yazili2 != null) {
+        html += `<div class="card" style="margin-bottom:8px">
+          <div style="font-weight:700;font-size:13px;margin-bottom:6px">📝 Yazılı Sınavlar</div>
+          ${yazili1 != null ? '<div style="font-size:12px;display:flex;justify-content:space-between;margin-bottom:4px"><span>Yazılı 1</span><span style="font-weight:700;color:' + (yazili1>=70?'var(--emerald)':yazili1>=50?'var(--amber)':'var(--rose)') + '">' + yazili1 + '/100</span></div>' : ''}
+          ${yazili2 != null ? '<div style="font-size:12px;display:flex;justify-content:space-between"><span>Yazılı 2</span><span style="font-weight:700;color:' + (yazili2>=70?'var(--emerald)':yazili2>=50?'var(--amber)':'var(--rose)') + '">' + yazili2 + '/100</span></div>' : ''}
+        </div>`;
+      }
+      
+      // Performans/etkinlik/proje
+      const perfTypes = [
+        {key:'performans1', data:perf1, name:'Performans 1', emoji:'🎯'},
+        {key:'performans2', data:perf2, name:'Performans 2', emoji:'🎯'},
+        {key:'etkinlik', data:etkinlik, name:'Etkinlikler', emoji:'🎨'},
+        {key:'proje', data:proje, name:'Dönem Projesi', emoji:'🏆'}
+      ];
+      perfTypes.forEach(pt => {
+        if (!pt.data) return;
+        html += `<div class="card" style="margin-bottom:8px">
+          <div style="font-weight:700;font-size:13px;margin-bottom:4px">${pt.emoji} ${pt.name}</div>
+          ${pt.data.observation ? '<div style="font-size:12px;color:var(--text-2);margin-bottom:4px">' + escapeHTML(pt.data.observation.slice(0,120)) + '</div>' : ''}
+          <div style="font-size:11px;color:var(--text-3)">${(pt.data.criteria||[]).map(c => c.item).join(' · ')}</div>
+        </div>`;
+      });
+      
+      // Günlük olaylar özet
+      if (events.length > 0) {
+        html += `<div class="card" style="margin-bottom:8px">
+          <div style="font-weight:700;font-size:13px;margin-bottom:4px">⚡ Günlük Olaylar</div>
+          <div style="font-size:12px;color:var(--text-2)">${events.length} kayıt · ${posCount} pozitif · ${negCount} gelişim alanı</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:4px">Son 5 olay: ${events.slice(0,5).map(e => (e.emoji||'') + ' ' + (e.label||'').slice(0,20)).join(', ')}</div>
+        </div>`;
+      }
+      
+      // Karakter gelişimi
+      if (topCriteria.length > 0) {
+        html += `<div class="card" style="margin-bottom:8px">
+          <div style="font-weight:700;font-size:13px;margin-bottom:6px">🌳 Karakter Gelişimi (Top 5)</div>
+          ${topCriteria.map(([item, val]) => {
+            const maxVal = topCriteria[0][1];
+            const pct = Math.min(100, Math.round((val/maxVal)*100));
+            const lvl = pct <= 40 ? 'low' : pct <= 75 ? 'mid' : 'high';
+            const color = lvl === 'low' ? 'var(--rose)' : lvl === 'mid' ? 'var(--amber)' : 'var(--emerald)';
+            return '<div style="font-size:12px;display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escapeHTML(item) + '</span><div style="width:80px;height:6px;background:var(--bg-2);border-radius:3px;overflow:hidden"><div style="height:100%;width:' + pct + '%;background:' + color + ';border-radius:3px"></div></div></div>';
+          }).join('')}
+        </div>`;
+      }
+      
+      // Eksik değerlendirmeler
+      const missingTypes = [];
+      if (yazili1 == null) missingTypes.push('Yazılı 1');
+      if (yazili2 == null) missingTypes.push('Yazılı 2');
+      if (!perf1) missingTypes.push('Performans 1');
+      if (!perf2) missingTypes.push('Performans 2');
+      if (!etkinlik) missingTypes.push('Etkinlikler');
+      if (!proje) missingTypes.push('Dönem Projesi');
+      if (missingTypes.length > 0) {
+        html += `<div class="card" style="margin-bottom:14px;background:rgba(245,158,11,0.06);border-color:rgba(245,158,11,0.2)">
+          <div style="font-size:11px;color:var(--amber);font-weight:700;margin-bottom:4px">⚠️ Değerlendirme Bekleniyor</div>
+          <div style="font-size:12px;color:var(--text-2)">${missingTypes.join(' · ')}</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:4px">Bu alanlar raporda boş gösterilecektir.</div>
+        </div>`;
+      }
+      
+      // ÖĞRETMEN NOTU
+      html += `<div class="section-label" style="margin:14px 4px 8px">✍️ Öğretmen Notu</div>
+      <div class="text-xs" style="margin:0 4px 8px;color:var(--text-2)">AI'ın önerdiği notu düzenleyebilirsiniz:</div>
+      <textarea class="textarea" id="vr-teacher-note" style="min-height:100px">${escapeHTML(state._veliReportNote)}</textarea>
+      
+      <div class="flex gap-2 mt-4">
+        <button class="btn btn-primary" style="flex:2" onclick="Maarif.pages['veli-report-preview'].generate()">📄 Rapor Oluştur</button>
+        <button class="btn btn-secondary" style="flex:1" onclick="Maarif.nav.back()">İptal</button>
+      </div>`;
+      
+      return html;
+    },
+    generate() {
+      const s = data.getStudent(state.currentStudent);
+      if (!s) return;
+      
+      // Kullanıcının düzenledği notu al
+      const teacherNote = document.getElementById('vr-teacher-note').value.trim();
+      const reportDate = document.getElementById('vr-date').value.trim() || new Date().toLocaleDateString('tr-TR');
+      state._veliReportNote = teacherNote;
+      state._veliReportDate = reportDate;
+      
+      const assess = state.db.assessments[s.id] || {};
+      const score = daily.getProcessScore(s.id);
+      const status = daily.getStatus(score);
+      const events = daily.getEvents(s.id);
+      const negCount = events.filter(e => (e.scoreImpact||0) < 0).length;
+      const posCount = events.filter(e => (e.scoreImpact||0) > 0).length;
+      
+      const agg = {};
+      Object.values(assess).forEach(a => {
+        if (a.criteria) a.criteria.forEach(c => {
+          agg[c.item] = (agg[c.item]||0) + (c.weight||0);
+        });
+      });
+      events.forEach(ev => {
+        if (ev.criteria) ev.criteria.forEach(c => {
+          agg[c.item] = (agg[c.item]||0) + (c.weight||0) * Math.abs(ev.scoreImpact||1) / 10;
+        });
+      });
+      const topCriteria = Object.entries(agg).sort((a,b) => b[1]-a[1]).slice(0,5);
+      
       const yazili1 = assess.yazili1 && assess.yazili1.score != null ? assess.yazili1.score : null;
       const yazili2 = assess.yazili2 && assess.yazili2.score != null ? assess.yazili2.score : null;
       
       const w = window.open('', '_blank');
-      const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${escapeHTML(s.ad)} - Veli Raporu</title>
-      <style>
-      body{font-family:'Segoe UI',sans-serif;padding:30px;color:#1a1a1a;max-width:700px;margin:0 auto;background:#fff;font-size:14px}
-      h1{color:#4f46e5;font-size:20px;margin:0 0 4px;border-bottom:3px solid #4f46e5;padding-bottom:8px}
-      .sub{color:#666;font-size:12px;margin-bottom:24px}
-      .info-card{background:#f5f3ff;border-radius:14px;padding:20px;margin-bottom:24px}
-      .info-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px}
-      .score-box{background:linear-gradient(135deg,#6366f1,#14b8a6);color:#fff;padding:24px;border-radius:14px;margin-bottom:24px;text-align:center}
-      .score-num{font-size:48px;font-weight:800;line-height:1}
-      .score-lbl{font-size:13px;letter-spacing:0.1em;text-transform:uppercase;margin-top:6px;opacity:0.9}
-      .section-title{color:#4f46e5;font-size:15px;font-weight:700;margin:24px 0 10px;border-left:4px solid #4f46e5;padding-left:10px}
-      .bar-row{margin-bottom:8px}
-      .bar-head{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px}
-      .bar-track{height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden}
-      .bar-fill{height:100%;border-radius:4px}
-      .bar-fill.high{background:#10b981}.bar-fill.mid{background:#f59e0b}.bar-fill.low{background:#ef4444}
-      .level{font-weight:700;font-size:11px;text-transform:uppercase}.level.high{color:#10b981}.level.mid{color:#f59e0b}.level.low{color:#ef4444}
-      .msg-box{background:#fef3c7;border-left:4px solid #f59e0b;padding:16px;border-radius:8px;margin-top:24px;font-style:italic;line-height:1.6;font-size:13px;color:#78350f}
-      .footer{text-align:center;color:#9ca3af;font-size:10px;margin-top:32px;border-top:1px solid #e5e7eb;padding-top:12px}
-      @media print{body{padding:14px;font-size:12px}@page{margin:1cm}}
-      </style></head><body>
-      <h1>👨‍👩‍👧 Veli Raporu</h1>
-      <div class="sub">Türkiye Yüzyılı Maarif Modeli — Gelişim Özeti</div>
-      
-      <div class="info-card">
-        <div class="info-row"><span><b>Öğrenci:</b></span><span>${escapeHTML(s.ad)}</span></div>
-        <div class="info-row"><span><b>Sınıf:</b></span><span>${escapeHTML(s.class)}</span></div>
-        ${s.no ? `<div class="info-row"><span><b>Numara:</b></span><span>${escapeHTML(s.no)}</span></div>` : ''}
-        <div class="info-row"><span><b>Tarih:</b></span><span>${new Date().toLocaleDateString('tr-TR')}</span></div>
-      </div>
-      
-      <div class="score-box">
-        <div class="score-num">${score}</div>
-        <div class="score-lbl">SÜREÇ PUANI · ${status.label.toUpperCase()}</div>
-        <div style="font-size:11px;margin-top:8px;opacity:0.85">Başlangıç 100 üzerinden ${events.length} olay sonrası</div>
-      </div>
-      
-      ${(yazili1 || yazili2) ? `
-      <div class="section-title">📝 Yazılı Sınavlar</div>
-      ${yazili1 != null ? `<div class="bar-row"><div class="bar-head"><span>Yazılı 1</span><span><b>${yazili1}/100</b></span></div><div class="bar-track"><div class="bar-fill ${yazili1>=70?'high':yazili1>=50?'mid':'low'}" style="width:${yazili1}%"></div></div></div>` : ''}
-      ${yazili2 != null ? `<div class="bar-row"><div class="bar-head"><span>Yazılı 2</span><span><b>${yazili2}/100</b></span></div><div class="bar-track"><div class="bar-fill ${yazili2>=70?'high':yazili2>=50?'mid':'low'}" style="width:${yazili2}%"></div></div></div>` : ''}
-      ` : ''}
-      
-      <div class="section-title">🌳 Karakter & Eğilim Gelişimi</div>
-      ${topCriteria.map(([item, val]) => {
-        const maxVal = topCriteria[0][1];
-        const pct = Math.min(100, Math.round((val/maxVal)*100));
-        const lvl = pct <= 40 ? 'low' : pct <= 75 ? 'mid' : 'high';
-        const lblTxt = lvl === 'low' ? 'Desteklenmeli' : lvl === 'mid' ? 'Gelişmekte' : 'Yerleşmiş';
-        return `<div class="bar-row"><div class="bar-head"><span>${escapeHTML(item)}</span><span class="level ${lvl}">${lblTxt}</span></div><div class="bar-track"><div class="bar-fill ${lvl}" style="width:${pct}%"></div></div></div>`;
-      }).join('')}
-      
-      <div class="section-title">📊 Bu Dönem Özeti</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center">
-        <div style="background:#f5f3ff;padding:14px;border-radius:10px"><div style="font-size:22px;font-weight:800;color:#4f46e5">${events.length}</div><div style="font-size:11px;color:#666">Olay Kaydı</div></div>
-        <div style="background:#ecfdf5;padding:14px;border-radius:10px"><div style="font-size:22px;font-weight:800;color:#10b981">${posCount}</div><div style="font-size:11px;color:#666">Pozitif</div></div>
-        <div style="background:#fef2f2;padding:14px;border-radius:10px"><div style="font-size:22px;font-weight:800;color:#ef4444">${negCount}</div><div style="font-size:11px;color:#666">Gelişim Alanı</div></div>
-      </div>
-      
-      <div class="msg-box">
-        <b>📝 Öğretmen Notu:</b><br>
-        ${score >= 110 ? 
-          `${escapeHTML(s.ad.split(' ')[0])}, sınıf içinde son derece olumlu davranışlar sergilemekte. Karakter gelişimi ve süreç odaklı çabası takdire şayan. Bu istikrarı sürdürmesi için desteklemenizi rica ediyorum.` 
-        : score >= 90 ?
-          `${escapeHTML(s.ad.split(' ')[0])}, derslere katılım ve sosyal gelişim açısından olumlu bir yolda ilerliyor. Bu süreci destekleyici tutumunuzla daha da güçlendirebiliriz.`
-        : score >= 70 ?
-          `${escapeHTML(s.ad.split(' ')[0])} için gelişim sürecinde bazı alanlarda destek gerekiyor. Birlikte çalışarak ${escapeHTML(s.ad.split(' ')[0])}'in potansiyelini ortaya çıkarabiliriz. Görüşmek isterim.`
-        : 
-          `${escapeHTML(s.ad.split(' ')[0])} için süreç odaklı yoğun bir desteğe ihtiyaç var. En kısa zamanda görüşmek üzere okula davet ediyorum.`}
-      </div>
-      
-      <div class="footer">
-        Maarif Gelişim Asistanı · v0.7.1 · ${new Date().toLocaleString('tr-TR')}<br>
-        Bu rapor öğretmen tarafından kaydedilen kanıta dayalı gözlemlerden oluşturulmuştur.
-      </div>
-      <scr` + `ipt>setTimeout(function(){window.print();},800);</scr` + `ipt>
-      </body></html>`;
+      const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + escapeHTML(s.ad) + ' - Veli Raporu</title>' +
+      '<style>' +
+      'body{font-family:"Segoe UI",sans-serif;padding:30px;color:#1a1a1a;max-width:700px;margin:0 auto;background:#fff;font-size:14px}' +
+      'h1{color:#4f46e5;font-size:20px;margin:0 0 4px;border-bottom:3px solid #4f46e5;padding-bottom:8px}' +
+      '.sub{color:#666;font-size:12px;margin-bottom:24px}' +
+      '.info-card{background:#f5f3ff;border-radius:14px;padding:20px;margin-bottom:24px}' +
+      '.info-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px}' +
+      '.score-box{background:linear-gradient(135deg,#6366f1,#14b8a6);color:#fff;padding:24px;border-radius:14px;margin-bottom:24px;text-align:center}' +
+      '.score-num{font-size:48px;font-weight:800;line-height:1}' +
+      '.score-lbl{font-size:13px;letter-spacing:0.1em;text-transform:uppercase;margin-top:6px;opacity:0.9}' +
+      '.section-title{color:#4f46e5;font-size:15px;font-weight:700;margin:24px 0 10px;border-left:4px solid #4f46e5;padding-left:10px}' +
+      '.bar-row{margin-bottom:8px}' +
+      '.bar-head{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px}' +
+      '.bar-track{height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden}' +
+      '.bar-fill{height:100%;border-radius:4px}' +
+      '.bar-fill.high{background:#10b981}.bar-fill.mid{background:#f59e0b}.bar-fill.low{background:#ef4444}' +
+      '.level{font-weight:700;font-size:11px;text-transform:uppercase}.level.high{color:#10b981}.level.mid{color:#f59e0b}.level.low{color:#ef4444}' +
+      '.msg-box{background:#fef3c7;border-left:4px solid #f59e0b;padding:16px;border-radius:8px;margin-top:24px;font-style:italic;line-height:1.6;font-size:13px;color:#78350f}' +
+      '.footer{text-align:center;color:#9ca3af;font-size:10px;margin-top:32px;border-top:1px solid #e5e7eb;padding-top:12px}' +
+      '@media print{body{padding:14px;font-size:12px}@page{margin:1cm}}' +
+      '</style></head><body>' +
+      '<h1>Veli Raporu</h1>' +
+      '<div class="sub">Türkiye Yüzyılı Maarif Modeli — Gelişim Özeti</div>' +
+      '<div class="info-card">' +
+        '<div class="info-row"><span><b>Öğrenci:</b></span><span>' + escapeHTML(s.ad) + '</span></div>' +
+        '<div class="info-row"><span><b>Sınıf:</b></span><span>' + escapeHTML(s.class) + '</span></div>' +
+        (s.no ? '<div class="info-row"><span><b>Okul Numarası:</b></span><span>' + escapeHTML(s.no) + '</span></div>' : '') +
+        '<div class="info-row"><span><b>Değerlendirme Tarihi:</b></span><span>' + escapeHTML(reportDate) + '</span></div>' +
+      '</div>' +
+      '<div class="score-box">' +
+        '<div class="score-num">' + score + '</div>' +
+        '<div class="score-lbl">SÜREÇ PUANI · ' + status.label.toUpperCase() + '</div>' +
+        '<div style="font-size:11px;margin-top:8px;opacity:0.85">Başlangıç 100 üzerinden ' + events.length + ' olay sonrası</div>' +
+      '</div>' +
+      ((yazili1 != null || yazili2 != null) ? 
+        '<div class="section-title">Yazılı Sınavlar</div>' +
+        (yazili1 != null ? '<div class="bar-row"><div class="bar-head"><span>Yazılı 1</span><span><b>' + yazili1 + '/100</b></span></div><div class="bar-track"><div class="bar-fill ' + (yazili1>=70?'high':yazili1>=50?'mid':'low') + '" style="width:' + yazili1 + '%"></div></div></div>' : '') +
+        (yazili2 != null ? '<div class="bar-row"><div class="bar-head"><span>Yazılı 2</span><span><b>' + yazili2 + '/100</b></span></div><div class="bar-track"><div class="bar-fill ' + (yazili2>=70?'high':yazili2>=50?'mid':'low') + '" style="width:' + yazili2 + '%"></div></div></div>' : '')
+      : '') +
+      '<div class="section-title">Karakter & Eğilim Gelişimi</div>' +
+      topCriteria.map(function(tc) {
+        var item = tc[0], val = tc[1];
+        var maxVal = topCriteria[0][1];
+        var pct = Math.min(100, Math.round((val/maxVal)*100));
+        var lvl = pct <= 40 ? 'low' : pct <= 75 ? 'mid' : 'high';
+        var lblTxt = lvl === 'low' ? 'Desteklenmeli' : lvl === 'mid' ? 'Gelişmekte' : 'Yerleşmiş';
+        return '<div class="bar-row"><div class="bar-head"><span>' + escapeHTML(item) + '</span><span class="level ' + lvl + '">' + lblTxt + '</span></div><div class="bar-track"><div class="bar-fill ' + lvl + '" style="width:' + pct + '%"></div></div></div>';
+      }).join('') +
+      '<div class="section-title">Bu Dönem Özeti</div>' +
+      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center">' +
+        '<div style="background:#f5f3ff;padding:14px;border-radius:10px"><div style="font-size:22px;font-weight:800;color:#4f46e5">' + events.length + '</div><div style="font-size:11px;color:#666">Olay Kaydı</div></div>' +
+        '<div style="background:#ecfdf5;padding:14px;border-radius:10px"><div style="font-size:22px;font-weight:800;color:#10b981">' + posCount + '</div><div style="font-size:11px;color:#666">Pozitif</div></div>' +
+        '<div style="background:#fef2f2;padding:14px;border-radius:10px"><div style="font-size:22px;font-weight:800;color:#ef4444">' + negCount + '</div><div style="font-size:11px;color:#666">Gelişim Alanı</div></div>' +
+      '</div>' +
+      '<div class="msg-box"><b>Öğretmen Notu:</b><br>' + escapeHTML(teacherNote) + '</div>' +
+      '<div class="footer">Maarif Gelişim Asistanı · v0.7.2 · ' + new Date().toLocaleString('tr-TR') + '<br>Bu rapor öğretmen tarafından kaydedilen kanıta dayalı gözlemlerden oluşturulmuştur.</div>' +
+      '<scr' + 'ipt>setTimeout(function(){window.print();},800);</scr' + 'ipt>' +
+      '</body></html>';
       w.document.write(html);
       w.document.close();
-    },
+    }
   };
 
   // ═══════════════════════════════════════════════
@@ -5144,11 +5301,18 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
     },
     refreshStats() {
       const s = data.getStats();
-      document.getElementById('stat-classes').textContent = s.classCount;
-      document.getElementById('stat-students').textContent = s.studentCount;
-      if (state.db.lastSync) {
-        const d = new Date(state.db.lastSync);
-        document.getElementById('last-sync').textContent = 'Son yedek: ' + d.toLocaleString('tr-TR');
+      const clsEl = document.getElementById('stat-classes');
+      const stuEl = document.getElementById('stat-students');
+      if (clsEl) clsEl.textContent = s.classCount;
+      if (stuEl) stuEl.textContent = s.studentCount;
+      const syncEl = document.getElementById('home-sync-info');
+      if (syncEl) {
+        if (state.db.lastSync) {
+          const d = new Date(state.db.lastSync);
+          syncEl.textContent = '☁️ Son yedek: ' + d.toLocaleString('tr-TR');
+        } else {
+          syncEl.textContent = '';
+        }
       }
     }
   };
