@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#0a0b0e">
+<meta name="theme-color" content="#e8f5e9">
 <title>Maarif · Dijital Öğretmen Asistanı v0.7.1</title>
 <!--
 ═══════════════════════════════════════════════════════════════════════
@@ -47,30 +47,30 @@
    ═══════════════════════════════════════════════════════ */
 
 :root {
-  --bg:        #0a0b0e;
-  --bg-1:     #11141a;
-  --bg-2:     #161a23;
-  --bg-3:     #1c2230;
+  --bg:        #f0f7f0;
+  --bg-1:     #ffffff;
+  --bg-2:     #e8f5e8;
+  --bg-3:     #d4ecd4;
 
-  --line:     rgba(255,255,255,0.06);
-  --line-2:   rgba(255,255,255,0.10);
+  --line:     rgba(0,80,0,0.08);
+  --line-2:   rgba(0,80,0,0.14);
 
-  --text:     #f0f3f8;
-  --text-2:   #9ba3b4;
-  --text-3:   #5d6678;
+  --text:     #1a2e1a;
+  --text-2:   #4a6a4a;
+  --text-3:   #7a9a7a;
 
-  --teal:    #14b8a6;
-  --amber:   #f59e0b;
-  --rose:    #f43f5e;
-  --indigo:  #6366f1;
-  --emerald: #10b981;
+  --teal:    #0d9488;
+  --amber:   #d97706;
+  --rose:    #dc2626;
+  --indigo:  #2e7d32;
+  --emerald: #16a34a;
 
   --r-sm: 10px;
   --r:    14px;
   --r-lg: 20px;
 
-  --shadow: 0 8px 32px rgba(0,0,0,0.35);
-  --shadow-card: 0 1px 0 rgba(255,255,255,0.03), 0 4px 16px rgba(0,0,0,0.25);
+  --shadow: 0 8px 32px rgba(0,60,0,0.08);
+  --shadow-card: 0 1px 3px rgba(0,60,0,0.06), 0 4px 16px rgba(0,60,0,0.04);
 
   --font: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
   --font-display: 'Plus Jakarta Sans', var(--font);
@@ -81,7 +81,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 html { background: var(--bg); }
 body {
   font-family: var(--font);
-  background: var(--bg);
+  background: linear-gradient(180deg, #e8f5e9 0%, #f0f7f0 30%, #f5faf5 100%);
   color: var(--text);
   min-height: 100vh;
   font-size: 15px;
@@ -106,7 +106,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
 }
 @media (min-width: 768px) {
   .app {
-    box-shadow: 0 0 60px rgba(99,102,241,0.08);
+    box-shadow: 0 0 60px rgba(22,163,74,0.06);
     border-left: 1px solid var(--line);
     border-right: 1px solid var(--line);
   }
@@ -135,7 +135,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(10,11,14,0.85);
+  background: rgba(240,247,240,0.92);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--line);
@@ -189,9 +189,9 @@ input, textarea, select { font-family: inherit; color: inherit; }
   max-width: 480px;
   margin: 0 auto;
   background: 
-    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(244,114,182,0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 60% at 50% 100%, rgba(99,102,241,0.10) 0%, transparent 70%),
-    var(--bg);
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(22,163,74,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 50% 100%, rgba(13,148,136,0.10) 0%, transparent 70%),
+    linear-gradient(180deg, #e8f5e9 0%, #f0f7f0 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -203,7 +203,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 56px;
-  background: linear-gradient(135deg, #f472b6 0%, #6366f1 50%, #14b8a6 100%);
+  background: linear-gradient(135deg, #16a34a 0%, #0d9488 50%, #2e7d32 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -247,11 +247,11 @@ input, textarea, select { font-family: inherit; color: inherit; }
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  background: rgba(99,102,241,0.12);
+  background: rgba(22,163,74,0.10);
   display: grid;
   place-items: center;
   font-size: 14px;
-  color: var(--indigo);
+  color: var(--emerald);
 }
 .login-error {
   margin-top: 16px;
@@ -276,7 +276,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--indigo), var(--teal));
+  background: linear-gradient(135deg, var(--emerald), var(--teal));
   display: grid;
   place-items: center;
   font-weight: 700;
@@ -378,11 +378,11 @@ input, textarea, select { font-family: inherit; color: inherit; }
   font-size: 18px;
   flex-shrink: 0;
 }
-.menu-icon.indigo  { background: rgba(99,102,241,0.12); color: var(--indigo); }
-.menu-icon.teal    { background: rgba(20,184,166,0.12); color: var(--teal); }
-.menu-icon.amber   { background: rgba(245,158,11,0.12); color: var(--amber); }
-.menu-icon.rose    { background: rgba(244,63,94,0.12); color: var(--rose); }
-.menu-icon.emerald { background: rgba(16,185,129,0.12); color: var(--emerald); }
+.menu-icon.indigo  { background: rgba(46,125,50,0.10); color: var(--indigo); }
+.menu-icon.teal    { background: rgba(13,148,136,0.10); color: var(--teal); }
+.menu-icon.amber   { background: rgba(217,119,6,0.10); color: var(--amber); }
+.menu-icon.rose    { background: rgba(220,38,38,0.10); color: var(--rose); }
+.menu-icon.emerald { background: rgba(22,163,74,0.10); color: var(--emerald); }
 .menu-text { flex: 1; min-width: 0; }
 .menu-title {
   font-size: 14.5px;
@@ -474,10 +474,10 @@ input, textarea, select { font-family: inherit; color: inherit; }
 }
 .btn:active { transform: scale(0.98); }
 .btn-primary {
-  background: var(--indigo);
+  background: linear-gradient(135deg, #16a34a, #0d9488);
   color: #fff;
 }
-.btn-primary:active { background: #4f46e5; }
+.btn-primary:active { background: #15803d; }
 .btn-secondary {
   background: var(--bg-2);
   color: var(--text);
@@ -489,9 +489,9 @@ input, textarea, select { font-family: inherit; color: inherit; }
   color: var(--indigo);
 }
 .btn-danger {
-  background: rgba(244,63,94,0.12);
+  background: rgba(220,38,38,0.08);
   color: var(--rose);
-  border: 1px solid rgba(244,63,94,0.25);
+  border: 1px solid rgba(220,38,38,0.20);
 }
 .btn-fab {
   position: fixed;
@@ -503,7 +503,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
   background: var(--indigo);
   color: #fff;
   font-size: 24px;
-  box-shadow: 0 8px 24px rgba(99,102,241,0.4);
+  box-shadow: 0 8px 24px rgba(22,163,74,0.3);
   z-index: 100;
   display: grid;
   place-items: center;
@@ -745,7 +745,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
   font-size: 10.5px;
   padding: 3px 8px;
   border-radius: 12px;
-  background: rgba(99,102,241,0.12);
+  background: rgba(22,163,74,0.10);
   color: var(--indigo);
   font-weight: 600;
 }
@@ -916,7 +916,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
   flex-shrink: 0;
 }
 .exam-step.done .exam-step-icon { background: rgba(16,185,129,0.15); color: var(--emerald); }
-.exam-step.active .exam-step-icon { background: rgba(99,102,241,0.15); color: var(--indigo); }
+.exam-step.active .exam-step-icon { background: rgba(22,163,74,0.12); color: var(--indigo); }
 .exam-step.error .exam-step-icon { background: rgba(244,63,94,0.15); color: var(--rose); }
 .exam-key-row {
   display: grid;
@@ -947,7 +947,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
   width: 80px;
 }
 .exam-result-card {
-  background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(20,184,166,0.05));
+  background: linear-gradient(135deg, rgba(22,163,74,0.06), rgba(20,184,166,0.05));
   border: 1px solid var(--line-2);
   border-radius: var(--r);
   padding: 16px;
@@ -1013,14 +1013,14 @@ input, textarea, select { font-family: inherit; color: inherit; }
   flex-shrink: 0;
 }
 .exam-batch-status.pending { background: var(--bg-2); color: var(--text-3); }
-.exam-batch-status.processing { background: rgba(99,102,241,0.15); color: var(--indigo); }
+.exam-batch-status.processing { background: rgba(22,163,74,0.12); color: var(--indigo); }
 .exam-batch-status.done { background: rgba(16,185,129,0.15); color: var(--emerald); }
 .exam-batch-status.error { background: rgba(244,63,94,0.15); color: var(--rose); }
 
 
 /* ════════ DAILY TRACKING (Günlük Takip) ════════ */
 .score-display {
-  background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(20,184,166,0.06));
+  background: linear-gradient(135deg, rgba(22,163,74,0.08), rgba(20,184,166,0.06));
   border: 1px solid var(--line-2);
   border-radius: var(--r-lg);
   padding: 18px;
@@ -1214,7 +1214,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
   transition: background 0.15s;
 }
 .multi-student-chip.selected {
-  background: rgba(99,102,241,0.12);
+  background: rgba(22,163,74,0.10);
   border-color: var(--indigo);
 }
 .multi-student-chip-check {
@@ -3092,6 +3092,7 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       const keyName = state._editingKey;
       const existing = keyName ? (exam.getKeys()[keyName] || { questions: [] }) : { questions: [] };
       const questions = existing.questions || [];
+      const isTextMode = state._examTextMode || false;
       
       let html = `
         <div class="input-group">
@@ -3100,9 +3101,16 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
         </div>
         
         <div class="section-label" style="margin:18px 4px 8px">Sorular</div>
+        <div class="text-xs" style="margin:0 4px 10px;color:var(--text-2)">Her soru için sadece puan girin. Cevap anahtarını fotoğraf/PDF olarak ekleyin. Metin olarak soru ve cevap girmek isterseniz aşağıdaki butona tıklayın.</div>
         <div id="ek-questions"></div>
         
         <button class="btn btn-secondary mt-2" onclick="Maarif.pages['exam-key-edit'].addQuestion()">+ Soru Ekle</button>
+        
+        <div style="margin-top:14px">
+          <button class="btn btn-secondary" style="font-size:12px;padding:10px 14px;background:${isTextMode ? 'var(--bg-3)' : 'var(--bg-2)'}" onclick="Maarif.pages['exam-key-edit'].toggleTextMode()">
+            ${isTextMode ? '📷 Fotoğraf Moduna Dön' : '📝 Metin Tabanlı Sınav (Soru/Cevap yaz)'}
+          </button>
+        </div>
         
         <div class="mt-4 flex gap-2">
           <button class="btn btn-primary" onclick="Maarif.pages['exam-key-edit'].save()">💾 Kaydet</button>
@@ -3122,6 +3130,7 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
     },
     renderQuestions() {
       const host = document.getElementById('ek-questions');
+      const isTextMode = state._examTextMode || false;
       let html = '';
       state._editingQuestions.forEach((q, idx) => {
         const hasImage = q.answerImage ? true : false;
@@ -3133,25 +3142,29 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
           : '';
         html += `
           <div class="card" style="margin-bottom:10px;padding:12px">
-            <div class="exam-key-row">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
               <div class="exam-key-q-num">${q.n}</div>
-              <div>
-                <input class="input" placeholder="Soru metni (opsiyonel)" value="${escapeAttr(q.q||'')}" oninput="Maarif.pages['exam-key-edit'].updateQ(${idx},'q',this.value)" style="margin-bottom:6px">
-                <textarea class="textarea" placeholder="Doğru cevap (metin)" style="min-height:60px" oninput="Maarif.pages['exam-key-edit'].updateQ(${idx},'a',this.value)">${escapeHTML(q.a||'')}</textarea>
-                ${imgPreview}
+              <div style="flex:1;font-size:13px;font-weight:600">Soru ${q.n}</div>
+              <div style="display:flex;align-items:center;gap:4px">
+                <input class="exam-key-pts" type="number" min="1" max="100" value="${q.pts}" oninput="Maarif.pages['exam-key-edit'].updateQ(${idx},'pts',parseInt(this.value)||0)">
+                <span style="font-size:11px;color:var(--text-3)">puan</span>
               </div>
-              <input class="exam-key-pts" type="number" min="1" max="100" value="${q.pts}" oninput="Maarif.pages['exam-key-edit'].updateQ(${idx},'pts',parseInt(this.value)||0)">
             </div>
+            ${isTextMode ? `
+              <input class="input" placeholder="Soru metni" value="${escapeAttr(q.q||'')}" oninput="Maarif.pages['exam-key-edit'].updateQ(${idx},'q',this.value)" style="margin-bottom:6px">
+              <textarea class="textarea" placeholder="Doğru cevap (metin)" style="min-height:60px" oninput="Maarif.pages['exam-key-edit'].updateQ(${idx},'a',this.value)">${escapeHTML(q.a||'')}</textarea>
+            ` : ''}
+            ${imgPreview}
             <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
               <input type="checkbox" id="ek-open-${idx}" ${q.openEnded ? 'checked' : ''} onchange="Maarif.pages['exam-key-edit'].updateQ(${idx},'openEnded',this.checked)">
-              <label for="ek-open-${idx}" style="font-size:11.5px;color:var(--text-2);cursor:pointer">📐 Açık uçlu (basamak/işlem gerekli) — eksik basamak uyarısı</label>
+              <label for="ek-open-${idx}" style="font-size:11.5px;color:var(--text-2);cursor:pointer">📐 Açık uçlu (basamak gerekli)</label>
             </div>
             <div style="display:flex;gap:6px;justify-content:space-between;align-items:center;margin-top:8px">
               <div style="display:flex;gap:6px">
                 <input type="file" id="qimg-${idx}" accept="image/*,application/pdf" style="display:none" onchange="Maarif.pages['exam-key-edit'].uploadImage(${idx}, this.files[0])">
-                <button onclick="document.getElementById('qimg-${idx}').click()" style="background:var(--bg-2);border:1px solid var(--line-2);border-radius:8px;padding:6px 10px;font-size:11.5px;color:var(--text-2);cursor:pointer">📷 Foto/PDF</button>
+                <button onclick="document.getElementById('qimg-${idx}').click()" style="background:var(--bg-2);border:1px solid var(--line-2);border-radius:8px;padding:6px 10px;font-size:11.5px;color:var(--text-2);cursor:pointer">📷 Cevap Anahtarı Foto/PDF</button>
               </div>
-              <button onclick="Maarif.pages['exam-key-edit'].removeQuestion(${idx})" style="background:none;border:none;color:var(--rose);font-size:12px;padding:4px 0;cursor:pointer">🗑️ Soruyu Sil</button>
+              <button onclick="Maarif.pages['exam-key-edit'].removeQuestion(${idx})" style="background:none;border:none;color:var(--rose);font-size:12px;padding:4px 0;cursor:pointer">🗑️</button>
             </div>
           </div>
         `;
@@ -3165,6 +3178,10 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
     updateQ(idx, field, value) {
       state._editingQuestions[idx][field] = value;
       if (field === 'pts' || field === 'openEnded') pages['exam-key-edit'].renderQuestions();
+    },
+    toggleTextMode() {
+      state._examTextMode = !state._examTextMode;
+      nav._render('exam-key-edit');
     },
     async uploadImage(idx, file) {
       if (!file) return;
@@ -4185,16 +4202,16 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
             ${(ev.domains || []).map(d => '<span class="chip" style="background:rgba(20,184,166,0.15);color:var(--teal);font-weight:700">' + (ctxLabels.domain[d] || d) + '</span>').join('')}
           </div>
           <div style="display:flex;flex-wrap:wrap;gap:6px">
-            ${ev.context.intent ? '<span class="chip" style="background:rgba(99,102,241,0.12);color:var(--indigo)">Niyet: ' + (ctxLabels.intent[ev.context.intent] || ev.context.intent) + '</span>' : ''}
+            ${ev.context.intent ? '<span class="chip" style="background:rgba(22,163,74,0.10);color:var(--indigo)">Niyet: ' + (ctxLabels.intent[ev.context.intent] || ev.context.intent) + '</span>' : ''}
             ${ev.context.severity ? '<span class="chip" style="background:rgba(244,63,94,0.12);color:var(--rose)">Şiddet: ' + (ctxLabels.severity[ev.context.severity] || ev.context.severity) + '</span>' : ''}
             ${ev.context.harm ? '<span class="chip" style="background:rgba(245,158,11,0.12);color:var(--amber)">Zarar: ' + (ctxLabels.harm[ev.context.harm] || ev.context.harm) + '</span>' : ''}
-            ${ev.context.repetition ? '<span class="chip" style="background:rgba(99,102,241,0.12);color:var(--indigo)">Sıklık: ' + (ctxLabels.repetition[ev.context.repetition] || ev.context.repetition) + '</span>' : ''}
+            ${ev.context.repetition ? '<span class="chip" style="background:rgba(22,163,74,0.10);color:var(--indigo)">Sıklık: ' + (ctxLabels.repetition[ev.context.repetition] || ev.context.repetition) + '</span>' : ''}
             ${ev.context.remorse ? '<span class="chip" style="background:rgba(16,185,129,0.12);color:var(--emerald)">Pişmanlık: ' + (ctxLabels.remorse[ev.context.remorse] || ev.context.remorse) + '</span>' : ''}
           </div>
         </div>`;
       }
       if (ev.explanation) {
-        html += `<div class="card" style="margin-bottom:14px;background:rgba(99,102,241,0.06);border-color:rgba(99,102,241,0.2)">
+        html += `<div class="card" style="margin-bottom:14px;background:rgba(22,163,74,0.05);border-color:rgba(99,102,241,0.2)">
           <div style="font-size:11px;color:var(--indigo);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">🤖 Pedagojik Açıklama</div>
           <div style="font-size:12.5px;line-height:1.5">${escapeHTML(ev.explanation)}</div>
         </div>`;
@@ -4346,7 +4363,7 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
         </div>
       </div>`;
       
-      html += `<div class="card" style="margin-bottom:12px;background:rgba(99,102,241,0.06);border-color:rgba(99,102,241,0.2)">
+      html += `<div class="card" style="margin-bottom:12px;background:rgba(22,163,74,0.05);border-color:rgba(99,102,241,0.2)">
         <div style="font-size:12px;color:var(--indigo);font-weight:700;margin-bottom:4px">🔍 AI ${pm.events.length} farklı davranış tespit etti</div>
         <div style="font-size:11.5px;color:var(--text-2);line-height:1.5">Her olay AYRI kayıt olarak kaydedilecek. İstemediğinizi kapatabilirsiniz.</div>
       </div>`;
@@ -4566,7 +4583,7 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
 
       if (isYazili) {
         // YAZILI: Sadece puan + gözlem + fotoğraf çekme. Maarif kriterleri YOK.
-        html += `<div class="card" style="margin-bottom:14px;background:rgba(99,102,241,0.06);border-color:rgba(99,102,241,0.2)">
+        html += `<div class="card" style="margin-bottom:14px;background:rgba(22,163,74,0.05);border-color:rgba(99,102,241,0.2)">
           <div style="font-size:11px;color:var(--indigo);font-weight:700;margin-bottom:6px">📝 YAZILI SINAV DEĞERLENDİRMESİ</div>
           <div style="font-size:11.5px;color:var(--text-2);line-height:1.5">Yazılı sınavlarda Maarif kriter değerlendirmesi yapılmaz. Sadece puan ve öğretmen gözlemi kaydedilir. AI ile sınav kağıdı tarama için Ana Sayfa → Yazılı Tara özelliğini kullanın.</div>
         </div>`;
@@ -4831,44 +4848,38 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
         { key: 'proje', name: 'Dönem Projesi', emoji: '🏆' }
       ];
 
-      // Aggregate criteria across all assessments AND daily events
+      // Puan bazlı kriter agregasyonu — her kriter 100'den başlar, olaylarla değişir
       const aggregate = {};
-      let totalEvents = 0;
-      Object.values(assess).forEach(a => {
-        if (a.criteria) {
-          totalEvents++;
-          a.criteria.forEach(c => {
-            const key = c.category + '|' + c.item;
-            if (!aggregate[key]) aggregate[key] = { category: c.category, item: c.item, total: 0, count: 0 };
-            aggregate[key].total += c.weight;
-            aggregate[key].count++;
-          });
-        }
-      });
-      // Günlük olayları da hasatlamaya dahil et (her olayın kriterleri ağırlıklarıyla)
       const dailyEvts = daily.getEvents(s.id);
       const processScore = daily.getProcessScore(s.id);
       const processStatus = daily.getStatus(processScore);
+      
       dailyEvts.forEach(ev => {
-        if (ev.criteria) {
-          totalEvents++;
-          const mult = Math.abs(ev.scoreImpact || 1); // negatif/pozitif fark etmez, ağırlık
-          ev.criteria.forEach(c => {
+        if (!ev.criteria || ev.criteria.length === 0) return;
+        const totalWeight = ev.criteria.reduce((sum, c) => sum + (c.weight||0), 0) || 100;
+        ev.criteria.forEach(c => {
+          const key = c.category + '|' + c.item;
+          if (!aggregate[key]) aggregate[key] = { category: c.category, item: c.item, total: 100, count: 0 };
+          const share = (c.weight || 0) / totalWeight;
+          aggregate[key].total += (ev.scoreImpact || 0) * share;
+          aggregate[key].count++;
+        });
+      });
+      Object.values(assess).forEach(a => {
+        if (a.criteria) {
+          a.criteria.forEach(c => {
             const key = c.category + '|' + c.item;
-            if (!aggregate[key]) aggregate[key] = { category: c.category, item: c.item, total: 0, count: 0 };
-            aggregate[key].total += (c.weight || 0) * mult / 10;
+            if (!aggregate[key]) aggregate[key] = { category: c.category, item: c.item, total: 100, count: 0 };
             aggregate[key].count++;
           });
         }
       });
 
-      // Sort by total
-      const sortedAggregate = Object.values(aggregate).sort((a, b) => b.total - a.total);
-      const maxTotal = sortedAggregate[0] ? sortedAggregate[0].total : 100;
+      const sortedAggregate = Object.values(aggregate).sort((a, b) => b.count - a.count);
 
       const __pscore = daily.getProcessScore(s.id);
       const __pstatus = daily.getStatus(__pscore);
-      let html = `<div class="card" style="background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(20,184,166,0.05));border-color:var(--line-2)">
+      let html = `<div class="card" style="background:linear-gradient(135deg,rgba(22,163,74,0.06),rgba(20,184,166,0.05));border-color:var(--line-2)">
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
           <div class="student-avatar" style="width:56px;height:56px;font-size:22px;background:linear-gradient(135deg,var(--indigo),var(--teal));color:#fff;border:none">${(s.ad||'?').charAt(0).toUpperCase()}</div>
           <div style="flex:1">
@@ -4897,7 +4908,7 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       </div>`;
 
       // Save data for tab switcher
-      pages.report._data = { student: s, assess: assess, sortedAggregate: sortedAggregate, maxTotal: maxTotal, types: types };
+      pages.report._data = { student: s, assess: assess, sortedAggregate: sortedAggregate, types: types };
 
       return html;
     },
@@ -4906,7 +4917,7 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
     },
     tab(name) {
       document.querySelectorAll('#report-tabs .tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
-      const { student, assess, sortedAggregate, maxTotal, types } = pages.report._data;
+      const { student, assess, sortedAggregate, types } = pages.report._data;
       const host = document.getElementById('report-content');
 
       if (name === 'hasat') {
@@ -4920,21 +4931,26 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
           if (!byCategory[item.category]) byCategory[item.category] = [];
           byCategory[item.category].push(item);
         });
-        let html = '<div class="text-sm" style="margin:0 4px 12px">Tüm değerlendirmelerden çıkan gelişim haritası:</div>';
+        let html = '<div class="text-sm" style="margin:0 4px 12px">Olay kayıtlarına göre gelişim haritası (Başlangıç: 100):</div>';
         for (const [catKey, items] of Object.entries(byCategory)) {
           const groupInfo = MAARIF_CRITERIA[catKey];
           if (!groupInfo) continue;
           html += `<div class="section-label" style="margin:18px 4px 8px">${groupInfo.emoji} ${groupInfo.label}</div>`;
           items.forEach(item => {
-            const avg = Math.min(100, Math.round((item.total / maxTotal) * 100));
-            const lvl = avg <= 40 ? 'low' : avg <= 75 ? 'mid' : 'high';
-            const lvlText = lvl === 'low' ? 'Desteklenmeli' : lvl === 'mid' ? 'Gelişmekte' : 'Yerleşmiş';
+            const pct = Math.max(0, Math.min(120, Math.round(item.total)));
+            let color = '#10b981';
+            if (pct < 50) color = '#dc2626';
+            else if (pct < 60) color = '#ef4444';
+            else if (pct < 70) color = '#f97316';
+            else if (pct < 80) color = '#f59e0b';
+            else if (pct < 90) color = '#84cc16';
+            const barW = Math.min(100, pct);
             html += `<div class="bar-row">
               <div class="bar-head">
-                <span class="bar-label">${item.item}</span>
-                <span class="bar-level ${lvl}">${lvlText}</span>
+                <span class="bar-label">${item.item} <span style="font-size:10px;color:var(--text-3)">(${item.count} kayıt)</span></span>
+                <span style="font-weight:700;color:${color}">${pct}</span>
               </div>
-              <div class="bar-track"><div class="bar-fill ${lvl}" style="width:${avg}%"></div></div>
+              <div class="bar-track"><div class="bar-fill" style="width:${barW}%;background:${color}"></div></div>
             </div>`;
           });
         }
@@ -5046,19 +5062,38 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       const negCount = events.filter(e => (e.scoreImpact||0) < 0).length;
       const posCount = events.filter(e => (e.scoreImpact||0) > 0).length;
       
-      // Top criteria
-      const agg = {};
-      Object.values(assess).forEach(a => {
-        if (a.criteria) a.criteria.forEach(c => {
-          agg[c.item] = (agg[c.item]||0) + (c.weight||0);
-        });
-      });
+      // Kriter agregasyonu: Her olayın scoreImpact'ini kriterlere ağırlığı oranında dağıt
+      // Negatif olaylar kriteri düşürür, pozitif yükseltir  
+      // Başlangıç: her kriter 100 üzerinden başlar (süreç puanı gibi)
+      const criteriaScores = {}; // {item: {total:100, impacts:[], count:0}}
+      
       events.forEach(ev => {
-        if (ev.criteria) ev.criteria.forEach(c => {
-          agg[c.item] = (agg[c.item]||0) + (c.weight||0) * Math.abs(ev.scoreImpact||1) / 10;
+        if (!ev.criteria || ev.criteria.length === 0) return;
+        const totalWeight = ev.criteria.reduce((s,c) => s + (c.weight||0), 0) || 100;
+        ev.criteria.forEach(c => {
+          if (!criteriaScores[c.item]) criteriaScores[c.item] = { total: 100, impacts: [], count: 0 };
+          // Olayın scoreImpact'ini ağırlığı oranında bu kritere yansıt
+          const share = (c.weight || 0) / totalWeight;
+          const impact = (ev.scoreImpact || 0) * share;
+          criteriaScores[c.item].total += impact;
+          criteriaScores[c.item].impacts.push(impact);
+          criteriaScores[c.item].count++;
         });
       });
-      const topCriteria = Object.entries(agg).sort((a,b) => b[1]-a[1]).slice(0,5);
+      
+      // Performans değerlendirmelerinden de topla
+      Object.values(assess).forEach(a => {
+        if (!a.criteria) return;
+        a.criteria.forEach(c => {
+          if (!criteriaScores[c.item]) criteriaScores[c.item] = { total: 100, impacts: [], count: 0 };
+          criteriaScores[c.item].count++;
+        });
+      });
+      
+      // Sırala — en çok olay kaydı olandan en az olana
+      const sortedCriteria = Object.entries(criteriaScores)
+        .sort((a,b) => b[1].count - a[1].count)
+        .slice(0, 8);
       
       const yazili1 = assess.yazili1 && assess.yazili1.score != null ? assess.yazili1.score : null;
       const yazili2 = assess.yazili2 && assess.yazili2.score != null ? assess.yazili2.score : null;
@@ -5067,12 +5102,24 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       const etkinlik = assess.etkinlik;
       const proje = assess.proje;
       
-      // Default öğretmen notu
+      // Default öğretmen notu — KAYITLARA DAYALI
+      const firstName = s.ad.split(' ')[0];
       let defaultNote = '';
-      if (score >= 110) defaultNote = s.ad.split(' ')[0] + ', sınıf içinde son derece olumlu davranışlar sergilemekte. Karakter gelişimi ve süreç odaklı çabası takdire şayan.';
-      else if (score >= 90) defaultNote = s.ad.split(' ')[0] + ', derslere katılım ve sosyal gelişim açısından olumlu bir yolda ilerliyor.';
-      else if (score >= 70) defaultNote = s.ad.split(' ')[0] + ' için gelişim sürecinde bazı alanlarda destek gerekiyor. Birlikte çalışarak potansiyelini ortaya çıkarabiliriz.';
-      else defaultNote = s.ad.split(' ')[0] + ' için süreç odaklı yoğun bir desteğe ihtiyaç var. En kısa zamanda görüşmek isterim.';
+      // Kayıtlardaki olaylardan somut bilgiler çıkar
+      const posEvents = events.filter(e => (e.scoreImpact||0) > 0);
+      const negEvents = events.filter(e => (e.scoreImpact||0) < 0);
+      const posLabels = posEvents.slice(0,3).map(e => e.label || '').filter(Boolean);
+      const negLabels = negEvents.slice(0,3).map(e => e.label || '').filter(Boolean);
+      
+      if (events.length === 0) {
+        defaultNote = firstName + ' için henüz olay kaydı girilmemiştir. Değerlendirme yapabilmek için günlük kayıtların girilmesi gerekmektedir.';
+      } else if (negCount === 0 && posCount > 0) {
+        defaultNote = firstName + ', dönem boyunca ' + posCount + ' olumlu davranış kaydına sahiptir' + (posLabels.length > 0 ? ' (' + posLabels.join(', ') + ')' : '') + '. Bu olumlu gidişatı desteklemenizi rica ederim.';
+      } else if (posCount === 0 && negCount > 0) {
+        defaultNote = firstName + ' için ' + negCount + ' gelişim alanı tespit edilmiştir' + (negLabels.length > 0 ? ' (' + negLabels.join(', ') + ')' : '') + '. Bu konularda ev ortamında da destek sağlanması faydalı olacaktır.';
+      } else {
+        defaultNote = firstName + ', dönem boyunca ' + posCount + ' olumlu' + (posLabels.length > 0 ? ' (' + posLabels.join(', ') + ')' : '') + ' ve ' + negCount + ' gelişim alanı' + (negLabels.length > 0 ? ' (' + negLabels.join(', ') + ')' : '') + ' kaydına sahiptir. Birlikte destekleyerek gelişimini sürdürebiliriz.';
+      }
       
       // Önceki özel not varsa onu göster
       state._veliReportNote = state._veliReportNote || defaultNote;
@@ -5080,7 +5127,7 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       
       let html = `
         <!-- ÖĞRENCİ KÜNYESİ -->
-        <div class="card" style="margin-bottom:14px;background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(20,184,166,0.05))">
+        <div class="card" style="margin-bottom:14px;background:linear-gradient(135deg,rgba(22,163,74,0.06),rgba(20,184,166,0.05))">
           <div style="display:flex;align-items:center;gap:14px">
             <div class="student-avatar" style="width:48px;height:48px;font-size:18px">${(s.ad||'?').charAt(0).toUpperCase()}</div>
             <div style="flex:1">
@@ -5138,16 +5185,21 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
         </div>`;
       }
       
-      // Karakter gelişimi
-      if (topCriteria.length > 0) {
+      // Karakter gelişimi — puan bazlı oransal
+      if (sortedCriteria.length > 0) {
         html += `<div class="card" style="margin-bottom:8px">
-          <div style="font-weight:700;font-size:13px;margin-bottom:6px">🌳 Karakter Gelişimi (Top 5)</div>
-          ${topCriteria.map(([item, val]) => {
-            const maxVal = topCriteria[0][1];
-            const pct = Math.min(100, Math.round((val/maxVal)*100));
-            const lvl = pct <= 40 ? 'low' : pct <= 75 ? 'mid' : 'high';
-            const color = lvl === 'low' ? 'var(--rose)' : lvl === 'mid' ? 'var(--amber)' : 'var(--emerald)';
-            return '<div style="font-size:12px;display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escapeHTML(item) + '</span><div style="width:80px;height:6px;background:var(--bg-2);border-radius:3px;overflow:hidden"><div style="height:100%;width:' + pct + '%;background:' + color + ';border-radius:3px"></div></div></div>';
+          <div style="font-weight:700;font-size:13px;margin-bottom:6px">🌳 Karakter & Eğilim Gelişimi</div>
+          <div style="font-size:10px;color:var(--text-3);margin-bottom:8px">Başlangıç 100 · Olay kayıtlarına göre değişim</div>
+          ${sortedCriteria.map(([item, d]) => {
+            const pct = Math.max(0, Math.min(120, Math.round(d.total)));
+            let color = 'var(--emerald)';
+            if (pct < 50) color = 'var(--rose)';
+            else if (pct < 60) color = '#ef4444';
+            else if (pct < 70) color = '#f97316';
+            else if (pct < 80) color = 'var(--amber)';
+            else if (pct < 90) color = '#84cc16';
+            const barW = Math.min(100, pct);
+            return '<div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px"><span>' + escapeHTML(item) + ' <span style="color:var(--text-3);font-size:10px">(' + d.count + ' kayıt)</span></span><span style="font-weight:700;color:' + color + '">' + pct + '</span></div><div style="height:6px;background:var(--bg-2);border-radius:3px;overflow:hidden"><div style="height:100%;width:' + barW + '%;background:' + color + ';border-radius:3px"></div></div></div>';
           }).join('')}
         </div>`;
       }
@@ -5197,18 +5249,24 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       const negCount = events.filter(e => (e.scoreImpact||0) < 0).length;
       const posCount = events.filter(e => (e.scoreImpact||0) > 0).length;
       
-      const agg = {};
+      const criteriaScores = {};
+      events.forEach(ev => {
+        if (!ev.criteria || ev.criteria.length === 0) return;
+        const totalWeight = ev.criteria.reduce((s,c) => s + (c.weight||0), 0) || 100;
+        ev.criteria.forEach(c => {
+          if (!criteriaScores[c.item]) criteriaScores[c.item] = { total: 100, count: 0 };
+          const share = (c.weight || 0) / totalWeight;
+          criteriaScores[c.item].total += (ev.scoreImpact || 0) * share;
+          criteriaScores[c.item].count++;
+        });
+      });
       Object.values(assess).forEach(a => {
         if (a.criteria) a.criteria.forEach(c => {
-          agg[c.item] = (agg[c.item]||0) + (c.weight||0);
+          if (!criteriaScores[c.item]) criteriaScores[c.item] = { total: 100, count: 0 };
+          criteriaScores[c.item].count++;
         });
       });
-      events.forEach(ev => {
-        if (ev.criteria) ev.criteria.forEach(c => {
-          agg[c.item] = (agg[c.item]||0) + (c.weight||0) * Math.abs(ev.scoreImpact||1) / 10;
-        });
-      });
-      const topCriteria = Object.entries(agg).sort((a,b) => b[1]-a[1]).slice(0,5);
+      const sortedCriteria = Object.entries(criteriaScores).sort((a,b) => b[1].count - a[1].count).slice(0, 8);
       
       const yazili1 = assess.yazili1 && assess.yazili1.score != null ? assess.yazili1.score : null;
       const yazili2 = assess.yazili2 && assess.yazili2.score != null ? assess.yazili2.score : null;
@@ -5217,14 +5275,14 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
       const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + escapeHTML(s.ad) + ' - Veli Raporu</title>' +
       '<style>' +
       'body{font-family:"Segoe UI",sans-serif;padding:30px;color:#1a1a1a;max-width:700px;margin:0 auto;background:#fff;font-size:14px}' +
-      'h1{color:#4f46e5;font-size:20px;margin:0 0 4px;border-bottom:3px solid #4f46e5;padding-bottom:8px}' +
+      'h1{color:#15803d;font-size:20px;margin:0 0 4px;border-bottom:3px solid #15803d;padding-bottom:8px}' +
       '.sub{color:#666;font-size:12px;margin-bottom:24px}' +
       '.info-card{background:#f5f3ff;border-radius:14px;padding:20px;margin-bottom:24px}' +
       '.info-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px}' +
-      '.score-box{background:linear-gradient(135deg,#6366f1,#14b8a6);color:#fff;padding:24px;border-radius:14px;margin-bottom:24px;text-align:center}' +
+      '.score-box{background:linear-gradient(135deg,#16a34a,#14b8a6);color:#fff;padding:24px;border-radius:14px;margin-bottom:24px;text-align:center}' +
       '.score-num{font-size:48px;font-weight:800;line-height:1}' +
       '.score-lbl{font-size:13px;letter-spacing:0.1em;text-transform:uppercase;margin-top:6px;opacity:0.9}' +
-      '.section-title{color:#4f46e5;font-size:15px;font-weight:700;margin:24px 0 10px;border-left:4px solid #4f46e5;padding-left:10px}' +
+      '.section-title{color:#15803d;font-size:15px;font-weight:700;margin:24px 0 10px;border-left:4px solid #15803d;padding-left:10px}' +
       '.bar-row{margin-bottom:8px}' +
       '.bar-head{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px}' +
       '.bar-track{height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden}' +
@@ -5254,17 +5312,16 @@ SADECE JSON FORMATINDA YANIT VER (Başına veya sonuna markdown işareti koyma):
         (yazili2 != null ? '<div class="bar-row"><div class="bar-head"><span>Yazılı 2</span><span><b>' + yazili2 + '/100</b></span></div><div class="bar-track"><div class="bar-fill ' + (yazili2>=70?'high':yazili2>=50?'mid':'low') + '" style="width:' + yazili2 + '%"></div></div></div>' : '')
       : '') +
       '<div class="section-title">Karakter & Eğilim Gelişimi</div>' +
-      topCriteria.map(function(tc) {
-        var item = tc[0], val = tc[1];
-        var maxVal = topCriteria[0][1];
-        var pct = Math.min(100, Math.round((val/maxVal)*100));
-        var lvl = pct <= 40 ? 'low' : pct <= 75 ? 'mid' : 'high';
-        var lblTxt = lvl === 'low' ? 'Desteklenmeli' : lvl === 'mid' ? 'Gelişmekte' : 'Yerleşmiş';
-        return '<div class="bar-row"><div class="bar-head"><span>' + escapeHTML(item) + '</span><span class="level ' + lvl + '">' + lblTxt + '</span></div><div class="bar-track"><div class="bar-fill ' + lvl + '" style="width:' + pct + '%"></div></div></div>';
+      sortedCriteria.map(function(tc) {
+        var item = tc[0], d = tc[1];
+        var pct = Math.max(0, Math.min(120, Math.round(d.total)));
+        var color = pct >= 90 ? '#10b981' : pct >= 80 ? '#84cc16' : pct >= 70 ? '#f59e0b' : pct >= 60 ? '#f97316' : pct >= 50 ? '#ef4444' : '#dc2626';
+        var barW = Math.min(100, pct);
+        return '<div class="bar-row"><div class="bar-head"><span>' + escapeHTML(item) + ' (' + d.count + ' kayıt)</span><span style="font-weight:700;color:' + color + '">' + pct + '</span></div><div class="bar-track"><div class="bar-fill" style="width:' + barW + '%;background:' + color + '"></div></div></div>';
       }).join('') +
       '<div class="section-title">Bu Dönem Özeti</div>' +
       '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center">' +
-        '<div style="background:#f5f3ff;padding:14px;border-radius:10px"><div style="font-size:22px;font-weight:800;color:#4f46e5">' + events.length + '</div><div style="font-size:11px;color:#666">Olay Kaydı</div></div>' +
+        '<div style="background:#f5f3ff;padding:14px;border-radius:10px"><div style="font-size:22px;font-weight:800;color:#15803d">' + events.length + '</div><div style="font-size:11px;color:#666">Olay Kaydı</div></div>' +
         '<div style="background:#ecfdf5;padding:14px;border-radius:10px"><div style="font-size:22px;font-weight:800;color:#10b981">' + posCount + '</div><div style="font-size:11px;color:#666">Pozitif</div></div>' +
         '<div style="background:#fef2f2;padding:14px;border-radius:10px"><div style="font-size:22px;font-weight:800;color:#ef4444">' + negCount + '</div><div style="font-size:11px;color:#666">Gelişim Alanı</div></div>' +
       '</div>' +
