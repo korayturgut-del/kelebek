@@ -512,13 +512,23 @@
     // 01-04. CORE FOUNDATION (Config, EventBus, Logger, State)
     // ═══════════════════════════════════════════════
     Modules.config = (() => {
-      const CONFIG = { APP_NAME: 'Maarif Asistanı', VERSION: '1.7.2', DEBUG: true, AI_WORKER: 'https://YOUR-WORKER.workers.dev', OCR_CONFIDENCE_THRESHOLD: 0.72, OCR_FAST_MODEL: 'gemini-2.5-flash', OCR_SMART_MODEL: 'gemini-2.5-pro' };
-      Object.freeze(CONFIG);
-      Modules.registry.push('config'); Modules.health.config = true;
-      return Object.freeze({ get: (key) => CONFIG[key], all: () => CONFIG });
-    })();
-
-    Modules.eventBus = (() => {
+  const CONFIG = { 
+    APP_NAME: 'Maarif Asistanı', 
+    VERSION: '1.7.2', 
+    DEBUG: true, 
+    AI_WORKER: 'https://YOUR-WORKER.workers.dev', 
+    OCR_CONFIDENCE_THRESHOLD: 0.72, 
+    OCR_FAST_MODEL: 'gemini-2.5-flash', 
+    OCR_SMART_MODEL: 'gemini-2.5-pro' 
+  };
+  Object.freeze(CONFIG);
+  
+  // ✅ Bunu ekle:
+  window.TARGET_VERSION = CONFIG.VERSION;
+  
+  Modules.registry.push('config'); Modules.health.config = true;
+  return Object.freeze({ get: (key) => CONFIG[key], all: () => CONFIG });
+})();Modules.eventBus = (() => {
       const listeners = new Map();
       function on(event, callback) {
         if (!listeners.has(event)) listeners.set(event, []);
