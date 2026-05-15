@@ -1591,6 +1591,7 @@
         }
       }
 
+      const TARGET_VERSION = MIGRATIONS.length > 0 ? Math.max(...MIGRATIONS.map(m => m.version)) : 1;
       Modules.registry.push('migration'); Modules.health.migration = true;
       return Object.freeze({ run, TARGET_VERSION, list: () => MIGRATIONS.map(m => ({ version: m.version, name: m.name })) });
     })();
