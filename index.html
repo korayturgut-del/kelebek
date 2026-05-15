@@ -58,18 +58,418 @@
     .capture-hint.show { display: flex; }
     .capture-hint.warn { background: rgba(245, 158, 11, 0.95); color: #000; }
     .capture-hint.ok   { background: rgba(16, 185, 129, 0.95); }
+
+    /* ═══════════════════════════════════════════════ */
+    /* PREMIUM HERO                                    */
+    /* ═══════════════════════════════════════════════ */
+    #premium-entry { position:fixed;inset:0;z-index:999999;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:24px;font-family:Inter,system-ui,sans-serif;background:radial-gradient(circle at 48% 22%,rgba(96,165,250,.24),transparent 46%),radial-gradient(circle at 18% 76%,rgba(167,139,250,.12),transparent 30%),linear-gradient(150deg,#172554,#0f172a 45%,#020617); }
+    #premium-entry::before { content:"";position:absolute;width:540px;height:540px;border-radius:50%;background:rgba(59,130,246,.16);filter:blur(92px);animation:premiumFloatGlow 7s ease-in-out infinite; }
+    #premium-entry::after { content:"";position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:72px 72px;mask-image:radial-gradient(circle at center,black,transparent 72%); }
+    @keyframes premiumFloatGlow { 0%,100%{transform:translateY(0);}  50%{transform:translateY(-18px);} }
+    .premium-card { position:relative;width:min(92vw,430px);padding:42px 28px 28px;border-radius:32px;overflow:hidden;text-align:center;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 22px 60px rgba(0,0,0,.46),inset 0 1px 1px rgba(255,255,255,.08); }
+    .premium-card::before { content:"";position:absolute;top:0;left:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.72),transparent); }
+    .premium-logo-wrap { width:118px;height:118px;margin:0 auto 24px;border-radius:30px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 45% 28%,rgba(255,255,255,.22),transparent 42%),linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.1);box-shadow:0 14px 34px rgba(59,130,246,.22),inset 0 1px 1px rgba(255,255,255,.14); }
+    .premium-logo-wrap svg { width:82px;height:82px;overflow:visible;filter:drop-shadow(0 12px 14px rgba(0,0,0,.28)); }
+    .premium-brand { margin:0;color:#fff;font-size:32px;line-height:1.06;font-weight:800;letter-spacing:-.5px; }
+    .premium-sub-brand { margin-top:10px;color:rgba(255,255,255,.68);font-size:15px;font-weight:500;letter-spacing:.2px; }
+    .premium-btn { width:100%;height:62px;margin-top:34px;border:0;border-radius:22px;color:#fff;cursor:pointer;font-size:18px;font-weight:700;background:linear-gradient(135deg,#2563eb,#3b82f6 52%,#60a5fa);box-shadow:0 12px 28px rgba(37,99,235,.4);transition:transform .28s ease,box-shadow .28s ease,filter .28s ease; }
+    .premium-btn:hover { transform:translateY(-2px);filter:saturate(1.08);box-shadow:0 18px 38px rgba(37,99,235,.48); }
+    .premium-btn:active { transform:scale(.985); }
+    .premium-mini-line { margin-top:18px;color:rgba(255,255,255,.3);font-size:11px;letter-spacing:2px;text-transform:uppercase; }
+    .premium-particle { position:absolute;border-radius:50%;background:rgba(255,255,255,.09);animation:premiumParticleMove linear infinite; }
+    .premium-p1{width:10px;height:10px;top:18%;left:14%;animation-duration:10s;}
+    .premium-p2{width:6px;height:6px;top:72%;right:18%;animation-duration:14s;}
+    .premium-p3{width:14px;height:14px;bottom:12%;left:20%;animation-duration:18s;}
+    @keyframes premiumParticleMove { 0%,100%{transform:translateY(0);}  50%{transform:translateY(-25px);} }
+    @media(max-width:420px){.premium-card{padding:36px 22px 24px;border-radius:28px;}.premium-brand{font-size:29px;}.premium-logo-wrap{width:108px;height:108px;}.premium-logo-wrap svg{width:76px;height:76px;}}
+
+    /* ═══════════════════════════════════════════════ */
+    /* TEACHER UI — Ekranlar ve Butonlar               */
+    /* ═══════════════════════════════════════════════ */
+
+    /* Ekran sistemi */
+    .screen { display: none; flex-direction: column; min-height: 100vh; width: 100%; max-width: 520px; margin: 0 auto; padding: 0 0 80px 0; }
+    .screen.active { display: flex; }
+
+    /* Top bar */
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px 12px; border-bottom: 1px solid rgba(255,255,255,0.07); position: sticky; top: 0; background: var(--bg); z-index: 100; }
+    .topbar-title { font-size: 17px; font-weight: 700; letter-spacing: -.3px; }
+    .topbar-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .topbar-btn { background: transparent; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: color .15s; }
+    .topbar-btn:hover { color: white; }
+
+    /* Büyük aksiyon butonları */
+    .btn { display: flex; align-items: center; justify-content: center; gap: 10px; border: none; border-radius: 14px; font-size: 16px; font-weight: 700; cursor: pointer; transition: opacity .15s, transform .1s; padding: 16px 20px; width: 100%; }
+    .btn:active { transform: scale(.97); opacity: .85; }
+    .btn-primary { background: #3b82f6; color: white; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-danger  { background: var(--danger);  color: white; }
+    .btn-ghost   { background: rgba(255,255,255,.08); color: white; }
+    .btn-sm      { font-size: 14px; padding: 10px 16px; border-radius: 10px; }
+
+    /* Ana ekran — iki büyük kart */
+    #screen-home { justify-content: center; align-items: center; gap: 20px; padding: 30px 24px; }
+    .home-logo { font-size: 48px; margin-bottom: 8px; }
+    .home-title { font-size: 26px; font-weight: 800; text-align: center; }
+    .home-sub { font-size: 14px; color: var(--text-muted); text-align: center; margin-bottom: 24px; }
+    .home-card { background: var(--panel); border-radius: 20px; padding: 28px 24px; width: 100%; display: flex; flex-direction: column; gap: 12px; border: 1px solid rgba(255,255,255,.07); }
+    .home-card-icon { font-size: 32px; }
+    .home-card-title { font-size: 18px; font-weight: 700; }
+    .home-card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+    /* Cevap anahtarı ekranı */
+    #screen-key { padding: 0; }
+    .key-body { padding: 16px 20px; flex: 1; overflow-y: auto; }
+    .key-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+    .key-no { width: 32px; height: 32px; border-radius: 50%; background: rgba(59,130,246,.2); color: #93c5fd; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .key-input { flex: 1; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; color: white; font-size: 15px; padding: 8px 12px; }
+    .key-input:focus { outline: none; border-color: #3b82f6; }
+    .key-score { width: 52px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; color: white; font-size: 14px; padding: 8px 8px; text-align: center; }
+    .key-score:focus { outline: none; border-color: #3b82f6; }
+    .key-exact { width: 28px; height: 28px; border-radius: 6px; border: 2px solid rgba(255,255,255,.2); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .15s; }
+    .key-exact.checked { background: var(--success); border-color: var(--success); }
+    .key-exact.checked::after { content: '✓'; color: white; font-size: 14px; font-weight: 700; }
+    .key-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,.07); display: flex; gap: 10px; }
+
+    /* Kamera ekranı */
+    #screen-capture { background: #000; justify-content: space-between; }
+    .capture-area { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    #capture-video { width: 100%; height: 100%; object-fit: cover; }
+    #capture-canvas { display: none; }
+    .capture-controls { padding: 24px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; background: rgba(0,0,0,.8); }
+    .shutter-btn { width: 72px; height: 72px; border-radius: 50%; border: 4px solid white; background: white; cursor: pointer; flex-shrink: 0; transition: transform .1s; }
+    .shutter-btn:active { transform: scale(.9); }
+    .capture-side-btn { width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,.15); border: none; color: white; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+    /* Önizleme ekranı */
+    #screen-preview { background: #000; }
+    .preview-img-wrap { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #000; }
+    #preview-img { max-width: 100%; max-height: calc(100vh - 160px); object-fit: contain; display: block; }
+    .preview-footer { padding: 16px 20px; display: flex; gap: 10px; background: rgba(0,0,0,.9); }
+
+    /* Sonuç ekranı */
+    #screen-result { padding: 0; }
+    .result-img-wrap { position: relative; overflow: hidden; background: #000; }
+    #result-img { max-width: 100%; display: block; }
+    .result-score-banner { background: var(--panel); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,.07); }
+    .result-score-big { font-size: 36px; font-weight: 800; }
+    .result-score-label { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+    .result-table { padding: 0 20px 20px; }
+    .result-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.05); font-size: 14px; }
+    .result-row:last-child { border: none; }
+    .result-badge { padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .badge-correct  { background: rgba(16,185,129,.2);  color: #6ee7b7; }
+    .badge-partial  { background: rgba(245,158,11,.2);  color: #fcd34d; }
+    .badge-wrong    { background: rgba(239,68,68,.2);   color: #fca5a5; }
+    .result-footer  { padding: 16px 20px; display: flex; gap: 10px; position: sticky; bottom: 0; background: var(--bg); border-top: 1px solid rgba(255,255,255,.07); }
+
+    /* Worker URL ekranı */
+    #screen-settings { padding: 0; }
+    .settings-body { padding: 24px 20px; display: flex; flex-direction: column; gap: 20px; }
+    .settings-group { display: flex; flex-direction: column; gap: 8px; }
+    .settings-label { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+    .settings-input { background: var(--panel); border: 1px solid rgba(255,255,255,.12); border-radius: 10px; color: white; font-size: 14px; padding: 12px 14px; }
+    .settings-input:focus { outline: none; border-color: #3b82f6; }
+    .settings-hint { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+    .settings-status { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 10px 14px; border-radius: 8px; }
+    .settings-status.ok   { background: rgba(16,185,129,.15); color: #6ee7b7; }
+    .settings-status.bad  { background: rgba(239,68,68,.15);   color: #fca5a5; }
+    .settings-status.none { background: rgba(148,163,184,.1);  color: var(--text-muted); }
+
+    /* Boot ekranını gizle sonra */
+    #boot-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; gap: 16px; }
+    #boot-screen.hidden { display: none; }
+    .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 520px; background: var(--panel); border-top: 1px solid rgba(255,255,255,.08); display: none; padding: 8px 0 max(8px, env(safe-area-inset-bottom)); z-index: 200; }
+    .bottom-nav.show { display: flex; }
+    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; cursor: pointer; color: var(--text-muted); font-size: 11px; font-weight: 600; border: none; background: transparent; transition: color .15s; }
+    .nav-item.active { color: #3b82f6; }
+    .nav-icon { font-size: 22px; line-height: 1; }
+    .input-label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
   </style>
 </head>
 <body>
 
-  <div id="app">
-    <h2 id="app-title">Maarif Motoru Başlatılıyor...</h2>
-    <div id="boot-logs" class="log-container"></div>
-    
-    <div id="exam-container" style="position:relative; margin-top:20px; display:none; max-width:90vw;">
-       <img id="exam-image" style="max-width:100%; border-radius:8px; display:block;" />
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- PREMIUM HERO SCREEN                             -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div id="premium-entry" role="dialog" aria-modal="true" aria-labelledby="premium-title">
+    <div class="premium-particle premium-p1"></div>
+    <div class="premium-particle premium-p2"></div>
+    <div class="premium-particle premium-p3"></div>
+    <div class="premium-card">
+      <div class="premium-logo-wrap" aria-hidden="true">
+        <svg viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="crocusCenter" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(110 108) rotate(90) scale(24)">
+              <stop stop-color="#FEF3C7"/><stop offset=".45" stop-color="#FACC15"/><stop offset="1" stop-color="#B45309"/>
+            </radialGradient>
+            <linearGradient id="petalDeep" x1="110" y1="23" x2="110" y2="134" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#EDE9FE"/><stop offset=".48" stop-color="#A78BFA"/><stop offset="1" stop-color="#6D28D9"/>
+            </linearGradient>
+            <linearGradient id="petalSoft" x1="51" y1="55" x2="151" y2="158" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#F5F3FF"/><stop offset=".52" stop-color="#C4B5FD"/><stop offset="1" stop-color="#7C3AED"/>
+            </linearGradient>
+            <filter id="petalShadow" x="20" y="10" width="180" height="190" color-interpolation-filters="sRGB">
+              <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#1E1B4B" flood-opacity=".28"/>
+            </filter>
+          </defs>
+          <g filter="url(#petalShadow)">
+            <path d="M110 106C90 82 88 44 110 16C132 44 130 82 110 106Z" fill="url(#petalDeep)"/>
+            <path d="M110 110C90 135 88 172 110 204C132 172 130 135 110 110Z" fill="url(#petalDeep)" opacity=".9"/>
+            <path d="M104 111C74 113 41 92 28 58C66 56 95 77 104 111Z" fill="url(#petalSoft)"/>
+            <path d="M116 111C146 113 179 92 192 58C154 56 125 77 116 111Z" fill="url(#petalSoft)"/>
+            <path d="M103 106C76 93 61 60 67 28C99 43 115 72 103 106Z" fill="#DDD6FE"/>
+            <path d="M117 106C144 93 159 60 153 28C121 43 105 72 117 106Z" fill="#DDD6FE"/>
+            <path d="M103 114C76 127 61 160 67 192C99 177 115 148 103 114Z" fill="#C4B5FD" opacity=".82"/>
+            <path d="M117 114C144 127 159 160 153 192C121 177 105 148 117 114Z" fill="#C4B5FD" opacity=".82"/>
+          </g>
+          <g opacity=".72" stroke="#FFFFFF" stroke-linecap="round">
+            <path d="M110 30C109 54 109 77 110 101" stroke-width="2.2"/>
+            <path d="M78 47C88 68 96 87 104 106" stroke-width="1.8"/>
+            <path d="M142 47C132 68 124 87 116 106" stroke-width="1.8"/>
+            <path d="M48 66C70 81 88 96 104 111" stroke-width="1.7"/>
+            <path d="M172 66C150 81 132 96 116 111" stroke-width="1.7"/>
+          </g>
+          <circle cx="110" cy="110" r="18" fill="url(#crocusCenter)"/>
+          <circle cx="110" cy="110" r="7" fill="#78350F" opacity=".72"/>
+          <path d="M103 105C107 99 113 99 117 105" stroke="#FFF7ED" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1 class="premium-brand" id="premium-title">Dijital Öğretmen<br>Asistanı</h1>
+      <div class="premium-sub-brand">Yapay Zeka Yazılı Okuma Sistemi</div>
+      <button class="premium-btn" id="premium-enter-btn" type="button">Sistemi Başlat</button>
+      <div class="premium-mini-line">AI Powered Education</div>
     </div>
   </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ANA UYGULAMA — Boot + Ekranlar                  -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div id="app">
+
+    <!-- Boot log (sadece başlangıçta görünür) -->
+    <div id="boot-screen">
+      <h2 id="app-title" style="color:var(--text-muted);font-size:15px;margin:0;">Maarif Motoru Başlatılıyor...</h2>
+      <div id="boot-logs" class="log-container" style="width:min(90vw,500px);"></div>
+    </div>
+
+    <!-- ── EKRAN: ANA MENÜ ── -->
+    <div id="screen-home" class="screen">
+      <div class="topbar">
+        <div>
+          <div class="topbar-title">📋 Maarif</div>
+          <div class="topbar-sub">Öğretmen Asistanı</div>
+        </div>
+        <button class="topbar-btn" id="btn-settings" title="Ayarlar">⚙️</button>
+      </div>
+
+      <!-- Cevap anahtarı durumu bandı -->
+      <div id="key-status-bar" style="margin:12px 16px;padding:12px 16px;border-radius:12px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.2);display:flex;align-items:center;gap:10px;font-size:13px;color:#fcd34d;">
+        <span>⚠️</span>
+        <span id="key-status-text">Henüz cevap anahtarı yüklenmedi. Önce çözümlü kağıdı çekin.</span>
+      </div>
+
+      <!-- Aksiyon kartları -->
+      <div style="padding:0 16px;display:flex;flex-direction:column;gap:14px;flex:1;">
+
+        <div class="home-card">
+          <div class="home-card-icon">📄</div>
+          <div class="home-card-title">Cevap Anahtarı Yükle</div>
+          <div class="home-card-desc">Öğretmenin çözümlü sınav kağıdını çekin. Sistem cevapları otomatik okur ve kriter oluşturur.</div>
+          <button class="btn btn-ghost btn-sm" id="btn-load-key-camera">📷 Kamerayla Çek</button>
+          <button class="btn btn-ghost btn-sm" id="btn-load-key-file" style="margin-top:6px;">🖼 Galeriden Seç</button>
+          <input type="file" id="file-key" accept="image/*" style="display:none">
+        </div>
+
+        <div class="home-card" id="card-scan" style="opacity:.5;pointer-events:none;">
+          <div class="home-card-icon">🔍</div>
+          <div class="home-card-title">Öğrenci Kağıdı Oku</div>
+          <div class="home-card-desc">Öğrencinin sınav kağıdını çekin. İsim, numara, sınıf ve notlar otomatik alınır.</div>
+          <button class="btn btn-primary btn-sm" id="btn-scan-camera">📷 Kamerayla Çek</button>
+          <button class="btn btn-ghost btn-sm" id="btn-scan-file" style="margin-top:6px;">🖼 Galeriden Seç</button>
+          <input type="file" id="file-scan" accept="image/*" style="display:none">
+        </div>
+
+        <div class="home-card" id="card-list" style="opacity:.5;pointer-events:none;">
+          <div class="home-card-icon">📊</div>
+          <div class="home-card-title">Sınıf Listesi & PDF</div>
+          <div class="home-card-desc">Okunan tüm kağıtlar, öğrenci listesi ve not çizelgesi.</div>
+          <button class="btn btn-ghost btn-sm" id="btn-goto-list">Listeyi Gör →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── EKRAN: KAMERA ── -->
+    <div id="screen-capture" class="screen">
+      <div class="topbar" style="background:#000;border-bottom:1px solid rgba(255,255,255,.08);">
+        <button class="topbar-btn" id="btn-capture-back">✕</button>
+        <div>
+          <div class="topbar-title" id="capture-mode-title">Kağıdı Çerçevele</div>
+          <div class="topbar-sub" id="capture-mode-sub">Kağıdı düzce tutun</div>
+        </div>
+        <button class="topbar-btn" id="btn-flip-camera" title="Kamerayı çevir">🔄</button>
+      </div>
+      <div class="capture-area">
+        <video id="capture-video" autoplay playsinline muted></video>
+        <canvas id="capture-canvas"></canvas>
+        <!-- Capture guide frame buraya eklenecek (Blok 27) -->
+        <div id="capture-guide-overlay" style="position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center;">
+          <div style="width:85%;aspect-ratio:3/4;border:2px dashed rgba(255,255,255,.3);border-radius:12px;transition:border-color .3s;" id="capture-guide-rect"></div>
+        </div>
+      </div>
+      <div class="capture-controls">
+        <button class="capture-side-btn" id="btn-capture-gallery">🖼</button>
+        <button class="shutter-btn" id="btn-shutter"></button>
+        <button class="capture-side-btn" id="btn-capture-torch">🔦</button>
+      </div>
+    </div>
+
+    <!-- ── EKRAN: ÖNİZLEME ── -->
+    <div id="screen-preview" class="screen">
+      <div class="topbar" style="background:#000;border-bottom:1px solid rgba(255,255,255,.08);">
+        <button class="topbar-btn" id="btn-preview-back">← Tekrar Çek</button>
+        <div class="topbar-title" id="preview-mode-title">Onaylayın</div>
+        <div></div>
+      </div>
+      <div class="preview-img-wrap">
+        <img id="preview-img" alt="Önizleme">
+      </div>
+      <div class="preview-footer">
+        <button class="btn btn-ghost" id="btn-preview-retake" style="flex:.4;">↩ Tekrar</button>
+        <button class="btn btn-primary" id="btn-preview-confirm" style="flex:.6;">✓ Gönder →</button>
+      </div>
+    </div>
+
+    <!-- ── EKRAN: SONUÇ ── -->
+    <div id="screen-result" class="screen">
+      <div class="topbar">
+        <button class="topbar-btn" id="btn-result-back">←</button>
+        <div>
+          <div class="topbar-title" id="result-student-name">Sonuç</div>
+          <div class="topbar-sub" id="result-exam-info"></div>
+        </div>
+        <button class="topbar-btn" id="btn-result-diag" title="Rapor indir">⬇</button>
+      </div>
+
+      <!-- Not banner -->
+      <div class="result-score-banner">
+        <div>
+          <div class="result-score-big" id="result-score">—</div>
+          <div class="result-score-label">Toplam Puan</div>
+        </div>
+        <div style="text-align:right;">
+          <div id="result-meta-class" style="font-size:13px;color:var(--text-muted);"></div>
+          <div id="result-meta-no" style="font-size:12px;color:var(--text-muted);margin-top:3px;"></div>
+        </div>
+      </div>
+
+      <!-- Görsel overlay -->
+      <div class="result-img-wrap" id="result-img-wrap" style="position:relative;">
+        <img id="result-img" alt="Sınav kağıdı">
+        <!-- Overlay işaretler JS ile eklenir -->
+        <div id="exam-container" style="position:absolute;inset:0;pointer-events:none;">
+          <img id="exam-image" style="display:none;">
+        </div>
+      </div>
+
+      <!-- Soru detay tablosu -->
+      <div class="result-table" id="result-table"></div>
+
+      <div class="result-footer">
+        <button class="btn btn-ghost btn-sm" id="btn-result-next" style="flex:1;">→ Sonraki Kağıt</button>
+        <button class="btn btn-success btn-sm" id="btn-result-save" style="flex:1;">💾 Kaydet</button>
+      </div>
+    </div>
+
+    <!-- ── EKRAN: SINIF LİSTESİ ── -->
+    <div id="screen-list" class="screen">
+      <div class="topbar">
+        <button class="topbar-btn" id="btn-list-back">←</button>
+        <div>
+          <div class="topbar-title">Sınıf Listesi</div>
+          <div class="topbar-sub" id="list-subtitle">—</div>
+        </div>
+        <button class="topbar-btn" id="btn-export-pdf" title="PDF çıktısı">📄</button>
+      </div>
+
+      <!-- Sınıf seçici -->
+      <div style="padding:12px 16px;overflow-x:auto;display:flex;gap:8px;" id="class-tabs"></div>
+
+      <!-- Arama + arşiv butonları -->
+      <div style="padding:0 16px 10px;display:flex;gap:8px;">
+        <button class="btn btn-ghost btn-sm" id="btn-search-student" style="flex:1;">🔍 Öğrenci Ara</button>
+        <button class="btn btn-ghost btn-sm" id="btn-open-archive" style="flex:1;">🗄 Arşiv</button>
+      </div>
+
+      <!-- Öğrenci arama sonuçları (gizli, arama açılınca görünür) -->
+      <div id="student-search-panel" style="padding:0 16px;display:none;"></div>
+      <div style="flex:1;overflow-y:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;" id="student-table">
+          <thead>
+            <tr style="border-bottom:1px solid rgba(255,255,255,.1);color:var(--text-muted);">
+              <th style="padding:10px 16px;text-align:left;font-weight:600;">No</th>
+              <th style="padding:10px 8px;text-align:left;font-weight:600;">Öğrenci</th>
+              <th style="padding:10px 8px;text-align:center;font-weight:600;" id="th-exam1">1.Yazılı</th>
+              <th style="padding:10px 8px;text-align:center;font-weight:600;" id="th-exam2">2.Yazılı</th>
+              <th style="padding:10px 16px;text-align:center;font-weight:600;">Ort.</th>
+            </tr>
+          </thead>
+          <tbody id="student-tbody"></tbody>
+        </table>
+        <div id="list-empty" style="padding:40px 20px;text-align:center;color:var(--text-muted);display:none;">
+          Henüz öğrenci kaydı yok.<br>Kağıt okuyunca otomatik oluşur.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── EKRAN: AYARLAR ── -->
+    <div id="screen-settings" class="screen">
+      <div class="topbar">
+        <button class="topbar-btn" id="btn-settings-back">←</button>
+        <div class="topbar-title">Ayarlar</div>
+        <div></div>
+      </div>
+      <div class="settings-body">
+        <div class="settings-group">
+          <div class="settings-label">Worker URL</div>
+          <input id="setting-worker-url" class="settings-input" type="url" placeholder="https://your-worker.workers.dev">
+          <div class="settings-hint">Cloudflare Worker adresiniz. Gemini API proxy.</div>
+          <div class="settings-status none" id="worker-status">
+            <span>○</span><span>URL girilmedi</span>
+          </div>
+        </div>
+        <div class="settings-group">
+          <div class="settings-label">Dönem Bilgisi</div>
+          <input id="setting-year" class="settings-input" type="text" placeholder="2025/2026" value="2025/2026">
+          <input id="setting-period" class="settings-input" type="text" placeholder="1. Dönem" value="1. Dönem" style="margin-top:8px;">
+        </div>
+        <div class="settings-group">
+          <div class="settings-label">Okul Adı</div>
+          <input id="setting-school" class="settings-input" type="text" placeholder="Örn: Alpaslan Fen Lisesi">
+        </div>
+        <button class="btn btn-primary" id="btn-save-settings">Kaydet</button>
+        <button class="btn btn-ghost btn-sm" id="btn-diag-download" style="margin-top:8px;">🔧 Saha Raporu İndir</button>
+        <div class="settings-group" style="margin-top:8px;">
+          <div class="settings-label">Dönem Geçişi</div>
+          <div class="settings-hint" style="margin-top:6px;">Yeni dönem/yıl algılandığında eski veriler otomatik arşivlenir. Önce onayınız sorulur.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /#app -->
+
+  <!-- Alt navigasyon (boot sonrası görünür) -->
+  <nav class="bottom-nav" id="bottom-nav" aria-label="Ana navigasyon">
+    <button class="nav-item active" data-screen="home" id="nav-home">
+      <span class="nav-icon">🏠</span><span>Ana Sayfa</span>
+    </button>
+    <button class="nav-item" data-screen="list" id="nav-list">
+      <span class="nav-icon">📊</span><span>Listeler</span>
+    </button>
+    <button class="nav-item" data-screen="settings" id="nav-settings">
+      <span class="nav-icon">⚙️</span><span>Ayarlar</span>
+    </button>
+  </nav>
 
   <script>
     // ═══════════════════════════════════════════════
@@ -112,7 +512,7 @@
     // 01-04. CORE FOUNDATION (Config, EventBus, Logger, State)
     // ═══════════════════════════════════════════════
     Modules.config = (() => {
-      const CONFIG = { APP_NAME: 'Maarif Asistanı', VERSION: '1.7.2', DEBUG: true, AI_WORKER: 'https://dijital-ogretmen-api.korayturgut.workers.dev', OCR_CONFIDENCE_THRESHOLD: 0.72, OCR_FAST_MODEL: 'gemini-2.5-flash', OCR_SMART_MODEL: 'gemini-2.5-pro' };
+      const CONFIG = { APP_NAME: 'Maarif Asistanı', VERSION: '1.7.2', DEBUG: true, AI_WORKER: 'https://YOUR-WORKER.workers.dev', OCR_CONFIDENCE_THRESHOLD: 0.72, OCR_FAST_MODEL: 'gemini-2.5-flash', OCR_SMART_MODEL: 'gemini-2.5-pro' };
       Object.freeze(CONFIG);
       Modules.registry.push('config'); Modules.health.config = true;
       return Object.freeze({ get: (key) => CONFIG[key], all: () => CONFIG });
@@ -1147,10 +1547,31 @@
               }
             }
           }
+        },
+        {
+          version: 4,
+          name: 'vault_and_photo_store',
+          up: (db, tx) => {
+            // Arşiv: PIN hash + WebAuthn credential saklama
+            if (!db.objectStoreNames.contains('vaultMeta')) {
+              db.createObjectStore('vaultMeta', { keyPath: 'key' });
+            }
+            // Fotoğraf deposu: 30 gün aktif, sonra arşiv
+            if (!db.objectStoreNames.contains('photos')) {
+              const ps = db.createObjectStore('photos', { keyPath: 'id' });
+              ps.createIndex('status', 'status', { unique: false });     // 'active' | 'archived'
+              ps.createIndex('capturedAt', 'capturedAt', { unique: false });
+              ps.createIndex('studentKey', 'studentKey', { unique: false });
+            }
+            // Arşivlenmiş not listeleri (süresiz)
+            if (!db.objectStoreNames.contains('gradeLists')) {
+              const gl = db.createObjectStore('gradeLists', { keyPath: 'id' });
+              gl.createIndex('classKey', 'classKey', { unique: false });
+              gl.createIndex('year', 'year', { unique: false });
+            }
+          }
         }
       ];
-
-      const TARGET_VERSION = MIGRATIONS.length > 0 ? Math.max(...MIGRATIONS.map(m => m.version)) : 1;
 
       function run(db, oldVersion, newVersion, tx) {
         const log = (Modules.logger && Modules.logger.info) || console.log;
@@ -1749,7 +2170,93 @@
     })();
 
 
-    // ═══════════════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════
+    // 29. SEASON GUARD (Dönem Geçişi Algılama)
+    // ═══════════════════════════════════════════════
+    Modules.seasonGuard = (() => {
+      const META_STORE = 'vaultMeta';
+      async function getLastSeason() { try { const r = await Modules.storage.get(META_STORE, 'lastSeason'); return r ? r.value : null; } catch { return null; } }
+      async function setLastSeason(y, p) { try { await Modules.storage.put(META_STORE, { key: 'lastSeason', value: { year: y, period: p, ts: Date.now() } }); } catch {} }
+      async function check(curYear, curPeriod) {
+        if (!curYear || !curPeriod) return false;
+        const last = await getLastSeason();
+        if (!last) { await setLastSeason(curYear, curPeriod); return false; }
+        if (last.year === curYear && last.period === curPeriod) return false;
+        return new Promise(resolve => {
+          const dom = Modules.dom;
+          Modules.eventBus.emit('ui:modal', {
+            title: '📅 Yeni Dönem Algılandı',
+            content: dom.el('div', {}, [
+              dom.el('p', { style: { margin: '0 0 12px', fontSize: '14px' } }, ['Önceki: ' + last.year + ' — ' + last.period]),
+              dom.el('p', { style: { margin: '0 0 12px', fontSize: '14px' } }, ['Yeni: ' + curYear + ' — ' + curPeriod]),
+              dom.el('p', { style: { margin: '0', fontSize: '13px', color: 'var(--text-muted)' } }, ['Eski veriler arşive taşınacak. Mevcut veriler silinmez, arşivden erişebilirsiniz.'])
+            ]),
+            confirmText: 'Arşivle ve Devam',
+            cancelText: 'Şimdilik Atla',
+            onConfirm: async () => { await archiveSeason(last.year, last.period); await setLastSeason(curYear, curPeriod); Modules.eventBus.emit('ui:toast', { msg: 'Eski dönem arşivlendi ✓', type: 'success' }); resolve(true); }
+          });
+        });
+      }
+      async function archiveSeason(year, period) {
+        if (Modules.photoStore) { try { const a = await Modules.photoStore.getActive(); for (const p of a) { p.status='archived'; p.archivedAt=Date.now(); p.archivedReason='season'; await Modules.storageRetry.put('photos', p); } } catch {} }
+        if (Modules.photoStore) { try { const sl = JSON.parse(sessionStorage.getItem('maarif_students')||'{}'); for (const [c, s] of Object.entries(sl)) { await Modules.photoStore.saveGradeList(c, { year, period, students: s }); } sessionStorage.removeItem('maarif_students'); } catch {} }
+        if (Modules.telemetry) Modules.telemetry.track('season.archived', { year, period });
+      }
+      Modules.registry.push('seasonGuard'); Modules.health.seasonGuard = true;
+      return Object.freeze({ check, getLastSeason, archiveSeason });
+    })();
+
+    // ═══════════════════════════════════════════════
+    // 30. PHOTO STORE (30 Gün Aktif → Arşiv)
+    // ═══════════════════════════════════════════════
+    Modules.photoStore = (() => {
+      const PS = 'photos', GS = 'gradeLists', AMS = 30*24*60*60*1000;
+      function ok(s) { try { const db = Modules.storage.getDb && Modules.storage.getDb(); return db && db.objectStoreNames.contains(s); } catch { return false; } }
+      async function save(d, m={}) { if(!ok(PS)) return null; const id='photo_'+Date.now()+'_'+Math.random().toString(36).slice(2,6); await Modules.storageRetry.put(PS, { id, dataUrl:d, status:'active', capturedAt:Date.now(), archiveAt:Date.now()+AMS, studentKey:m.studentKey||(m.studentName||'')+'_'+(m.studentNo||''), studentName:m.studentName||'', studentNo:m.studentNo||'', className:m.className||'', examNo:m.examNo||'', subject:m.subject||'', year:m.year||'', totalScore:m.totalScore!=null?m.totalScore:null, maxScore:m.maxScore!=null?m.maxScore:null, examId:m.examId||'' }); return id; }
+      async function getActive() { if(!ok(PS)) return []; const a=await Modules.storage.getAll(PS); return a.filter(p=>p.status==='active').sort((a,b)=>b.capturedAt-a.capturedAt); }
+      async function getArchived() { if(!ok(PS)) return []; const a=await Modules.storage.getAll(PS); return a.filter(p=>p.status==='archived').sort((a,b)=>b.capturedAt-a.capturedAt); }
+      async function findStudent(q) { if(!q||q.length<2) return []; const lq=q.toLowerCase(),a=await getActive(),m=new Map(); for(const p of a) { if(!m.has(p.studentKey)&&(p.studentName.toLowerCase().includes(lq)||p.studentNo.includes(q))) m.set(p.studentKey,p); } return [...m.values()]; }
+      async function getStudentHistory(sk) { if(!ok(PS)) return []; const a=await Modules.storage.getAll(PS); return a.filter(p=>p.studentKey===sk).sort((a,b)=>a.capturedAt-b.capturedAt); }
+      async function deletePhoto(id) { await Modules.storage.del(PS, id); }
+      async function runJanitor() { if(!ok(PS)) return {archived:0}; const all=await Modules.storage.getAll(PS),now=Date.now(); let n=0; for(const p of all){if(p.status==='active'&&now>=p.archiveAt){p.status='archived';p.archivedAt=now;p.archivedReason='30day';await Modules.storageRetry.put(PS,p);n++;}} return {archived:n}; }
+      async function saveGradeList(ck,d) { if(!ok(GS)) return; await Modules.storageRetry.put(GS, {id:ck+'_'+(d.year||'')+'_'+(d.period||''), classKey:ck, year:d.year||'', period:d.period||'', data:d, updatedAt:Date.now()}); }
+      async function getAllGradeLists() { if(!ok(GS)) return []; return Modules.storage.getAll(GS); }
+      function scheduleJanitor() { setTimeout(()=>runJanitor().catch(()=>{}),15000); setInterval(()=>runJanitor().catch(()=>{}),6*60*60*1000); }
+      Modules.registry.push('photoStore'); Modules.health.photoStore = true;
+      return Object.freeze({ save, getActive, getArchived, findStudent, getStudentHistory, deletePhoto, runJanitor, scheduleJanitor, saveGradeList, getAllGradeLists });
+    })();
+
+    // ═══════════════════════════════════════════════
+    // 31. ARCHIVE UI (Arama + Geçmiş + Arşiv)
+    // ═══════════════════════════════════════════════
+    Modules.archiveUI = (() => {
+      function showStudentSearch(c) {
+        if(!c) return; const dom=Modules.dom, r=dom.el('div',{});
+        const inp=dom.el('input',{class:'settings-input',placeholder:'🔍 Öğrenci adı veya numarası...',style:{marginBottom:'12px'},onInput:async(e)=>{const q=e.target.value.trim();Modules.dom.clear(r);if(q.length<2)return;const res=await Modules.photoStore.findStudent(q).catch(()=>[]);if(!res.length){r.appendChild(dom.el('div',{style:{color:'var(--text-muted)',fontSize:'13px',padding:'12px 0'}},['Sonuç yok']));return;}res.forEach(p=>{r.appendChild(dom.el('div',{style:{background:'var(--panel)',borderRadius:'10px',padding:'12px 14px',marginBottom:'8px',cursor:'pointer',display:'flex',justifyContent:'space-between',alignItems:'center'},onClick:()=>showStudentHistory(p.studentKey)},[dom.el('div',{},[dom.el('div',{style:{fontWeight:'700',fontSize:'14px'}},[p.studentName||'?']),dom.el('div',{style:{fontSize:'12px',color:'var(--text-muted)',marginTop:'2px'}},[p.className+(p.studentNo?' · No: '+p.studentNo:'')])]),dom.el('span',{style:{fontSize:'18px'}},['→'])]));});}});
+        Modules.dom.clear(c); c.appendChild(inp); c.appendChild(r);
+      }
+      async function showStudentHistory(sk) {
+        const photos=await Modules.photoStore.getStudentHistory(sk).catch(()=>[]);
+        if(!photos.length){Modules.eventBus.emit('ui:toast',{msg:'Fotoğraf bulunamadı',type:'info'});return;}
+        const dom=Modules.dom;
+        const body=dom.el('div',{style:{maxHeight:'70vh',overflowY:'auto'}},photos.map(p=>{const age=Math.floor((Date.now()-p.capturedAt)/(1000*60*60*24));return dom.el('div',{style:{marginBottom:'12px',border:'1px solid rgba(255,255,255,.1)',borderRadius:'10px',overflow:'hidden'}},[dom.el('img',{src:p.dataUrl,style:{width:'100%',display:'block',maxHeight:'200px',objectFit:'contain',background:'#000'}}),dom.el('div',{style:{padding:'10px 12px',fontSize:'13px',color:'var(--text-muted)'}},[(p.examNo?p.examNo+'. Yazılı · ':'')+(p.status==='archived'?'🗄 Arşiv':'✅ '+age+' gün')+(p.totalScore!=null?' · '+p.totalScore+'/'+(p.maxScore||100):'')])]);}));
+        Modules.eventBus.emit('ui:modal',{title:(photos[0].studentName||'Öğrenci')+' — Geçmiş',content:body,confirmText:'Kapat'});
+      }
+      async function showArchive(c) {
+        if(!c) return; const dom=Modules.dom; Modules.dom.clear(c);
+        const photos=await Modules.photoStore.getArchived().catch(()=>[]);
+        if(!photos.length){c.appendChild(dom.el('div',{style:{color:'var(--text-muted)',fontSize:'13px',padding:'20px 0',textAlign:'center'}},['Arşivde henüz fotoğraf yok']));return;}
+        const g={}; photos.forEach(p=>{const k=p.className||'?';if(!g[k])g[k]=[];g[k].push(p);});
+        Object.entries(g).forEach(([cls,items])=>{
+          c.appendChild(dom.el('div',{style:{fontWeight:'700',fontSize:'14px',margin:'16px 0 8px',color:'#93c5fd'}},[cls]));
+          items.forEach(p=>{const age=Math.floor((Date.now()-p.capturedAt)/(1000*60*60*24));c.appendChild(dom.el('div',{style:{display:'flex',gap:'10px',alignItems:'center',padding:'8px 0',borderBottom:'1px solid rgba(255,255,255,.05)',cursor:'pointer'},onClick:()=>showStudentHistory(p.studentKey)},[dom.el('img',{src:p.dataUrl,style:{width:'60px',height:'60px',objectFit:'cover',borderRadius:'8px',background:'#000',flexShrink:'0'}}),dom.el('div',{style:{flex:'1'}},[dom.el('div',{style:{fontWeight:'600',fontSize:'13px'}},[p.studentName||'?']),dom.el('div',{style:{fontSize:'12px',color:'var(--text-muted)',marginTop:'2px'}},[(p.examNo?p.examNo+'.Yazılı · ':'')+age+' gün önce'+(p.totalScore!=null?' · '+p.totalScore+' puan':'')])]),dom.el('button',{style:{background:'rgba(239,68,68,.15)',border:'none',color:'#fca5a5',borderRadius:'6px',padding:'6px 10px',fontSize:'12px',cursor:'pointer',flexShrink:'0'},onClick:(e)=>{e.stopPropagation();Modules.eventBus.emit('ui:modal',{title:'Sil?',content:dom.el('p',{style:{margin:'0'}},[p.studentName+' — kalıcı silinecek.']),confirmText:'Sil',cancelText:'İptal',onConfirm:async()=>{await Modules.photoStore.deletePhoto(p.id);Modules.eventBus.emit('ui:toast',{msg:'Silindi',type:'success'});showArchive(c);}});}},['🗑'])]));});
+        });
+      }
+      Modules.registry.push('archiveUI'); Modules.health.archiveUI = true;
+      return Object.freeze({ showStudentSearch, showStudentHistory, showArchive });
+    })();
+
+    // ═══════════════════════════════════════════════
     // ★★★ YENİ BLOKLAR SON ★★★
     // ═══════════════════════════════════════════════════════════════════
     // ═══════════════════════════════════════════════════════════════════
@@ -1803,8 +2310,688 @@
       return Object.freeze({ init });
     })();
 
-    // SİSTEMİ ATEŞLE
-    document.addEventListener('DOMContentLoaded', () => { Modules.app.init(); });
+    // ═══════════════════════════════════════════════════════════════════
+    // 28. UI CONTROLLER (Ekran Yönetimi, Kamera, OCR Akışı, PDF)
+    // ───────────────────────────────────────────────────────────────────
+    // AMAÇ: Tüm buton mantığı, ekran geçişleri, kamera pipeline,
+    //       OCR akışı, sınıf listesi, PDF export.
+    // BAĞIMSIZLIK: Tüm Modules.*'ı kullanır ama onları DEĞİŞTİRMEZ.
+    //              Bu blok kaldırılsa motor çalışmaya devam eder.
+    // ═══════════════════════════════════════════════════════════════════
+    Modules.uiController = (() => {
+
+      // ── Durum ──────────────────────────────────────────────────────
+      let currentMode = 'key';          // 'key' | 'student'
+      let captureStream = null;         // MediaStream
+      let captureStopGuide = null;      // captureGuide stop fn
+      let captureStopFrame = null;      // captureFrame stop fn
+      let answerKey = null;             // OCR'dan gelen cevap anahtarı [{questionNo,answer,maxScore}]
+      let pendingImageDataUrl = null;   // önizlemede bekleyen görüntü
+      let lastEvaluation = null;        // son değerlendirme sonucu
+      let lastStudentMeta = null;       // son öğrenci meta {name,no,class,examNo,period}
+      let facingMode = 'environment';   // 'environment' | 'user'
+      const settings = loadSettings();
+
+      // ── Ayarlar (localStorage yok → config'de saklayalım) ──────────
+      function loadSettings() {
+        try {
+          const raw = sessionStorage.getItem('maarif_settings');
+          return raw ? JSON.parse(raw) : {};
+        } catch { return {}; }
+      }
+      function saveSettings(obj) {
+        Object.assign(settings, obj);
+        try { sessionStorage.setItem('maarif_settings', JSON.stringify(settings)); } catch {}
+        // Worker URL'yi config'e de yaz
+        if (obj.workerUrl && Modules.config) {
+          // config freeze'li ama AI_WORKER'ı runtime'da override edebiliriz:
+          window._workerUrlOverride = obj.workerUrl;
+        }
+      }
+
+      // ── Ekran geçişi ───────────────────────────────────────────────
+      const SCREENS = ['home','capture','preview','result','list','settings'];
+      function goTo(id) {
+        SCREENS.forEach(s => {
+          const el = document.getElementById('screen-' + s);
+          if (el) el.classList.toggle('active', s === id);
+        });
+        // Nav highlight
+        document.querySelectorAll('.nav-item').forEach(b => {
+          b.classList.toggle('active', b.dataset.screen === id);
+        });
+        // Kamera: başka ekrana geçince durdur
+        if (id !== 'capture') stopCamera();
+      }
+
+      // ── Premium ekran geçişi ───────────────────────────────────────
+      function dismissPremium() {
+        const el = document.getElementById('premium-entry');
+        if (!el) return;
+        el.style.transition = 'opacity .45s ease, transform .45s ease';
+        el.style.opacity = '0';
+        el.style.transform = 'scale(1.04)';
+        setTimeout(() => el.remove(), 450);
+      }
+
+      // ── Boot tamamlanınca UI'ı aç ──────────────────────────────────
+      function onAppReady() {
+        document.getElementById('boot-screen').classList.add('hidden');
+        document.getElementById('bottom-nav').classList.add('show');
+        // Worker URL ayardan yükle
+        const urlInput = document.getElementById('setting-worker-url');
+        if (urlInput && settings.workerUrl) urlInput.value = settings.workerUrl;
+        if (settings.school) { const el = document.getElementById('setting-school'); if (el) el.value = settings.school; }
+        if (settings.year) { const el = document.getElementById('setting-year'); if (el) el.value = settings.year; }
+        if (settings.period) { const el = document.getElementById('setting-period'); if (el) el.value = settings.period; }
+        updateWorkerStatus();
+        goTo('home');
+        renderStudentList();
+        // Fotoğraf janitor'ı başlat (30 gün dolanlari arşivle)
+        if (Modules.photoStore) Modules.photoStore.scheduleJanitor();
+        // Dönem geçişi kontrolü (yeni yıl/dönem algıla)
+        if (Modules.seasonGuard && settings.year && settings.period) {
+          Modules.seasonGuard.check(settings.year, settings.period).catch(() => {});
+        }
+      }
+
+      // ── Worker URL durumu ──────────────────────────────────────────
+      function updateWorkerStatus() {
+        const url = settings.workerUrl || '';
+        const el = document.getElementById('worker-status');
+        if (!el) return;
+        if (!url) { el.className = 'settings-status none'; el.innerHTML = '<span>○</span><span>URL girilmedi</span>'; }
+        else if (url.startsWith('https://')) { el.className = 'settings-status ok'; el.innerHTML = '<span>✓</span><span>URL ayarlı</span>'; }
+        else { el.className = 'settings-status bad'; el.innerHTML = '<span>✗</span><span>Geçersiz URL (https:// ile başlamalı)</span>'; }
+      }
+
+      // ── Kamera ────────────────────────────────────────────────────
+      async function startCamera() {
+        stopCamera();
+        const video = document.getElementById('capture-video');
+        try {
+          captureStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } },
+            audio: false
+          });
+          video.srcObject = captureStream;
+          await video.play();
+          // Capture guide
+          if (Modules.captureGuide) captureStopGuide = Modules.captureGuide.start(video);
+          // Capture frame
+          if (Modules.captureFrame) captureStopFrame = Modules.captureFrame.attach(video);
+        } catch (err) {
+          Modules.eventBus.emit('ui:toast', { msg: 'Kamera açılamadı: ' + err.message, type: 'error' });
+          goTo('home');
+        }
+      }
+      function stopCamera() {
+        if (captureStopGuide) { captureStopGuide(); captureStopGuide = null; }
+        if (captureStopFrame) { captureStopFrame(); captureStopFrame = null; }
+        if (captureStream) { captureStream.getTracks().forEach(t => t.stop()); captureStream = null; }
+        const video = document.getElementById('capture-video');
+        if (video) { video.srcObject = null; }
+      }
+      function captureFrame() {
+        const video = document.getElementById('capture-video');
+        const canvas = document.getElementById('capture-canvas');
+        if (!video || !canvas || !video.videoWidth) return null;
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0);
+        return canvas.toDataURL('image/jpeg', 0.9);
+      }
+      function openCamera(mode) {
+        currentMode = mode;
+        const title = document.getElementById('capture-mode-title');
+        const sub = document.getElementById('capture-mode-sub');
+        if (title) title.textContent = mode === 'key' ? 'Cevap Kağıdını Çekin' : 'Öğrenci Kağıdını Çekin';
+        if (sub) sub.textContent = mode === 'key' ? 'Öğretmenin çözümlü kağıdı' : 'Öğrencinin ismi görünmeli';
+        goTo('capture');
+        startCamera();
+      }
+      function openFileInput(mode) {
+        currentMode = mode;
+        const inputId = mode === 'key' ? 'file-key' : 'file-scan';
+        document.getElementById(inputId).click();
+      }
+      function handleFileSelect(e) {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => showPreview(ev.target.result);
+        reader.readAsDataURL(file);
+        e.target.value = '';
+      }
+
+      // ── Önizleme ──────────────────────────────────────────────────
+      function showPreview(dataUrl) {
+        pendingImageDataUrl = dataUrl;
+        const img = document.getElementById('preview-img');
+        if (img) img.src = dataUrl;
+        const title = document.getElementById('preview-mode-title');
+        if (title) title.textContent = currentMode === 'key' ? 'Cevap Kağıdı' : 'Öğrenci Kağıdı';
+        goTo('preview');
+      }
+
+      // ── OCR Akışı ─────────────────────────────────────────────────
+      async function processKeyPaper(dataUrl) {
+        if (!checkWorker()) return;
+        Modules.eventBus.emit('ui:loader:show', { msg: 'Cevap anahtarı okunuyor...' });
+        try {
+          const compressed = await Modules.imageUtils.compress(dataUrl);
+          const enhanced = Modules.imagePrep ? await Modules.imagePrep.enhance(compressed, { autoContrast: true }) : compressed;
+
+          // Öğretmen çözümlü kağıdı için özel prompt
+          const schema = {
+            type: 'OBJECT',
+            properties: {
+              questions: { type: 'ARRAY', items: { type: 'OBJECT', properties: {
+                questionNo: { type: 'INTEGER' },
+                answer: { type: 'STRING' },
+                maxScore: { type: 'INTEGER' },
+                bbox: { type: 'ARRAY', items: { type: 'INTEGER' } }
+              }, required: ['questionNo', 'answer', 'maxScore', 'bbox'] } },
+              examTitle: { type: 'STRING' },
+              subject: { type: 'STRING' }
+            }, required: ['questions']
+          };
+          const result = await Modules.ai.request({
+            model: Modules.config.get('OCR_FAST_MODEL'),
+            jsonMode: true, responseSchema: schema, temperature: 0.1,
+            systemPrompt: 'Sen bir sınav kağıdı analiz motorusun. Öğretmenin çözümlü kağıdından cevap anahtarını çıkar. Her sorunun numarasını, cevabını ve puan değerini bul. Puan belirtilmemişse eşit dağıt (toplam 100). bbox: [ymin,xmin,ymax,xmax] 0-1000 arası.',
+            userPrompt: 'Bu öğretmenin çözümlü sınav kağıdı. Cevap anahtarını ve puan dağılımını çıkar.',
+            images: [enhanced]
+          });
+
+          const validated = Modules.ocrValidator.sanitize(result);
+          answerKey = validated.questions.map(q => ({
+            questionNo: q.questionNo,
+            answer: q.answer,
+            maxScore: q.maxScore || Math.floor(100 / validated.questions.length),
+            exactMatch: false   // AI değerlendirmeli (open-ended)
+          }));
+
+          if (answerKey.length === 0) throw new Error('Hiç soru bulunamadı. Daha net çekin.');
+          if (Modules.telemetry) Modules.telemetry.track('key.loaded', { count: answerKey.length });
+
+          // UI güncelle
+          const bar = document.getElementById('key-status-bar');
+          const txt = document.getElementById('key-status-text');
+          const card = document.getElementById('card-scan');
+          if (bar) bar.style.background = 'rgba(16,185,129,.12)', bar.style.borderColor = 'rgba(16,185,129,.3)';
+          if (txt) { txt.style.color = '#6ee7b7'; txt.textContent = `✓ Cevap anahtarı hazır — ${answerKey.length} soru, ${answerKey.reduce((s,q)=>s+q.maxScore,0)} puan`; }
+          if (card) card.style.opacity = '1', card.style.pointerEvents = 'auto';
+          Modules.eventBus.emit('ui:toast', { msg: `Cevap anahtarı yüklendi: ${answerKey.length} soru`, type: 'success' });
+          goTo('home');
+        } catch (err) {
+          Modules.logger.error('Cevap anahtarı okunamadı:', err.message);
+          Modules.eventBus.emit('ui:toast', { msg: 'Hata: ' + err.message, type: 'error' });
+        } finally {
+          Modules.eventBus.emit('ui:loader:hide');
+        }
+      }
+
+      async function processStudentPaper(dataUrl) {
+        if (!checkWorker()) return;
+        if (!answerKey || answerKey.length === 0) {
+          Modules.eventBus.emit('ui:toast', { msg: 'Önce cevap anahtarı yükleyin!', type: 'warning' });
+          goTo('home'); return;
+        }
+        try {
+          const record = await Modules.examEngine.processPaper(dataUrl, answerKey, 'exam-container', 'exam-image', {
+            preprocess: true
+          });
+          if (!record) return;
+
+          // Öğrenci meta bilgilerini oku (isim, numara, sınıf, dönem)
+          Modules.eventBus.emit('ui:loader:show', { msg: 'Öğrenci bilgileri okunuyor...' });
+          lastStudentMeta = await readStudentMeta(dataUrl);
+          lastEvaluation = record.evaluation;
+
+          // Öğrenciyi listeye ekle
+          if (lastStudentMeta) addStudentToList(lastStudentMeta, record.evaluation.totalScore, record.id);
+
+          // BLOK 30 ENTEGRASYONu: Fotoğrafı photoStore'a kaydet (30 gün saklama)
+          if (Modules.photoStore) {
+            const maxScore = record.evaluation.evaluations.reduce((s,q)=>s+q.maxScore,0);
+            Modules.photoStore.save(dataUrl, {
+              studentKey: (lastStudentMeta.studentName||'') + '_' + (lastStudentMeta.studentNo||''),
+              studentName: lastStudentMeta.studentName || '',
+              studentNo: lastStudentMeta.studentNo || '',
+              className: lastStudentMeta.className || '',
+              examNo: lastStudentMeta.examNo || '1',
+              subject: lastStudentMeta.subject || '',
+              year: lastStudentMeta.year || settings.year || '',
+              totalScore: record.evaluation.totalScore,
+              maxScore,
+              examId: record.id
+            }).catch(err => Modules.logger.warn('PhotoStore kayıt hatası:', err.message));
+          }
+
+          showResult(record, lastStudentMeta);
+        } catch (err) {
+          Modules.logger.error('Öğrenci kağıdı hatası:', err.message);
+          Modules.eventBus.emit('ui:toast', { msg: 'Hata: ' + err.message, type: 'error' });
+        } finally {
+          Modules.eventBus.emit('ui:loader:hide');
+        }
+      }
+
+      async function readStudentMeta(dataUrl) {
+        try {
+          const compressed = await Modules.imageUtils.compress(dataUrl, 800, 0.7);
+          const schema = { type: 'OBJECT', properties: {
+            studentName: { type: 'STRING' }, studentNo: { type: 'STRING' },
+            className: { type: 'STRING' }, examNo: { type: 'STRING' },
+            period: { type: 'STRING' }, year: { type: 'STRING' },
+            subject: { type: 'STRING' }, school: { type: 'STRING' }
+          }, required: ['studentName'] };
+          const result = await Modules.ai.request({
+            model: Modules.config.get('OCR_FAST_MODEL'),
+            jsonMode: true, responseSchema: schema, temperature: 0.1,
+            systemPrompt: 'Sen bir öğrenci bilgisi okuma motorusun. Sınav kağıdının üst kısmındaki ad-soyad, okul numarası, sınıf, dönem, yazılı no, ders adı ve yıl bilgilerini bul. Bulamazsan boş bırak.',
+            userPrompt: 'Bu öğrencinin sınav kağıdı. Kağıt başlığındaki bilgileri oku.',
+            images: [compressed]
+          });
+          return result;
+        } catch (err) {
+          Modules.logger.warn('Öğrenci meta okunamadı:', err.message);
+          return { studentName: 'Bilinmeyen Öğrenci', studentNo: '', className: '', examNo: '1' };
+        }
+      }
+
+      // ── Sonuç Ekranı ──────────────────────────────────────────────
+      function showResult(record, meta) {
+        const ev = record.evaluation;
+        // Overlay görselini set et
+        const resultImg = document.getElementById('result-img');
+        if (resultImg) resultImg.src = record.preview;
+
+        // Puan
+        const scoreEl = document.getElementById('result-score');
+        if (scoreEl) {
+          const total = ev.totalScore;
+          const max = ev.evaluations.reduce((s,q)=>s+q.maxScore,0);
+          scoreEl.textContent = total + ' / ' + max;
+          scoreEl.style.color = total >= max*0.85 ? 'var(--success)' : total >= max*0.5 ? 'var(--warning)' : 'var(--danger)';
+        }
+
+        // Meta
+        if (meta) {
+          const n = document.getElementById('result-student-name');
+          const i = document.getElementById('result-exam-info');
+          const c = document.getElementById('result-meta-class');
+          const o = document.getElementById('result-meta-no');
+          if (n) n.textContent = meta.studentName || 'Öğrenci';
+          if (i) i.textContent = [meta.subject, meta.examNo ? meta.examNo + '.Yazılı' : '', meta.year].filter(Boolean).join(' · ');
+          if (c) c.textContent = meta.className || '';
+          if (o) o.textContent = meta.studentNo ? 'No: ' + meta.studentNo : '';
+        }
+
+        // Soru tablosu
+        const tbody = document.getElementById('result-table');
+        if (tbody) {
+          tbody.innerHTML = '';
+          ev.evaluations.forEach(q => {
+            const row = document.createElement('div');
+            row.className = 'result-row';
+            const badge = q.status === 'correct' ? 'badge-correct' : q.status === 'partial' ? 'badge-partial' : 'badge-wrong';
+            const label = q.status === 'correct' ? 'Doğru' : q.status === 'partial' ? 'Kısmi' : 'Yanlış';
+            const corrected = q.teacherCorrected ? ' ✏️' : '';
+            row.innerHTML = `
+              <span style="color:var(--text-muted);min-width:56px;">Soru ${q.questionNo}</span>
+              <span class="result-badge ${badge}">${label}${corrected}</span>
+              <span style="font-weight:700;">${q.score}/${q.maxScore}</span>
+            `;
+            tbody.appendChild(row);
+          });
+        }
+
+        // Overlay yeniden çiz (result ekranındaki konumda)
+        setTimeout(() => {
+          const imgEl = document.getElementById('result-img');
+          if (imgEl && imgEl.complete) {
+            Modules.overlay.render('exam-container', ev, imgEl);
+          } else if (imgEl) {
+            imgEl.onload = () => Modules.overlay.render('exam-container', ev, imgEl);
+          }
+        }, 100);
+
+        goTo('result');
+      }
+
+      // ── Öğrenci Listesi ───────────────────────────────────────────
+      // sessionStorage'da saklıyoruz (sayfa kapatılana kadar)
+      function getStudentList() {
+        try {
+          const raw = sessionStorage.getItem('maarif_students');
+          return raw ? JSON.parse(raw) : {};
+        } catch { return {}; }
+      }
+      function saveStudentList(list) {
+        try { sessionStorage.setItem('maarif_students', JSON.stringify(list)); } catch {}
+      }
+      function addStudentToList(meta, score, examId) {
+        const list = getStudentList();
+        const cls = meta.className || 'Bilinmeyen Sınıf';
+        if (!list[cls]) list[cls] = [];
+        const examNo = meta.examNo || '1';
+        const key = meta.studentNo || meta.studentName || examId;
+        const existing = list[cls].find(s => (s.no && s.no === meta.studentNo) || (s.name === meta.studentName));
+        if (existing) {
+          existing['exam' + examNo] = score;
+          existing.lastExamId = examId;
+        } else {
+          const entry = { name: meta.studentName || '?', no: meta.studentNo || '', lastExamId: examId };
+          entry['exam' + examNo] = score;
+          list[cls].push(entry);
+        }
+        // Okul numarasına göre sırala
+        list[cls].sort((a, b) => (a.no || '').localeCompare(b.no || '', 'tr', { numeric: true }));
+        saveStudentList(list);
+        renderStudentList();
+        // List kartını aktif et
+        const card = document.getElementById('card-list');
+        if (card) card.style.opacity = '1', card.style.pointerEvents = 'auto';
+      }
+
+      function renderStudentList() {
+        const list = getStudentList();
+        const classes = Object.keys(list);
+        const tabsEl = document.getElementById('class-tabs');
+        const tbody = document.getElementById('student-tbody');
+        const empty = document.getElementById('list-empty');
+        const sub = document.getElementById('list-subtitle');
+
+        if (!tabsEl || !tbody) return;
+
+        if (classes.length === 0) {
+          if (empty) empty.style.display = 'block';
+          if (sub) sub.textContent = 'Henüz kağıt okunmadı';
+          return;
+        }
+        if (empty) empty.style.display = 'none';
+
+        // Tab'ları oluştur
+        tabsEl.innerHTML = '';
+        const activeClass = tabsEl.dataset.active || classes[0];
+        classes.forEach(cls => {
+          const btn = document.createElement('button');
+          btn.textContent = cls;
+          const isActive = cls === (tabsEl.dataset.active || classes[0]);
+          btn.style.cssText = 'padding:8px 16px;border-radius:20px;border:1px solid rgba(255,255,255,' + (isActive?'.3':'.1') + ');background:' + (isActive?'rgba(59,130,246,.2)':'transparent') + ';color:white;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;';
+          btn.onclick = () => { tabsEl.dataset.active = cls; renderStudentList(); };
+          tabsEl.appendChild(btn);
+        });
+
+        const students = list[activeClass || classes[0]] || [];
+        if (sub) sub.textContent = (activeClass || classes[0]) + ' · ' + students.length + ' öğrenci';
+
+        // Tüm yazılıları bul
+        const examNos = new Set();
+        students.forEach(s => { Object.keys(s).forEach(k => { if (k.startsWith('exam')) examNos.add(k.replace('exam','')); }); });
+        const sortedExams = [...examNos].sort();
+
+        // Header güncelle
+        const th1 = document.getElementById('th-exam1');
+        const th2 = document.getElementById('th-exam2');
+        if (th1) th1.textContent = sortedExams[0] ? sortedExams[0] + '.Yazılı' : '1.Yazılı';
+        if (th2) th2.textContent = sortedExams[1] ? sortedExams[1] + '.Yazılı' : '2.Yazılı';
+
+        // Satırları çiz
+        tbody.innerHTML = '';
+        students.forEach((s, i) => {
+          const tr = document.createElement('tr');
+          tr.style.borderBottom = '1px solid rgba(255,255,255,.05)';
+          const e1 = s['exam' + (sortedExams[0] || '1')];
+          const e2 = s['exam' + (sortedExams[1] || '2')];
+          const avg = [e1, e2].filter(v => v != null).reduce((a,b,_,arr)=>a+b/arr.length,0);
+          const scoreColor = (v) => v==null?'var(--text-muted)':v>=85?'var(--success)':v>=50?'var(--warning)':'var(--danger)';
+          tr.innerHTML = `
+            <td style="padding:10px 16px;color:var(--text-muted);font-size:12px;">${s.no || (i+1)}</td>
+            <td style="padding:10px 8px;font-size:13px;font-weight:500;">${Modules.utils.escapeHTML(s.name)}</td>
+            <td style="padding:10px 8px;text-align:center;font-weight:700;color:${scoreColor(e1)}">${e1!=null?e1:'—'}</td>
+            <td style="padding:10px 8px;text-align:center;font-weight:700;color:${scoreColor(e2)}">${e2!=null?e2:'—'}</td>
+            <td style="padding:10px 16px;text-align:center;font-weight:700;color:${scoreColor(avg||null)}">${avg?Math.round(avg):'—'}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      // ── PDF Export ────────────────────────────────────────────────
+      function exportPDF() {
+        const list = getStudentList();
+        const classes = Object.keys(list);
+        if (classes.length === 0) { Modules.eventBus.emit('ui:toast', { msg: 'Henüz öğrenci listesi yok', type: 'warning' }); return; }
+
+        const school = settings.school || 'Maarif Okulu';
+        const year = settings.year || '2025/2026';
+        const period = settings.period || '1. Dönem';
+
+        let html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+        <title>${school} — Not Çizelgesi</title>
+        <style>
+          body{font-family:system-ui,sans-serif;margin:0;padding:20px;color:#111;}
+          h1{font-size:18px;margin:0 0 4px;}
+          h2{font-size:15px;margin:0 0 20px;color:#555;font-weight:400;}
+          table{width:100%;border-collapse:collapse;margin-bottom:40px;font-size:13px;}
+          th{background:#f1f5f9;padding:8px 12px;text-align:left;border:1px solid #e2e8f0;font-weight:600;}
+          td{padding:8px 12px;border:1px solid #e2e8f0;}
+          .cls-title{font-size:15px;font-weight:700;margin:24px 0 8px;border-bottom:2px solid #334155;padding-bottom:6px;}
+          @media print{body{padding:0;}}
+        </style></head><body>
+        <h1>${school}</h1>
+        <h2>${year} · ${period} · Not Çizelgesi</h2>`;
+
+        classes.forEach(cls => {
+          const students = list[cls];
+          const examNos = new Set();
+          students.forEach(s => Object.keys(s).forEach(k => { if (k.startsWith('exam')) examNos.add(k.replace('exam','')); }));
+          const exams = [...examNos].sort();
+
+          html += `<div class="cls-title">${Modules.utils.escapeHTML(cls)} Sınıfı — ${students.length} Öğrenci</div>
+          <table><thead><tr>
+            <th style="width:60px;">Sıra No</th>
+            <th>Okul No</th>
+            <th>Ad Soyad</th>
+            ${exams.map(e=>`<th style="text-align:center;">${e}.Yazılı</th>`).join('')}
+            <th style="text-align:center;">Ortalama</th>
+          </tr></thead><tbody>`;
+
+          students.forEach((s, i) => {
+            const scores = exams.map(e => s['exam'+e]);
+            const valid = scores.filter(v => v != null);
+            const avg = valid.length ? Math.round(valid.reduce((a,b)=>a+b,0)/valid.length) : '—';
+            html += `<tr>
+              <td style="text-align:center;">${i+1}</td>
+              <td>${Modules.utils.escapeHTML(s.no||'')}</td>
+              <td><strong>${Modules.utils.escapeHTML(s.name)}</strong></td>
+              ${scores.map(v=>`<td style="text-align:center;font-weight:600;color:${v==null?'#999':v>=85?'#059669':v>=50?'#d97706':'#dc2626'}">${v!=null?v:'Girmedi'}</td>`).join('')}
+              <td style="text-align:center;font-weight:700;">${avg}</td>
+            </tr>`;
+          });
+          html += '</tbody></table>';
+        });
+
+        html += `<div style="margin-top:40px;font-size:11px;color:#999;border-top:1px solid #e2e8f0;padding-top:12px;">
+          Oluşturuldu: ${new Date().toLocaleString('tr-TR')} · Maarif Dijital Öğretmen Asistanı
+        </div></body></html>`;
+
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `${school.replace(/\s/g,'_')}_not_cizelgesi.html`;
+        document.body.appendChild(a); a.click();
+        setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+        Modules.eventBus.emit('ui:toast', { msg: 'PDF/HTML çizelge indirildi.', type: 'success' });
+      }
+
+      // ── Worker kontrolü ───────────────────────────────────────────
+      function checkWorker() {
+        const url = window._workerUrlOverride || settings.workerUrl || '';
+        if (!url || !url.startsWith('https://')) {
+          Modules.eventBus.emit('ui:modal', {
+            title: 'Worker URL Eksik',
+            content: 'Lütfen Ayarlar ekranından Cloudflare Worker URL\'nizi girin.',
+            confirmText: 'Ayarlara Git',
+            onConfirm: () => goTo('settings')
+          });
+          return false;
+        }
+        // Override config (freeze'li ama window üzerinden proxy)
+        window._workerUrlOverride = url;
+        return true;
+      }
+
+      // ── Olay Dinleyiciler ─────────────────────────────────────────
+      function bindEvents() {
+        // Premium
+        const premBtn = document.getElementById('premium-enter-btn');
+        if (premBtn) premBtn.addEventListener('click', dismissPremium);
+
+        // Alt nav
+        document.querySelectorAll('.nav-item').forEach(btn => {
+          btn.addEventListener('click', () => goTo(btn.dataset.screen));
+        });
+
+        // Ana menü butonları
+        safeClick('btn-settings', () => goTo('settings'));
+        safeClick('btn-load-key-camera', () => openCamera('key'));
+        safeClick('btn-load-key-file', () => openFileInput('key'));
+        safeClick('btn-scan-camera', () => openCamera('student'));
+        safeClick('btn-scan-file', () => openFileInput('student'));
+        safeClick('btn-goto-list', () => { renderStudentList(); goTo('list'); });
+
+        // Dosya input'ları
+        const fileKey = document.getElementById('file-key');
+        if (fileKey) fileKey.addEventListener('change', handleFileSelect);
+        const fileScan = document.getElementById('file-scan');
+        if (fileScan) fileScan.addEventListener('change', handleFileSelect);
+
+        // Kamera ekranı
+        safeClick('btn-capture-back', () => { stopCamera(); goTo('home'); });
+        safeClick('btn-shutter', () => {
+          const dataUrl = captureFrame();
+          if (dataUrl) { stopCamera(); showPreview(dataUrl); }
+        });
+        safeClick('btn-flip-camera', () => {
+          facingMode = facingMode === 'environment' ? 'user' : 'environment';
+          startCamera();
+        });
+        safeClick('btn-capture-gallery', () => {
+          stopCamera();
+          openFileInput(currentMode);
+        });
+        safeClick('btn-capture-torch', () => {
+          // Torch — sadece destekleyen cihazlarda
+          if (!captureStream) return;
+          const track = captureStream.getVideoTracks()[0];
+          if (!track || !track.getCapabilities) return;
+          const caps = track.getCapabilities();
+          if (caps.torch) {
+            const settings = track.getSettings();
+            track.applyConstraints({ advanced: [{ torch: !settings.torch }] }).catch(() => {});
+          } else {
+            Modules.eventBus.emit('ui:toast', { msg: 'Bu cihazda flaş desteklenmiyor', type: 'info' });
+          }
+        });
+
+        // Önizleme ekranı
+        safeClick('btn-preview-back', () => { pendingImageDataUrl = null; goTo('home'); });
+        safeClick('btn-preview-retake', () => { pendingImageDataUrl = null; openCamera(currentMode); });
+        safeClick('btn-preview-confirm', () => {
+          const dataUrl = pendingImageDataUrl;
+          if (!dataUrl) return;
+          pendingImageDataUrl = null;
+          if (currentMode === 'key') processKeyPaper(dataUrl);
+          else processStudentPaper(dataUrl);
+        });
+
+        // Sonuç ekranı
+        safeClick('btn-result-back', () => goTo('home'));
+        safeClick('btn-result-next', () => { Modules.overlay.clear(); openCamera('student'); });
+        safeClick('btn-result-save', () => {
+          Modules.eventBus.emit('ui:toast', { msg: 'Kayıt zaten yapıldı ✓', type: 'success' });
+        });
+        safeClick('btn-result-diag', () => {
+          if (Modules.diagnostics) Modules.diagnostics.downloadReport();
+        });
+
+        // Liste ekranı
+        safeClick('btn-list-back', () => goTo('home'));
+        safeClick('btn-export-pdf', exportPDF);
+        // Öğrenci arama
+        safeClick('btn-search-student', () => {
+          const panel = document.getElementById('student-search-panel');
+          const table = document.getElementById('student-table');
+          if (!panel) return;
+          const isOpen = panel.style.display === 'block';
+          panel.style.display = isOpen ? 'none' : 'block';
+          if (table) table.style.display = isOpen ? 'table' : 'none';
+          if (!isOpen && Modules.archiveUI) Modules.archiveUI.showStudentSearch(panel);
+        });
+        // Arşiv
+        safeClick('btn-open-archive', () => {
+          if (!Modules.archiveUI) return;
+          const panel = document.getElementById('student-search-panel');
+          const table = document.getElementById('student-table');
+          if (panel) panel.style.display = 'block';
+          if (table) table.style.display = 'none';
+          Modules.archiveUI.showArchive(panel);
+        });
+        // Dönem geçişi kontrolü ayarlar kaydedilince yapılır (onAppReady'de de)
+
+        // Ayarlar
+        safeClick('btn-settings-back', () => goTo('home'));
+        safeClick('btn-save-settings', () => {
+          const url = document.getElementById('setting-worker-url')?.value?.trim() || '';
+          const school = document.getElementById('setting-school')?.value?.trim() || '';
+          const year = document.getElementById('setting-year')?.value?.trim() || '';
+          const period = document.getElementById('setting-period')?.value?.trim() || '';
+          saveSettings({ workerUrl: url, school, year, period });
+          updateWorkerStatus();
+          Modules.eventBus.emit('ui:toast', { msg: 'Ayarlar kaydedildi', type: 'success' });
+          goTo('home');
+        });
+        safeClick('btn-diag-download', () => {
+          if (Modules.diagnostics) Modules.diagnostics.downloadReport();
+          else Modules.eventBus.emit('ui:toast', { msg: 'Diagnostics modülü bulunamadı', type: 'error' });
+        });
+      }
+
+      function safeClick(id, fn) {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('click', fn);
+      }
+
+      // ── Başlat ────────────────────────────────────────────────────
+      function init() {
+        // Ayarlar yüklenince worker URL'yi AI modülüne iletmek için fetch monkey-patch
+        // (Modules.config freeze'li, bu yüzden fetch interceptor kullanalım)
+        const origFetch = window.fetch;
+        window.fetch = function(url, opts) {
+          if (typeof url === 'string' && url.includes('YOUR-WORKER') && window._workerUrlOverride) {
+            url = window._workerUrlOverride;
+          }
+          return origFetch.call(this, url, opts);
+        };
+        bindEvents();
+      }
+
+      Modules.registry.push('uiController'); Modules.health.uiController = true;
+      return Object.freeze({ init, onAppReady, goTo, exportPDF, renderStudentList });
+    })();
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // UI Controller'ı başlat (event binding)
+      if (Modules.uiController) Modules.uiController.init();
+      // Motoru ateşle
+      Modules.app.init().then(() => {
+        // Boot tamamlanınca UI'ı aç
+        if (Modules.uiController) Modules.uiController.onAppReady();
+      });
+    });
   </script>
 </body>
 </html>
